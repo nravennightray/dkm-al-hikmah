@@ -1,0 +1,126 @@
+//
+// Font //
+//
+$font-family-primary: 'Open Sans', sans-serif;
+$font-family-playfair: 'Playfair Display', serif;
+$font-family-poppins: 'Poppins', sans-serif;
+$font-family-nunito: 'Nunito', sans-serif;
+$font-family-outfit: 'Outfit', sans-serif;
+$font-weight-black: 900;
+$font-weight-extra-bold: 800;
+$font-weight-bold: 700;
+$font-weight-semi-bold: 600; 
+$font-weight-medium: 500;
+$font-weight-regular: 400;
+$font-weight-light: 300;
+$font-weight-extra-light: 200;
+$font-weight-thin: 100;
+
+//
+// Colors //
+//
+$colors: (
+  "white": (255, 255, 255),
+  "dark": (18, 21, 24),
+  "blue": (0, 147, 233),
+  "purple": (183, 33, 255),
+  "golden-yellow": (255, 182, 87),
+  "pink-edge": (254, 154, 182),
+  "very-peri": (102, 103, 171),
+  "turquoise": (76, 191, 166),
+  "spring-red": (190, 31, 53),
+  "tan": (210, 180, 140),
+  "aqua": (3, 212, 216)
+);
+@function get-color($color-name, $opacity: null) {
+  @if not map-has-key($colors, $color-name) {
+    @warn "Color `#{$color-name}` not found in $colors map.";
+    @return null;
+  }
+
+  $color: map-get($colors, $color-name);
+
+  @if $opacity == null {
+    @return rgb(nth($color, 1), nth($color, 2), nth($color, 3));
+  } @else {
+    @return rgba(nth($color, 1), nth($color, 2), nth($color, 3), $opacity);
+  }
+}
+$color-white: map-get($colors, "white");
+$color-dark: map-get($colors, "dark");
+$color-dark-lighter: rgb(25, 28, 31);
+$color-primary: #7C7C7C;
+$color-primary-lighter: #AAAAAA;
+$color-green: #24963e;
+$color-green-lighter: #28a745;
+$color-red: #c62f3e;
+$color-red-lighter: #dc3545;
+
+//
+// Social Colors //
+//
+$color-facebook: #1877F2;
+$color-twitter: #1DA1F2;
+$color-instagram: #E4405F;
+$color-linkedin: #0A66C2;
+$color-youtube: #CD201F;
+$color-pinterest: #BD081C;
+$color-skype: #00AFF0;
+$color-dribbble: #EA4C89;
+$color-snapchat: #FFFC00;
+$color-whatsapp: #25D366;
+
+//
+// Gradient Colors //
+//
+$gradient-1: linear-gradient(19deg, #21D4FD 0%, #B721FF 100%);
+$gradient-2: linear-gradient(45deg, #A9C9FF 0%, #FFBBEC 100%);
+$gradient-3: linear-gradient(43deg, #4158D0 0%, #C850C0 46%, #FFCC70 100%);
+$gradient-4: linear-gradient(90deg, #00DBDE 0%, #FC00FF 100%);
+$gradient-5: linear-gradient(45deg, #FBDA61 0%, #FF5ACD 100%);
+$gradient-6: linear-gradient(160deg, #0093E9 0%, #80D0C7 100%);
+$gradient-7: linear-gradient(90deg, #007990 0%, #6CE5C0 100%);
+
+//
+// Background colors //
+//
+$bg-dark: rgb(24, 28, 32);
+$bg-dark-lighter: rgb(32, 36, 40);
+$bg-dark-lightest: rgb(40, 44, 48);
+$bg-gray: rgb(238, 242, 246);
+$bg-gray-lighter: rgb(241, 245, 249);
+$bg-gray-lightest: rgb(244, 248, 252);
+
+$bg-light-blue: #e2f2fb;
+$bg-light-purple: #F5E4FF;
+$bg-light-pink-edge: #FEE6ED;
+$bg-light-golden-yellow: #FFEFDB;
+$bg-light-very-peri: #EDEDF5;
+$bg-light-turquoise: #E2F4F0;
+$bg-light-spring-red: #F7E5E7;
+$bg-light-tan: #f6f0e8;
+$bg-light-aqua: #CEF6F7;
+
+$bg-color-blue: #0093E9;
+$bg-color-purple: #B721FF;
+$bg-color-pink-edge: #FE9AB6;
+$bg-color-golden-yellow: #FFB657;
+$bg-color-very-peri: #6667AB;
+$bg-color-turquoise: #4cbfa6;
+$bg-color-spring-red: #BE1F35;
+$bg-color-tan: #d2b48c;
+$bg-color-aqua: #03D4D8;
+
+//
+// Border colors //
+//
+$border-gray: rgb(226, 230, 234);
+
+//
+// Button colors //
+//
+$button-dark: rgb(24, 28, 32);
+$button-dark-lighter: rgb(32, 36, 40);
+$button-gray: rgb(228, 232, 236);
+$button-gray-lighter: rgb(238, 242, 246);
+$button-gray-darker: rgb(220, 224, 228);

@@ -1,0 +1,215 @@
+//
+// Text Link Styles //
+//
+*[class*='text-link-'] {
+	color: get-color("dark", 0.9);
+	&:hover, &:focus {
+		color: get-color("dark");
+	}
+}
+.text-link-1 {
+	&:hover { text-decoration: underline; }
+}
+.text-link-2 {
+	position: relative;
+	&:before {
+		content: '';
+		position: absolute;
+		bottom: -2px;
+		background: get-color("dark", 0.9);
+		width: 0;
+		height: 1px;
+		@include transition(all 0.24s cubic-bezier(0.165, 0.84, 0.44, 1));
+	}
+	&:hover {
+		&:before {
+			width: 100%;
+		}
+	}
+}
+.text-link-2 {
+	&:before { left: 0; }
+}
+.text-link-3 {
+	position: relative;
+	&:before {
+		content: '';
+		position: absolute;
+		bottom: -2px;
+		left: 0;
+		@include transform(translateY(3px));
+		opacity: 0;
+		background: get-color("dark", 0.9);
+		width: 100%;
+		height: 1px;
+		@include transition(linear 0.1s);
+	}
+	&:hover {
+		&:before {
+			@include transform(translateY(0));
+			opacity: 1;
+		}
+	}
+}
+.text-link-4 {
+	position: relative;
+	&:before, &:after {
+		content: '';
+		position: absolute;
+		bottom: -2px;
+		height: 1px;
+		@include transition(all 0.24s cubic-bezier(0.165, 0.84, 0.44, 1));
+	}
+	&:before {
+		left: 0;
+		background: get-color("dark", 0.2);
+		width: 100%;
+	}
+	&:after {
+		background: get-color("dark", 0.9);
+		width: 0;
+	}
+	&:hover {
+		&:after {
+			width: 100%;
+		}
+	}
+}
+.text-link-4 {
+	&:after { left: 0; }
+}
+.text-link-5 {
+	position: relative;
+	&:before, &:after {
+		content: '';
+		position: absolute;
+		bottom: -2px;
+		left: 0;
+		width: 100%;
+		height: 1px;
+		@include transition(linear 0.1s);
+	}
+	&:before {
+		background: get-color("dark", 0.2);
+	}
+	&:after {
+		opacity: 0;
+		@include transform(translateY(3px));
+		background: get-color("dark", 0.9);
+	}
+	&:hover {
+		&:before {
+			opacity: 0;
+		}
+		&:after {
+			@include transform(translateY(0));
+			opacity: 1;
+		}
+	}
+}
+.text-link-6 {
+	position: relative;
+	&:before {
+		content: '';
+		position: absolute;
+		bottom: 4px;
+		left: 0;
+		background: get-color("dark", 0.2);
+		width: 0;
+		height: 6px;
+		@include transition(all 0.24s cubic-bezier(0.165, 0.84, 0.44, 1));
+	}
+	&:hover {
+		&:before {
+			width: 100%;
+		}
+	}
+}
+
+.bg-black, 
+[class*='bg-dark'], 
+[class*='bg-gradient-'], 
+[class*='bg-color-'] {
+	*[class*='text-link-'] {
+		color: get-color("white", 0.8);
+		&:hover, &:focus {
+			color: white;
+		}
+	}
+	.text-link-2, .text-link-3 {
+		&:before { background: white; }
+	}
+	.text-link-4, .text-link-5 {
+		&:before { background: get-color("white", 0.3); }
+		&:after { background: white; }
+	}
+	.text-link-6 {
+		&:before { background: get-color("white", 0.3); }
+	}
+}
+
+[class*='link-social-'] {
+	&:hover {
+		opacity: 0.7;
+	}
+}
+.link-social-facebook {
+	color: $color-facebook;
+	&:hover {
+		color: $color-facebook;
+	}
+}
+.link-social-twitter {
+	color: $color-twitter;
+	&:hover {
+		color: $color-twitter;
+	}
+}
+.link-social-instagram {
+	color: $color-instagram;
+	&:hover {
+		color: $color-instagram;
+	}
+}
+.link-social-linkedin {
+	color: $color-linkedin;
+	&:hover {
+		color: $color-linkedin;
+	}
+}
+.link-social-youtube {
+	color: $color-youtube;
+	&:hover {
+		color: $color-youtube;
+	}
+}
+.link-social-pinterest {
+	color: $color-pinterest;
+	&:hover {
+		color: $color-pinterest;
+	}
+}
+.link-social-skype {
+	color: $color-skype;
+	&:hover {
+		color: $color-skype;
+	}
+}
+.link-social-dribbble {
+	color: $color-dribbble;
+	&:hover {
+		color: $color-dribbble;
+	}
+}
+.link-social-snapchat {
+	color: $color-snapchat;
+	&:hover {
+		color: $color-snapchat;
+	}
+}
+.link-social-whatsapp {
+	color: $color-whatsapp;
+	&:hover {
+		color: $color-whatsapp;
+	}
+}

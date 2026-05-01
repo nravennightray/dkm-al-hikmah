@@ -1,0 +1,215 @@
+//
+// Form Styles //
+//
+input:not(.form-check-input), 
+textarea {
+	background: transparent;
+	width: 100%;
+	border: 1px solid get-color("dark", 0.1);
+	margin-bottom: 1rem;
+	padding: 15px 20px;
+	box-shadow: none;
+	font: 400 15px $font-family-primary;
+	line-height: 1.4;
+	@include transition(ease-out 0.16s);
+	&:focus, &:active {
+		outline: 0;
+		box-shadow: none;
+	}
+}
+textarea {
+	height: 140px;
+}
+input:not(.form-check-input), textarea, .form-control {
+	color: $color-primary;
+	&::-webkit-input-placeholder { color: $color-primary-lighter; }
+	&::-moz-placeholder { color: $color-primary-lighter; }
+	&:-ms-placeholder { color: $color-primary-lighter; }
+	&::-ms-placeholder { color: $color-primary-lighter; }
+	&::placeholder { color: $color-primary-lighter; }
+	&:focus {
+		border-color: get-color("dark", 0.2);
+	}
+}
+.form-control {
+	background: transparent;
+	height: auto;
+	border: 1px solid get-color("dark", 0.1);
+	border-radius: 0;
+	padding: 15px 20px;
+	font: 400 15px $font-family-primary;
+	line-height: 1.4;
+	&:focus {
+		background: transparent;
+		box-shadow: none;
+	}
+	&:read-only {
+		background: $button-gray;
+		border: 0;
+	}
+	&.form-control-sm {
+		padding: 10px 15px;
+		font-size: 0.875rem;
+	}
+	&.form-control-lg {
+		font-size: 1.25rem;
+	}
+}
+.form-control-plaintext {
+	border: 0;
+}
+.form-check-input:disabled ~ .form-check-label {
+	color: $color-primary-lighter;
+}
+.required {
+	&:after {
+		content: '*';
+		padding-left: 3px;
+	}
+}
+
+//
+// Select //
+//
+select {
+	margin-bottom: 1rem;
+}
+.custom-select {
+	background-color: transparent;
+	width: auto;
+	min-width: 160px;
+	height: auto;
+	border-radius: 0;
+	padding: 15px 20px;
+	border-color: get-color("dark", 0.1);
+	color: $color-primary;
+	font: 400 15px $font-family-primary;
+	line-height: 1.4;
+	@include transition(ease-out 0.16s);
+	&:focus {
+		border-color: get-color("dark", 0.2);
+		outline: 0;
+		box-shadow: none;
+	}
+	&.custom-select-sm {
+		height: auto;
+		padding: 10px 15px;
+		font-size: 0.875rem;
+	}
+	&.custom-select-lg {
+		height: auto;
+		padding: 15px 20px;
+		font-size: 1.25rem;
+	}
+	&.select-fullwidth {
+		width: 100%;
+	}
+}
+//
+// Form Styles 2,3,4 //
+//
+.form-style-3, 
+.form-style-4 {
+	input, textarea, .custom-select, .form-control {
+		margin-bottom: 20px;
+		padding: 0 0 10px;
+		border-top-width: 0;
+		border-right-width: 0;
+		border-bottom-width: 1px;
+		border-left-width: 0;
+	}
+}
+.form-style-2, 
+.form-style-4 {
+	input, textarea, .custom-select, .form-control {
+		&:focus {
+			border-color: get-color("dark", 0.9);
+		}
+	}
+}
+
+//
+// Form Style 5 //
+//
+.form-style-5 {
+	input, textarea, .custom-select, .form-control {
+		background: $bg-gray;
+		border: 0;
+		&:focus {
+			background: $button-gray-lighter;
+		}
+	}
+}
+[class*='bg-gray'] {
+	.form-style-5 {
+		input, textarea, .custom-select, .form-control {
+			background: white;
+			&:focus {
+				background: white;
+			}
+		}
+	}
+}
+
+//
+// Forms on Dark background //
+//
+.bg-black, 
+[class*='bg-dark'], 
+[class*='bg-gradient-'], 
+[class*='bg-color-'] {
+	input, textarea, .form-control {
+		background: transparent;
+		border-color: get-color("white", 0.2);
+		color: get-color("white", 0.7);
+		&::-webkit-input-placeholder { color: get-color("white", 0.5); }
+		&::-moz-placeholder { color: get-color("white", 0.5); }
+		&:-ms-placeholder { color: get-color("white", 0.5); }
+		&::-ms-placeholder { color: get-color("white", 0.5); }
+		&::placeholder { color: get-color("white", 0.5); }
+		&:focus {
+			border-color: get-color("white", 0.3);
+		}
+	}
+	.custom-select {
+		background: transparent;
+		border-color: get-color("white", 0.2);
+		color: get-color("white", 0.7);
+		&:focus {
+			border-color: get-color("white", 0.3);
+		}
+	}
+	.form-style-2, 
+	.form-style-4 {
+		input, textarea, .custom-select, .form-control {
+			&:focus {
+				border-color: white;
+			}
+		}
+	}
+	.form-style-5 {
+		input, textarea, .custom-select, .form-control {
+			background: get-color("white", 0.1);
+			border: 0;
+			&:focus {
+				background: get-color("white", 0.2);
+			}
+		}
+	}
+}
+
+//
+// Contact Form Styles //
+//
+.submit-result {
+	span {
+		display: none;
+		@include transition(ease-out 0.2s);
+		&.show-result {
+			margin-top: 30px;
+			display: block;
+		}
+		&#success { color: $color-green; }
+		&#error { color: $color-red; }
+	}
+}
