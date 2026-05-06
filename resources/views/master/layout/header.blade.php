@@ -15,42 +15,42 @@
 				<div class="header-menu">
 					<ul class="nav">
 						<li class="nav-item">
-							<a class="nav-link" href="#">Profil</a>
+							<a class="nav-link" href="{{ route('profil.index') }}">Profil</a>
                             <ul class="nav-dropdown">
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Sejarah</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Visi dan Misi</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Struktur Organisasi</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Kepengurusan</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('profil.sejarah') }}">Sejarah</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('profil.visi-misi') }}">Visi dan Misi</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('profil.struktur') }}">Struktur Organisasi</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('profil.kepengurusan') }}">Kepengurusan</a></li>
 							</ul>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" href="#">Kegiatan</a>
+							<a class="nav-link" href="{{ route('kegiatan.index') }}">Kegiatan</a>
 							<ul class="nav-dropdown">
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Kajian Ikhwan</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Kajian Akhwwat</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Gema Rahmah</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Idul Qurban</a></li>
-                                <li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Khitanan Massal</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Santunan Yatim & D</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('kegiatan.category', 'kajian-ikhwan') }}">Kajian Ikhwan</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('kegiatan.category', 'kajian-akhwat') }}">Kajian Akhwat</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('kegiatan.category', 'gema-rahmah') }}">Gema Rahmah</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('kegiatan.category', 'idul-qurban') }}">Idul Qurban</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('kegiatan.category', 'khitanan-massal') }}">Khitanan Massal</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('kegiatan.category', 'santunan-yatim') }}">Santunan Yatim & Dhuafa</a></li>
 							</ul>
 						</li>
                         <li class="nav-item">
-							<a class="nav-link" href="#">Laporan Keuangan</a>
+							<a class="nav-link" href="{{ route('laporan.index') }}">Laporan Keuangan</a>
 							<ul class="nav-dropdown">
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Laporan Kas</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Tabungan Umroh</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Tabungan Qurban</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('laporan.show', 'laporan-kas') }}">Laporan Kas</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('laporan.show', 'tabungan-umroh') }}">Tabungan Umroh</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('laporan.show', 'tabungan-qurban') }}">Tabungan Qurban</a></li>
 							</ul>
 						</li>
                         <li class="nav-item">
-							<a class="nav-link" href="#">Musala PLant</a>
+							<a class="nav-link" href="{{ route('musala.index') }}">Musala Plant</a>
 							<ul class="nav-dropdown">
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Musala Kantor</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="#">Musala Plant</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('musala.show', 'musala-kantor') }}">Musala Kantor</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('musala.show', 'musala-plant') }}">Musala Plant</a></li>
 							</ul>
 						</li>
                         <li class="nav-item">
-							<a class="nav-link" href="#">Infaq</a>
+							<a class="nav-link" href="{{ route('infaq.index') }}">Infaq</a>
 						</li>
 					</ul>
 				</div>
