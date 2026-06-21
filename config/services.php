@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'google' => [
+        'service_account' => storage_path('app/google-service-account.json'),
+    ],
+
 ];

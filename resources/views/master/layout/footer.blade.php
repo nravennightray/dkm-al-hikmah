@@ -34,9 +34,9 @@
                 <div class="col-12 col-sm-6 col-lg-3">
                     <h6 class="font-small fw-medium uppercase text-white mb-3">Kontak & Lokasi</h6>
                     <ul class="list-unstyled small">
-                        <li class="mb-2"><i class="bi bi-geo-alt me-2 text-success"></i> Kawasan Industri Plant, Indonesia</li>
-                        <li class="mb-2"><i class="bi bi-envelope me-2 text-success"></i> dkm.alhikmah@company.com</li>
-                        <li class="mb-2"><i class="bi bi-whatsapp me-2 text-success"></i> +62 812 3456 7890</li>
+                        <li class="mb-2"><i class="bi bi-geo-alt me-2 text-dkm-blue"></i> Kawasan Industri Plant, Indonesia</li>
+                        <li class="mb-2"><i class="bi bi-envelope me-2 text-dkm-blue"></i> dkm.alhikmah@company.com</li>
+                        <li class="mb-2"><i class="bi bi-whatsapp me-2 text-dkm-blue"></i> +62 812 3456 7890</li>
                     </ul>
                 </div>
             </div><!-- end row -->
@@ -48,7 +48,7 @@
         <div class="container">
             <div class="row align-items-center g-2 g-lg-3">
                 <div class="col-12 col-md-6 text-center text-md-start">
-                    <p class="mb-0 small">&copy; 2026 <strong>DKM Al-Hikmah</strong>. Built with <i class="bi bi-heart-fill text-danger"></i> by Naomi.</p>
+                    <p class="mb-0 small">&copy; 2026 <strong>DKM Al-Hikmah</strong>. Built with <i class="bi bi-heart-fill text-danger"></i> KKN IPWIJA</p>
                 </div>
                 <div class="col-12 col-md-6 text-center text-md-end">
                     <ul class="list-inline mb-0">

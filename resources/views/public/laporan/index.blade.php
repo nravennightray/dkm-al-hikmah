@@ -18,7 +18,7 @@
 @endsection
 
 @section('content')
-<div class="section-xl" style="background: linear-gradient(180deg, #0a2e1d 0%, #198754 100%);">
+<div class="section-xl" style="background: linear-gradient(180deg, rgba(30, 64, 175, 0.98) 0%, rgba(37, 99, 235, 0.95) 55%, rgba(14, 165, 233, 0.92) 100%);">
     <div class="container text-center pt-5">
         <h1 class="fw-normal text-white display-4">Laporan Keuangan</h1>
         <p class="text-white-50">Transparansi pengelolaan dana umat secara real-time dan terbuka.</p>

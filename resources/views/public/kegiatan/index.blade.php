@@ -4,54 +4,89 @@
 
 @section('css')
 <style>
-    .hover-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.08) !important;
-        background-color: #f0fdf4 !important;
+    .activity-card {
+        padding: 1.75rem;
+        border-radius: 18px;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+        transition: all 0.25s ease;
     }
-    .transition {
-        transition: all 0.3s ease;
+
+    .activity-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(37, 99, 235, 0.25);
+        box-shadow: 0 12px 28px rgba(37, 99, 235, 0.10);
+    }
+
+    .activity-icon {
+        color: #2563eb;
+        font-size: 1.8rem;
+        margin-bottom: 1rem;
+    }
+
+    .activity-link {
+        color: #2563eb;
+        font-size: 0.85rem;
+        font-weight: 700;
+    }
+
+    .activity-card:hover .activity-link {
+        color: #1e40af;
     }
 </style>
 @endsection
 
 @section('content')
-<div class="section-xl" style="background: linear-gradient(180deg, #0a2e1d 0%, #198754 100%);">
-    <div class="container text-center pt-5">
-        <h1 class="fw-normal text-white display-4">Kegiatan Kami</h1>
-        <p class="text-white-50">Program rutin dan temporer untuk memakmurkan masjid dan umat.</p>
+
+<div class="section-xl position-relative overflow-hidden"
+     style="background: linear-gradient(180deg, rgba(30, 64, 175, 0.98) 0%, rgba(37, 99, 235, 0.95) 55%, rgba(14, 165, 233, 0.92) 100%);">
+
+    <div class="container position-relative text-center pt-5">
+        <div class="d-inline-flex align-items-center px-4 py-2 mb-4 rounded-pill"
+             style="background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.28); backdrop-filter: blur(10px);">
+            <i class="fas fa-calendar-alt me-2 text-white"></i>
+            <span class="font-small uppercase letter-spacing-1 text-white">
+                Program DKM
+            </span>
+        </div>
+
+        <h1 class="fw-bold text-white display-4">Kegiatan Kami</h1>
+
+        <p class="text-white mt-3 mb-0">
+            Program rutin dan temporer untuk memakmurkan masjid dan umat.
+        </p>
     </div>
 </div>
 
-<div class="section bg-light-gray">
+<div class="section" style="background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);">
     <div class="container">
         <div class="row g-4">
-            {{-- Category Card Helper --}}
-            @php
-                $categories = [
-                    ['name' => 'Kajian Ikhwan', 'slug' => 'kajian-ikhwan', 'icon' => 'fa-hands-helping', 'desc' => 'Program pembinaan khusus untuk jamaah laki-laki.'],
-                    ['name' => 'Kajian Akhwat', 'slug' => 'kajian-akhwat', 'icon' => 'fa-female', 'desc' => 'Majelis ilmu dan silaturahmi khusus jamaah perempuan.'],
-                    ['name' => 'Gema Rahmah', 'slug' => 'gema-rahmah', 'icon' => 'fa-microphone', 'desc' => 'Kegiatan syiar Islam dan festival keagamaan.'],
-                    ['name' => 'Idul Qurban', 'slug' => 'idul-qurban', 'icon' => 'fa-sheep', 'desc' => 'Pengelolaan dan pendistribusian hewan qurban tahunan.'],
-                    ['name' => 'Khitanan Massal', 'slug' => 'khitanan-massal', 'icon' => 'fa-child', 'desc' => 'Bakti sosial khitanan bagi anak-anak yang membutuhkan.'],
-                    ['name' => 'Santunan Yatim', 'slug' => 'santunan-yatim', 'icon' => 'fa-heart', 'desc' => 'Penyaluran bantuan dan kepedulian bagi anak yatim & dhuafa.'],
-                ];
-            @endphp
 
             @foreach($categories as $cat)
-            <div class="col-md-6 col-lg-4">
-                <a href="{{ route('kegiatan.category', $cat['slug']) }}" class="text-decoration-none">
-                    <div class="p-4 bg-white border-radius shadow-sm h-100 hover-card transition border-bottom border-success border-3">
-                        <div class="text-success mb-3">
-                            <i class="fas {{ $cat['icon'] }} fa-2x"></i>
+                <div class="col-md-6 col-lg-4">
+                    <a href="{{ route('kegiatan.category', $cat['slug']) }}" class="text-decoration-none">
+                        <div class="activity-card h-100">
+                            <div class="activity-icon">
+                                <i class="fas {{ $cat['icon'] }}"></i>
+                            </div>
+
+                            <h4 class="text-dark fw-bold mb-2">
+                                {{ $cat['name'] }}
+                            </h4>
+
+                            <p class="text-muted small mb-3">
+                                {{ $cat['desc'] }}
+                            </p>
+
+                            <span class="activity-link">
+                                Lihat Program <i class="fas fa-arrow-right ms-1"></i>
+                            </span>
                         </div>
-                        <h4 class="text-dark fw-normal">{{ $cat['name'] }}</h4>
-                        <p class="text-muted small mb-3">{{ $cat['desc'] }}</p>
-                        <span class="text-success small fw-bold">Lihat Program <i class="fas fa-arrow-right ms-1"></i></span>
-                    </div>
-                </a>
-            </div>
+                    </a>
+                </div>
             @endforeach
+
         </div>
     </div>
 </div>

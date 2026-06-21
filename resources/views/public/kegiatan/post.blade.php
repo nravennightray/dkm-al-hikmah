@@ -1,17 +1,114 @@
 @extends('master.layout.app')
 
-@section('title', ucwords(str_replace('-', ' ', $slug)) . ' - ' . ucwords(str_replace('-', ' ', $category)))
+@section('title', ($post['title'] ?? ucwords(str_replace('-', ' ', $slug))) . ' - DKM Al Hikmah')
+
+@section('css')
+<style>
+    .breadcrumb-item + .breadcrumb-item::before {
+        color: rgba(255, 255, 255, 0.55) !important;
+        content: "/" !important;
+    }
+
+    .breadcrumb-item a:hover {
+        color: #fff !important;
+        text-decoration: underline;
+    }
+
+    .post-hero {
+        background: linear-gradient(
+            180deg,
+            rgba(30, 64, 175, 0.92) 0%,
+            rgba(37, 99, 235, 0.86) 55%,
+            rgba(14, 165, 233, 0.78) 100%
+        );
+    }
+
+    .post-image-placeholder {
+        min-height: 360px;
+        background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+        border: 1px solid rgba(37, 99, 235, 0.12);
+        color: #2563eb;
+    }
+
+    .post-meta i {
+        color: #2563eb;
+    }
+
+    .post-content {
+        line-height: 1.9;
+    }
+
+    .post-content p {
+        margin-bottom: 1.2rem;
+    }
+
+    .post-quote {
+        background: #eff6ff;
+        border-left: 4px solid #2563eb;
+        color: #334155;
+    }
+
+    .btn-outline-dkm {
+        color: #2563eb;
+        border-color: #2563eb;
+    }
+
+    .btn-outline-dkm:hover {
+        color: #ffffff;
+        background-color: #2563eb;
+        border-color: #2563eb;
+    }
+</style>
+@endsection
 
 @section('content')
-<div class="section-sm" style="background: linear-gradient(180deg, #0a2e1d 0%, #198754 100%);">
+
+@php
+    $title = $post['title'] ?? ucwords(str_replace('-', ' ', $slug));
+    $date = $post['date'] ?? null;
+    $image = $post['image'] ?? null;
+    $excerpt = $post['excerpt'] ?? null;
+    $content = $post['content'] ?? null;
+    $quote = $post['quote'] ?? null;
+@endphp
+
+<div class="section-sm post-hero">
     <div class="container pt-5">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="/" class="text-white-50">Beranda</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('kegiatan.category', $category) }}" class="text-white-50">{{ ucwords(str_replace('-', ' ', $category)) }}</a></li>
-                <li class="breadcrumb-item active text-white" aria-current="page">Detail Artikel</li>
-            </ol>
-        </nav>
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-9">
+                <h1 class="fw-bold text-white display-5 mb-3">
+                    {{ $title }}
+                </h1>
+
+                <nav aria-label="breadcrumb" class="d-flex justify-content-center mb-4">
+                    <ol class="breadcrumb justify-content-center mb-0">
+                        <li class="breadcrumb-item">
+                            <a href="/" class="text-white-50 text-decoration-none">Beranda</a>
+                        </li>
+
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('kegiatan.index') }}" class="text-white-50 text-decoration-none">Kegiatan</a>
+                        </li>
+
+                        <li class="breadcrumb-item">
+                            <a href="{{ route('kegiatan.category', $currentCategory['slug']) }}" class="text-white-50 text-decoration-none">
+                                {{ $currentCategory['name'] }}
+                            </a>
+                        </li>
+
+                        <li class="breadcrumb-item active text-white" aria-current="page">
+                            {{ $title }}
+                        </li>
+                    </ol>
+                </nav>
+
+                @if(! empty($excerpt))
+                    <p class="text-white mb-0">
+                        {{ $excerpt }}
+                    </p>
+                @endif
+            </div>
+        </div>
     </div>
 </div>
 
@@ -19,33 +116,60 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <h1 class="fw-normal mb-3">{{ ucwords(str_replace('-', ' ', $slug)) }}</h1>
-                <div class="d-flex align-items-center mb-4 text-muted">
-                    <span class="me-3"><i class="far fa-calendar-alt me-1"></i> 10 Mei 2026</span>
-                    <span><i class="far fa-folder me-1"></i> {{ ucwords(str_replace('-', ' ', $category)) }}</span>
+
+                <div class="post-meta d-flex flex-wrap align-items-center mb-4 text-muted">
+                    @if(! empty($date))
+                        <span class="me-3">
+                            <i class="far fa-calendar-alt me-1"></i>
+                            {{ $date }}
+                        </span>
+                    @endif
+
+                    <span>
+                        <i class="far fa-folder me-1"></i>
+                        {{ $currentCategory['name'] }}
+                    </span>
                 </div>
 
                 <div class="mb-5 shadow-sm border-radius overflow-hidden">
-                    <img src="{{ asset('assets/images/dkm/dkm-pic-1.jpeg') }}" class="img-fluid w-100" alt="Detail">
+                    @if(! empty($image) && ! empty($post['id_kegiatan']))
+                        <img src="{{ asset('image/kegiatan/' . $post['id_kegiatan'] . '/' . $image) }}"
+                            class="img-fluid w-100"
+                            alt="{{ $title }}">
+                    @else
+                        <div class="post-image-placeholder">
+                            Belum ada gambar
+                        </div>
+                    @endif
                 </div>
 
-                <div class="content-area lead-drop-cap">
-                    <p>Ini adalah isi detail dari kegiatan <strong>{{ $slug }}</strong>. Saat ini data masih bersifat dinamis berdasarkan URL.</p>
-                    <p>Nantinya, bagian ini akan menampilkan teks lengkap, hadits-hadits yang dibahas, serta kesimpulan dari kajian yang telah dilaksanakan.</p>
-                    
-                    <blockquote class="p-4 bg-light border-start border-success border-4 my-4 italic">
-                        "Barangsiapa yang menempuh jalan untuk mencari ilmu, maka Allah akan mudahkan baginya jalan menuju surga." (HR. Muslim)
-                    </blockquote>
+                <div class="post-content lead-drop-cap">
+                    @if(! empty($content))
+                        @foreach(preg_split("/\r\n|\n|\r/", $content) as $paragraph)
+                            @if(trim($paragraph) !== '')
+                                <p>{{ $paragraph }}</p>
+                            @endif
+                        @endforeach
+                    @else
+                        <p>
+                            Konten lengkap untuk kegiatan ini belum tersedia.
+                        </p>
+                    @endif
 
-                    <p>Semoga kegiatan ini membawa keberkahan bagi seluruh jamaah DKM Al Hikmah.</p>
+                    @if(! empty($quote))
+                        <blockquote class="post-quote p-4 border-radius my-4 italic">
+                            "{{ $quote }}"
+                        </blockquote>
+                    @endif
                 </div>
 
                 <hr class="my-5">
-                
-                <!-- Back Button -->
-                <a href="{{ route('kegiatan.category', $category) }}" class="btn btn-outline-success">
-                    <i class="fas fa-arrow-left me-2"></i> Kembali ke {{ ucwords(str_replace('-', ' ', $category)) }}
+
+                <a href="{{ route('kegiatan.category', $currentCategory['slug']) }}" class="btn btn-outline-dkm">
+                    <i class="fas fa-arrow-left me-2"></i>
+                    Kembali ke {{ $currentCategory['name'] }}
                 </a>
+
             </div>
         </div>
     </div>

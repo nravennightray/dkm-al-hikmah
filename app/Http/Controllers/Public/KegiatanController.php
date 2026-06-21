@@ -3,46 +3,117 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Services\GoogleSheetService;
 
 class KegiatanController extends Controller
 {
-    public function index() 
+    public function __construct(
+        private GoogleSheetService $sheetService
+    ) {}
+
+    private function getSheetCollection(string $sheetName)
     {
-        return view('public.kegiatan.index');
+        $rows = collect(
+            $this->sheetService->getSheet(
+                env('POSTS_SPREADSHEET_ID'),
+                $sheetName
+            )
+        );
+
+        if ($rows->isEmpty()) {
+            return collect();
+        }
+
+        $header = collect($rows->shift())
+            ->map(fn ($column) => trim($column))
+            ->filter()
+            ->values();
+
+        return $rows
+            ->filter(fn ($row) => collect($row)->filter()->isNotEmpty())
+            ->map(function ($row) use ($header) {
+                $row = collect($row);
+
+                if ($row->count() < $header->count()) {
+                    $row = $row->pad($header->count(), null);
+                }
+
+                if ($row->count() > $header->count()) {
+                    $row = $row->take($header->count());
+                }
+
+                return $header
+                    ->combine($row)
+                    ->toArray();
+            })
+            ->values();
     }
-    public function showCategory($category) 
+
+    private function getAllCategories()
     {
-        $kegiatans = [
-            [
-                'title' => 'Kajian Rutin: Adab Terhadap Orang Tua',
-                'slug' => 'adab-orang-tua',
-                'date' => '10 Mei 2026',
-                'excerpt' => 'Membahas pentingnya berbakti kepada orang tua dalam pandangan Islam...',
-                'image' => 'dkm-pic-1.jpeg'
-            ],
-            [
-                'title' => 'Thaharah: Menyempurnakan Wudhu',
-                'slug' => 'menyempurnakan-wudhu',
-                'date' => '03 Mei 2026',
-                'excerpt' => 'Sesi praktek cara berwudhu yang sesuai dengan sunnah Nabi SAW...',
-                'image' => 'dkm-pic-2.jpg'
-            ],
-            [
-                'title' => 'Kajian Kitab Riyadhus Shalihin',
-                'slug' => 'riyadhus-shalihin-part-1',
-                'date' => '26 April 2026',
-                'excerpt' => 'Pembahasan bab ikhlas dan niat dalam setiap amal perbuatan...',
-                'image' => 'dkm-pic-1.jpeg'
-            ],
-        ];
-
-        $kegiatans = json_decode(json_encode($kegiatans));
-
-        return view('public.kegiatan.category', compact('kegiatans', 'category'));
+        return $this->getSheetCollection('kategori');
     }
 
-    public function showDetail($category, $slug) {
-        return view('public.kegiatan.post', compact('category', 'slug'));
+    public function index()
+    {
+        $categories = $this->getAllCategories();
+
+        return view(
+            'public.kegiatan.index',
+            compact('categories')
+        );
+    }
+
+    public function showCategory(string $categorySlug)
+    {
+        $categories = $this->getAllCategories();
+
+        $currentCategory = $categories->firstWhere(
+            'slug',
+            $categorySlug
+        );
+
+        if (! $currentCategory) {
+            abort(404);
+        }
+
+        $kegiatans = $this->getSheetCollection('kegiatan')
+            ->where('category_slug', $categorySlug)
+            ->values();
+
+        return view(
+            'public.kegiatan.category',
+            [
+                'kegiatans' => $kegiatans,
+                'currentCategory' => $currentCategory,
+            ]
+        );
+    }
+
+    public function showDetail(string $category, string $slug)
+    {
+        $categories = $this->getAllCategories();
+
+        $currentCategory = $categories->firstWhere('slug', $category);
+
+        if (! $currentCategory) {
+            abort(404);
+        }
+
+        $post = $this->getSheetCollection('kegiatan')
+            ->where('category_slug', $category)
+            ->where('slug', $slug)
+            ->first();
+
+        if (! $post) {
+            abort(404);
+        }
+
+        return view('public.kegiatan.post', [
+            'category' => $category,
+            'slug' => $slug,
+            'post' => $post,
+            'currentCategory' => $currentCategory,
+        ]);
     }
 }
