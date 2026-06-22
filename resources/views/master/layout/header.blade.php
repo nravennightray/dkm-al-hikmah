@@ -55,9 +55,9 @@
                         <li class="nav-item">
 							<a class="nav-link" href="{{ route('laporan.index') }}">Laporan Keuangan</a>
 							<ul class="nav-dropdown">
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('laporan.show', 'laporan-kas') }}">Laporan Kas</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('laporan.show', 'tabungan-umroh') }}">Tabungan Umroh</a></li>
-								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('laporan.show', 'tabungan-qurban') }}">Tabungan Qurban</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('laporan.index', 'laporan-kas') }}">Laporan Kas</a></li>
+								{{-- <li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('laporan.show', 'tabungan-umroh') }}">Tabungan Umroh</a></li>
+								<li class="nav-dropdown-item"><a class="nav-dropdown-link" href="{{ route('laporan.show', 'tabungan-qurban') }}">Tabungan Qurban</a></li> --}}
 							</ul>
 						</li>
                         <li class="nav-item">

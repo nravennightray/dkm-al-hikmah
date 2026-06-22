@@ -4,32 +4,74 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Services\GoogleSheetService;
+use Illuminate\Support\Collection;
 
 class LaporanController extends Controller
 {
-    public function index() 
+    public function index(GoogleSheetService $sheetService)
     {
-        $summaries = [
-            ['title' => 'Kas Masjid', 'slug' => 'laporan-kas', 'balance' => 'Rp 25.450.000', 'last_update' => 'Mei 2026'],
-            ['title' => 'Tabungan Umroh', 'slug' => 'tabungan-umroh', 'balance' => 'Rp 12.000.000', 'last_update' => 'Mei 2026'],
-            ['title' => 'Tabungan Qurban', 'slug' => 'tabungan-qurban', 'balance' => 'Rp 8.750.000', 'last_update' => 'Mei 2026'],
-        ];
+        $spreadsheetId = config('google.spreadsheet_id');
 
-        $summaries = json_decode(json_encode($summaries));
+        $kasRows = $this->getSheetCollection($sheetService, $spreadsheetId, 'kas_tabungan');
 
-        return view('public.laporan.index', compact('summaries'));
+        $transactions = $this->getSheetCollection($sheetService, $spreadsheetId, 'trx_tabungan')
+            ->filter(function ($trx) {
+                return strtolower($trx['fund_type'] ?? '') === 'kas'
+                    && strtolower($trx['action_type'] ?? '') === 'expense'
+                    && strtolower($trx['status'] ?? '') === 'approved';
+            })
+            ->sortByDesc('approved_at')
+            ->values();
+
+        $kasBalance = (float) ($kasRows->first()['balance'] ?? 0);
+
+        $totalKeluar = $transactions->sum(fn ($trx) => (float) ($trx['amount'] ?? 0));
+
+        $lastUpdate = $kasRows->first()['updated_at']
+            ?? $transactions->first()['approved_at']
+            ?? '-';
+
+        return view('public.laporan.index', compact(
+            'kasBalance',
+            'totalKeluar',
+            'lastUpdate',
+            'transactions'
+        ));
     }
 
-    public function showReport($type) 
+    private function getSheetCollection(GoogleSheetService $sheetService, string $spreadsheetId, string $sheetName): Collection
     {
-        $reports = [
-            ['date' => '01 Mei 2026', 'desc' => 'Saldo Awal', 'in' => 'Rp 5.000.000', 'out' => '-', 'balance' => 'Rp 5.000.000'],
-            ['date' => '02 Mei 2026', 'desc' => 'Infaq Jumat', 'in' => 'Rp 2.500.000', 'out' => '-', 'balance' => 'Rp 7.500.000'],
-            ['date' => '05 Mei 2026', 'desc' => 'Biaya Kebersihan', 'in' => '-', 'out' => 'Rp 500.000', 'balance' => 'Rp 7.000.000'],
-        ];
+        $rows = collect($sheetService->getSheet($spreadsheetId, $sheetName));
 
-        $reports = json_decode(json_encode($reports));
+        if ($rows->isEmpty()) {
+            return collect();
+        }
 
-        return view('public.laporan.show', compact('reports', 'type'));
+        $header = collect($rows->shift())
+            ->map(fn ($column) => trim($column))
+            ->filter()
+            ->values();
+
+        return $rows
+            ->filter(fn ($row) => collect($row)->filter()->isNotEmpty())
+            ->values()
+            ->map(function ($row, $index) use ($header) {
+                $row = collect($row);
+
+                if ($row->count() < $header->count()) {
+                    $row = $row->pad($header->count(), null);
+                }
+
+                if ($row->count() > $header->count()) {
+                    $row = $row->take($header->count());
+                }
+
+                $data = $header->combine($row)->toArray();
+
+                $data['_row_number'] = $index + 2;
+
+                return $data;
+            });
     }
 }

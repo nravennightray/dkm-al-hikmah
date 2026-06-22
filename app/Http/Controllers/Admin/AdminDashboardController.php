@@ -8,18 +8,108 @@ use Illuminate\Support\Collection;
 
 class AdminDashboardController extends Controller
 {
-    public function __construct(
-        private GoogleSheetService $sheetService
-    ) {}
+    protected GoogleSheetService $sheetService;
+
+    protected string $spreadsheetId;
+
+    public function __construct(GoogleSheetService $sheetService)
+    {
+        $this->sheetService = $sheetService;
+
+        $spreadsheetId = config('google.spreadsheet_id');
+
+        if (! $spreadsheetId) {
+            throw new \Exception('Spreadsheet ID belum diatur. Cek config/google.php dan .env.');
+        }
+
+        $this->spreadsheetId = $spreadsheetId;
+    }
+
+    public function index()
+    {
+        $currentRole = strtolower(session('sheet_user.role') ?? 'karyawan');
+        $isAdmin = in_array($currentRole, ['superadmin', 'admin'], true);
+
+        $kegiatans = $this->getSheetCollection('kegiatan');
+        $categories = $this->getSheetCollection('kategori');
+        $users = $this->getSheetCollection('users');
+        $userBalances = $this->getSheetCollection('users_tabungan');
+        $kasRows = $this->getSheetCollection('kas_tabungan');
+        $transactions = $this->getSheetCollection('trx_tabungan')
+            ->sortByDesc(fn ($trx) => (int) ($trx['id_transaction'] ?? 0))
+            ->values();
+
+        $currentUserId = (string) (session('sheet_user.id_user') ?? '');
+
+        $kasBalance = (float) ($kasRows->first()['balance'] ?? 0);
+
+        $totalQurban = $isAdmin
+            ? $userBalances->sum(fn ($row) => (float) ($row['qurban_balance'] ?? 0))
+            : (float) ($userBalances->firstWhere('id_user', $currentUserId)['qurban_balance'] ?? 0);
+
+        $totalUmrah = $isAdmin
+            ? $userBalances->sum(fn ($row) => (float) ($row['umrah_balance'] ?? 0))
+            : (float) ($userBalances->firstWhere('id_user', $currentUserId)['umrah_balance'] ?? 0);
+
+        $dashboardTransactions = $isAdmin
+            ? $transactions
+            : $transactions
+                ->filter(fn ($trx) => (string) ($trx['target_user_id'] ?? '') === $currentUserId
+                    || (string) ($trx['requested_by_id'] ?? '') === $currentUserId)
+                ->values();
+
+        $pendingApprovals = $transactions
+            ->filter(fn ($trx) => strtolower($trx['status'] ?? '') === 'pending')
+            ->values();
+
+        $financeTabs = [
+            'all' => $dashboardTransactions,
+            'qurban' => $dashboardTransactions
+                ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'qurban')
+                ->values(),
+            'umrah' => $dashboardTransactions
+                ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'umrah')
+                ->values(),
+            'kas' => $dashboardTransactions
+                ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'kas')
+                ->values(),
+        ];
+
+        $financeStats = [
+            'qurban' => $totalQurban,
+            'umrah' => $totalUmrah,
+            'kas' => $kasBalance,
+            'pending_count' => $pendingApprovals->count(),
+        ];
+
+        $stats = [
+            'total_kegiatans' => $kegiatans->count(),
+            'total_categories' => $categories->count(),
+            'active_users' => $users
+                ->filter(fn ($user) => strtolower($user['status'] ?? '') === 'active')
+                ->count(),
+        ];
+
+        $latestKegiatans = $kegiatans
+            ->sortByDesc('date')
+            ->take(5)
+            ->values();
+
+        return view('admin.dashboard.index', compact(
+            'currentRole',
+            'isAdmin',
+            'stats',
+            'latestKegiatans',
+            'categories',
+            'financeStats',
+            'financeTabs',
+            'pendingApprovals'
+        ));
+    }
 
     private function getSheetCollection(string $sheetName): Collection
     {
-        $rows = collect(
-            $this->sheetService->getSheet(
-                env('POSTS_SPREADSHEET_ID'),
-                $sheetName
-            )
-        );
+        $rows = collect($this->sheetService->getSheet($this->spreadsheetId, $sheetName));
 
         if ($rows->isEmpty()) {
             return collect();
@@ -32,7 +122,8 @@ class AdminDashboardController extends Controller
 
         return $rows
             ->filter(fn ($row) => collect($row)->filter()->isNotEmpty())
-            ->map(function ($row) use ($header) {
+            ->values()
+            ->map(function ($row, $index) use ($header) {
                 $row = collect($row);
 
                 if ($row->count() < $header->count()) {
@@ -43,36 +134,11 @@ class AdminDashboardController extends Controller
                     $row = $row->take($header->count());
                 }
 
-                return $header
-                    ->combine($row)
-                    ->toArray();
-            })
-            ->values();
-    }
+                $data = $header->combine($row)->toArray();
 
-    public function index()
-    {
-        $categories = $this->getSheetCollection('kategori');
-        $kegiatans = $this->getSheetCollection('kegiatan');
-        $users = $this->getSheetCollection('users');
+                $data['_row_number'] = $index + 2;
 
-        $stats = [
-            'total_categories' => $categories->count(),
-            'total_kegiatans' => $kegiatans->count(),
-            'total_users' => $users->count(),
-            'active_users' => $users
-                ->filter(fn ($user) => strtolower(trim($user['status'] ?? '')) === 'active')
-                ->count(),
-        ];
-
-        $latestKegiatans = $kegiatans
-            ->reverse()
-            ->take(5)
-            ->values();
-
-        return view('admin.dashboard.index', [
-            'stats' => $stats,
-            'latestKegiatans' => $latestKegiatans,
-        ]);
+                return $data;
+            });
     }
 }

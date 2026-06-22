@@ -21,7 +21,6 @@ Route::prefix('kegiatan')->group(function () {
 });
 
 Route::get('/laporan-keuangan', [LaporanController::class, 'index'])->name('laporan.index');
-Route::get('/laporan-keuangan/{type}', [LaporanController::class, 'showReport'])->name('laporan.show');
 
 Route::get('/musala', [MusalaController::class, 'index'])->name('musala.index');
 Route::get('/musala/{name}', [MusalaController::class, 'show'])->name('musala.show');

@@ -8,8 +8,7 @@
     <meta name="description" content="">
     <meta name="keywords" content="">
 
-    <!-- Favicon -->
-    <link href="{{ asset('assets/images/favicon.png') }}" rel="shortcut icon">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/dkm/dkm-logo-white.png') }}">
 
     <!-- CSS Plugins -->
     <link href="{{ asset('assets/plugins/bootstrap/bootstrap.min.css') }}" rel="stylesheet">

@@ -6,6 +6,7 @@
     <title>@yield('title', 'Admin Dashboard') - DKM AL HIKMAH</title>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/images/dkm/dkm-logo-white.png') }}">
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
