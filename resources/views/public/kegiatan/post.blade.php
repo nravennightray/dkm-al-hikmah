@@ -132,8 +132,12 @@
                 </div>
 
                 <div class="mb-5 shadow-sm border-radius overflow-hidden">
-                    @if(! empty($image) && ! empty($post['id_kegiatan']))
-                        <img src="{{ asset('image/kegiatan/' . $post['id_kegiatan'] . '/' . $image) }}"
+                    @php
+                        $postSlug = $post['slug'] ?? $slug ?? null;
+                    @endphp
+
+                    @if(! empty($image) && ! empty($postSlug))
+                        <img src="{{ asset('image/kegiatan/' . $postSlug . '/' . $image) }}"
                             class="img-fluid w-100"
                             alt="{{ $title }}">
                     @else

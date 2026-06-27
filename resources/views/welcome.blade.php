@@ -21,20 +21,9 @@
 
                         <div class="d-flex gap-3 mt-4">
                             <a href="#about" class="button button-lg button-radius button-white shadow">Tentang Kami</a>
-                            <a href="#activities" class="button button-lg button-radius button-outline-white">Kegiatan Rutin</a>
+                            <a href="#activities" class="button button-lg button-radius button-outline-white">Kegiatan Rutin woy</a>
                         </div>
 
-                        <!-- Small Stat/Badge Row -->
-                        <div class="d-flex align-items-center mt-5 pt-3 border-top border-white-10">
-                            <div class="me-4">
-                                <h4 class="mb-0 text-white">5+</h4>
-                                <span class="font-small text-white-50 uppercase">Program Mingguan</span>
-                            </div>
-                            <div>
-                                <h4 class="mb-0 text-white">1000+</h4>
-                                <span class="font-small text-white-50 uppercase">Jamaah Aktif</span>
-                            </div>
-                        </div>
                     </div>
                 </div><!-- end row -->
             </div><!-- end container -->

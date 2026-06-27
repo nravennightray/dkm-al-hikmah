@@ -121,8 +121,8 @@
                     <div class="card activity-post-card border-0 shadow-sm border-radius overflow-hidden h-100 position-relative">
 
                         <div class="position-relative">
-                            @if(! empty($item['image']) && ! empty($item['id_kegiatan']))
-                                <img src="{{ asset('image/kegiatan/' . $item['id_kegiatan'] . '/' . $item['image']) }}"
+                            @if(! empty($item['image']) && ! empty($item['slug']))
+                                <img src="{{ asset('image/kegiatan/' . $item['slug'] . '/' . $item['image']) }}"
                                     class="card-img-top activity-post-img"
                                     alt="{{ $title }}">
                             @else

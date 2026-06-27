@@ -503,20 +503,14 @@
 
                             <td>
                                 <div class="kegiatan-post">
-                                    @if(! empty($image) && ! empty($idKegiatan))
+                                    @if(! empty($image) && ! empty($slug))
                                         <img src="{{ asset('image/kegiatan/' . $slug . '/' . $image) }}"
                                             class="kegiatan-thumb"
                                             alt="{{ $title }}">
                                     @else
-                                        @if(! empty($image) && ! empty($slug))
-                                            <img src="{{ asset('image/kegiatan/' . $slug . '/' . $image) }}"
-                                                class="kegiatan-thumb"
-                                                alt="{{ $title }}">
-                                        @else
-                                            <div class="kegiatan-thumb-placeholder">
-                                                <i class="bi bi-image"></i>
-                                            </div>
-                                        @endif
+                                        <div class="kegiatan-thumb-placeholder">
+                                            <i class="bi bi-image"></i>
+                                        </div>
                                     @endif
 
                                     <div>
