@@ -34,9 +34,18 @@ class AppServiceProvider extends ServiceProvider
                 )
             );
 
+            $profilNavbar = collect(
+                Cache::remember(
+                    'header_profil_navbar',
+                    now()->addMinutes(10),
+                    fn () => $this->getHeaderProfilNavbar()
+                )
+            );
+
             $view->with([
                 'headerKegiatanCategories' => $categories,
                 'musalaNavbar' => $musalaNavbar,
+                'profilNavbar' => $profilNavbar,
             ]);
         });
     }
@@ -141,5 +150,40 @@ class AppServiceProvider extends ServiceProvider
                     ->isNotEmpty()
             )
             ->values();
+    }
+
+    private function getHeaderProfilNavbar(): array
+    {
+        try {
+            $rows = $this->getSheetRows('profil_menu');
+
+            $columns = [
+                'slug',
+                'title',
+                'description',
+                'icon',
+                'route_name',
+                'sort_order',
+                'status',
+            ];
+
+            return $this->mapSheetRows($rows, $columns)
+                ->filter(fn ($item) =>
+                    !empty($item['title']) &&
+                    !empty($item['route_name']) &&
+                    strtolower($item['status'] ?? 'active') === 'active'
+                )
+                ->sortBy(fn ($item) => (int) ($item['sort_order'] ?? 999))
+                ->map(function ($item) {
+                    return [
+                        'title' => trim((string) ($item['title'] ?? '')),
+                        'route_name' => trim((string) ($item['route_name'] ?? '')),
+                    ];
+                })
+                ->values()
+                ->toArray();
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 }

@@ -1,6 +1,6 @@
 @extends('master.layout.app')
 
-@section('title', 'Visi & Misi - DKM Al Hikmah')
+@section('title', ($page['title'] ?? 'Visi & Misi') . ' - DKM Al Hikmah')
 
 @section('css')
 <style>
@@ -52,6 +52,22 @@
         border-radius: 24px;
         overflow: hidden;
         box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14);
+        background: #f8fafc;
+    }
+
+    .vision-image img {
+        width: 100%;
+        min-height: 360px;
+        object-fit: cover;
+    }
+
+    .vision-image-placeholder {
+        min-height: 360px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        color: #94a3b8;
     }
 
     .core-value-card {
@@ -93,15 +109,54 @@
         background: linear-gradient(135deg, #1e40af, #2563eb, #0ea5e9);
         color: #ffffff;
     }
+
+    .profile-empty {
+        padding: 48px 24px;
+        text-align: center;
+        border-radius: 24px;
+        background: #ffffff;
+        border: 1px solid rgba(37, 99, 235, 0.10);
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+    }
+
+    .profile-empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        border-radius: 22px;
+        background: #eff6ff;
+        color: #2563eb;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
 </style>
 @endsection
 
 @section('content')
 
+@php
+    $title = $page['title'] ?? 'Visi & Misi';
+    $heroBadge = $page['hero_badge'] ?? 'Arah Perjuangan DKM';
+    $heroIcon = $page['hero_icon'] ?? 'fas fa-bullseye';
+
+    $visionLabel = $page['section_label'] ?? 'Visi Kami';
+    $visionTitle = $page['section_title'] ?? 'Terwujudnya Masjid sebagai Pusat Ibadah dan Pemberdayaan Umat yang Mandiri dan Unggul';
+    $visionBody = $page['section_body_1'] ?? '';
+
+    $image = $page['image'] ?? '';
+    $imageUrl = !empty($image)
+        ? asset('image/profil/' . $image)
+        : null;
+
+    $missions = $missions ?? collect();
+    $values = $values ?? collect();
+@endphp
+
 <div class="section-xl position-relative overflow-hidden"
      style="background: linear-gradient(180deg, rgba(30, 64, 175, 0.98) 0%, rgba(37, 99, 235, 0.95) 55%, rgba(14, 165, 233, 0.92) 100%);">
 
-    <!-- Decorative Glow -->
     <div class="position-absolute top-0 start-0 translate-middle rounded-circle"
          style="width: 320px; height: 320px; background: rgba(255,255,255,0.14); filter: blur(70px);">
     </div>
@@ -113,11 +168,15 @@
     <div class="container position-relative text-center pt-5">
         <div class="d-inline-flex align-items-center px-4 py-2 mb-4 rounded-pill"
              style="background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(10px);">
-            <i class="fas fa-bullseye me-2 text-white"></i>
-            <span class="font-small uppercase letter-spacing-1 text-white">Arah Perjuangan DKM</span>
+            <i class="{{ $heroIcon }} me-2 text-white"></i>
+            <span class="font-small uppercase letter-spacing-1 text-white">
+                {{ $heroBadge }}
+            </span>
         </div>
 
-        <h1 class="fw-bold text-white display-4">Visi & Misi</h1>
+        <h1 class="fw-bold text-white display-4">
+            {{ $title }}
+        </h1>
 
         <nav aria-label="breadcrumb" class="mt-3">
             <ol class="breadcrumb justify-content-center mb-0">
@@ -125,7 +184,9 @@
                     <a href="/" class="text-white text-decoration-none opacity-75">Beranda</a>
                 </li>
                 <li class="breadcrumb-item text-white opacity-75">Profil</li>
-                <li class="breadcrumb-item active text-white" aria-current="page">Visi & Misi</li>
+                <li class="breadcrumb-item active text-white" aria-current="page">
+                    {{ $title }}
+                </li>
             </ol>
         </nav>
     </div>
@@ -136,16 +197,18 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <h6 class="font-small uppercase vision-label letter-spacing-1">
-                    Visi Kami
+                    {{ $visionLabel }}
                 </h6>
 
                 <h2 class="fw-bold mb-4">
-                    Terwujudnya Masjid sebagai Pusat Ibadah dan Pemberdayaan Umat yang Mandiri dan Unggul
+                    {{ $visionTitle }}
                 </h2>
 
-                <p class="lead text-muted mb-0">
-                    Menjadikan DKM Al Hikmah bukan hanya tempat sujud, namun juga sumber ilmu, solusi sosial, dan pusat ukhuwah bagi seluruh jamaah di lingkungan Plant dan sekitarnya.
-                </p>
+                @if(!empty($visionBody))
+                    <p class="lead text-muted mb-0">
+                        {{ $visionBody }}
+                    </p>
+                @endif
             </div>
         </div>
     </div>
@@ -163,57 +226,61 @@
                     Langkah Nyata Mencapai Visi
                 </h2>
 
-                <div class="mission-item d-flex mb-3">
-                    <div class="me-3">
-                        <div class="mission-icon rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="fas fa-pray"></i>
+                @forelse($missions as $mission)
+                    @php
+                        $missionIcon = $mission['icon'] ?? 'fas fa-check';
+                        $missionTitle = $mission['title'] ?? '-';
+                        $missionDescription = $mission['description'] ?? '';
+                    @endphp
+
+                    <div class="mission-item d-flex {{ !$loop->last ? 'mb-3' : '' }}">
+                        <div class="me-3">
+                            <div class="mission-icon rounded-circle d-flex align-items-center justify-content-center">
+                                <i class="{{ $missionIcon }}"></i>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h5 class="fw-bold">
+                                {{ $missionTitle }}
+                            </h5>
+
+                            <p class="text-muted mb-0">
+                                {{ $missionDescription }}
+                            </p>
                         </div>
                     </div>
-
-                    <div>
-                        <h5 class="fw-bold">Peningkatan Kualitas Ibadah</h5>
-                        <p class="text-muted mb-0">
-                            Menyelenggarakan kegiatan peribadahan yang sesuai dengan Al-Qur'an dan Sunnah demi kenyamanan jamaah.
-                        </p>
-                    </div>
-                </div>
-
-                <div class="mission-item d-flex mb-3">
-                    <div class="me-3">
-                        <div class="mission-icon rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="fas fa-book-open"></i>
+                @empty
+                    <div class="profile-empty">
+                        <div class="profile-empty-icon">
+                            <i class="fas fa-bullseye"></i>
                         </div>
-                    </div>
 
-                    <div>
-                        <h5 class="fw-bold">Dakwah & Pendidikan</h5>
+                        <h5 class="fw-bold mb-2">
+                            Misi Belum Tersedia
+                        </h5>
+
                         <p class="text-muted mb-0">
-                            Mengembangkan program kajian rutin dan pendidikan Islam bagi anak-anak serta dewasa.
+                            Data misi belum tersedia saat ini.
                         </p>
                     </div>
-                </div>
-
-                <div class="mission-item d-flex">
-                    <div class="me-3">
-                        <div class="mission-icon rounded-circle d-flex align-items-center justify-content-center">
-                            <i class="fas fa-handshake"></i>
-                        </div>
-                    </div>
-
-                    <div>
-                        <h5 class="fw-bold">Pemberdayaan Sosial</h5>
-                        <p class="text-muted mb-0">
-                            Mengelola dana umat secara transparan untuk membantu fakir miskin dan program santunan.
-                        </p>
-                    </div>
-                </div>
+                @endforelse
             </div>
 
             <div class="col-12 col-lg-6">
                 <div class="vision-image">
-                    <img src="{{ asset('assets/images/dkm/dkm-pic-1.jpeg') }}"
-                         alt="Visi Misi DKM"
-                         class="img-full">
+                    @if($imageUrl)
+                        <img src="{{ $imageUrl }}"
+                             alt="{{ $title }}"
+                             class="img-full">
+                    @else
+                        <div class="vision-image-placeholder">
+                            <div class="text-center">
+                                <i class="bi bi-image fs-1"></i>
+                                <div class="small mt-2">No Image Available</div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -228,50 +295,50 @@
                     Prinsip Utama
                 </h6>
 
-                <h3 class="fw-bold">Nilai-Nilai Kami</h3>
+                <h3 class="fw-bold">
+                    Nilai-Nilai Kami
+                </h3>
             </div>
 
-            <div class="col-md-4">
-                <div class="core-value-card">
-                    <div class="core-value-icon">
-                        <i class="fas fa-shield-alt"></i>
+            @forelse($values as $value)
+                @php
+                    $valueIcon = $value['icon'] ?? 'fas fa-star';
+                    $valueTitle = $value['title'] ?? '-';
+                    $valueDescription = $value['description'] ?? '';
+                @endphp
+
+                <div class="col-md-4">
+                    <div class="core-value-card">
+                        <div class="core-value-icon">
+                            <i class="{{ $valueIcon }}"></i>
+                        </div>
+
+                        <h5>
+                            {{ $valueTitle }}
+                        </h5>
+
+                        <p class="font-small mb-0 text-muted">
+                            {{ $valueDescription }}
+                        </p>
                     </div>
-
-                    <h5>Amanah</h5>
-
-                    <p class="font-small mb-0 text-muted">
-                        Menjaga kepercayaan umat dalam pengelolaan dana dan kegiatan masjid.
-                    </p>
                 </div>
-            </div>
+            @empty
+                <div class="col-12">
+                    <div class="profile-empty">
+                        <div class="profile-empty-icon">
+                            <i class="fas fa-stars"></i>
+                        </div>
 
-            <div class="col-md-4">
-                <div class="core-value-card">
-                    <div class="core-value-icon">
-                        <i class="fas fa-people-arrows"></i>
+                        <h5 class="fw-bold mb-2">
+                            Nilai-Nilai Belum Tersedia
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Data nilai-nilai DKM belum tersedia saat ini.
+                        </p>
                     </div>
-
-                    <h5>Inklusif</h5>
-
-                    <p class="font-small mb-0 text-muted">
-                        Terbuka bagi seluruh lapisan masyarakat tanpa memandang latar belakang.
-                    </p>
                 </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="core-value-card">
-                    <div class="core-value-icon">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-
-                    <h5>Transparan</h5>
-
-                    <p class="font-small mb-0 text-muted">
-                        Setiap kegiatan dan aliran dana dapat dipertanggungjawabkan secara jelas.
-                    </p>
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 </div>

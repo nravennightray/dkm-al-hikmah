@@ -110,31 +110,23 @@
                         Profil
                     </a>
 
-                    <ul class="nav-dropdown">
-                        <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('profil.sejarah') }}">
-                                Sejarah
-                            </a>
-                        </li>
+                    @if(!empty($profilNavbar) && $profilNavbar->isNotEmpty())
+                        <ul class="nav-dropdown">
+                            @foreach($profilNavbar as $item)
+                                @php
+                                    $routeName = $item['route_name'] ?? null;
+                                @endphp
 
-                        <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('profil.visi-misi') }}">
-                                Visi dan Misi
-                            </a>
-                        </li>
-
-                        <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('profil.struktur') }}">
-                                Struktur Organisasi
-                            </a>
-                        </li>
-
-                        <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('profil.kepengurusan') }}">
-                                Kepengurusan
-                            </a>
-                        </li>
-                    </ul>
+                                @if($routeName && \Illuminate\Support\Facades\Route::has($routeName))
+                                    <li class="nav-dropdown-item">
+                                        <a class="nav-dropdown-link" href="{{ route($routeName) }}">
+                                            {{ $item['title'] }}
+                                        </a>
+                                    </li>
+                                @endif
+                            @endforeach
+                        </ul>
+                    @endif
                 </li>
 
                 <li class="nav-item">

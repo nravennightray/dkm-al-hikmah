@@ -1,6 +1,6 @@
 @extends('master.layout.app')
 
-@section('title', 'Sejarah - DKM Al Hikmah')
+@section('title', ($page['title'] ?? 'Sejarah') . ' - DKM Al Hikmah')
 
 @section('css')
 <style>
@@ -23,6 +23,23 @@
         border-radius: 24px;
         overflow: hidden;
         box-shadow: 0 18px 45px rgba(15, 23, 42, 0.14);
+        background: #f8fafc;
+    }
+
+    .history-image img {
+        width: 100%;
+        height: 100%;
+        min-height: 360px;
+        object-fit: cover;
+    }
+
+    .history-image-placeholder {
+        min-height: 360px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        color: #94a3b8;
     }
 
     .history-label {
@@ -86,15 +103,55 @@
         background: rgba(125, 211, 252, 0.22);
         filter: blur(80px);
     }
+
+    .profile-empty {
+        padding: 48px 24px;
+        text-align: center;
+        border-radius: 24px;
+        background: #ffffff;
+        border: 1px solid rgba(37, 99, 235, 0.10);
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+    }
+
+    .profile-empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        border-radius: 22px;
+        background: #eff6ff;
+        color: #2563eb;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
 </style>
 @endsection
 
 @section('content')
 
+@php
+    $title = $page['title'] ?? 'Sejarah Masjid';
+    $heroBadge = $page['hero_badge'] ?? 'Perjalanan DKM';
+    $heroIcon = $page['hero_icon'] ?? 'fas fa-history';
+    $sectionLabel = $page['section_label'] ?? 'Asal-Usul';
+    $sectionTitle = $page['section_title'] ?? 'Titik Awal Perjalanan Dakwah';
+    $body1 = $page['section_body_1'] ?? '';
+    $body2 = $page['section_body_2'] ?? '';
+    $image = $page['image'] ?? '';
+    $quoteText = $page['quote_text'] ?? '';
+    $quoteAuthor = $page['quote_author'] ?? '';
+
+    $imageUrl = !empty($image)
+        ? asset('image/profil/' . $image)
+        : null;
+
+    $milestones = $milestones ?? collect();
+@endphp
+
 <div class="section-xl position-relative overflow-hidden"
      style="background: linear-gradient(180deg, rgba(30, 64, 175, 0.98) 0%, rgba(37, 99, 235, 0.95) 55%, rgba(14, 165, 233, 0.92) 100%);">
 
-    <!-- Decorative Glow -->
     <div class="position-absolute top-0 start-0 translate-middle rounded-circle"
          style="width: 320px; height: 320px; background: rgba(255,255,255,0.14); filter: blur(70px);">
     </div>
@@ -106,11 +163,15 @@
     <div class="container position-relative text-center pt-5">
         <div class="d-inline-flex align-items-center px-4 py-2 mb-4 rounded-pill"
              style="background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(10px);">
-            <i class="fas fa-history me-2 text-white"></i>
-            <span class="font-small uppercase letter-spacing-1 text-white">Perjalanan DKM</span>
+            <i class="{{ $heroIcon }} me-2 text-white"></i>
+            <span class="font-small uppercase letter-spacing-1 text-white">
+                {{ $heroBadge }}
+            </span>
         </div>
 
-        <h1 class="fw-bold text-white display-4">Sejarah Masjid</h1>
+        <h1 class="fw-bold text-white display-4">
+            {{ $title }}
+        </h1>
 
         <nav aria-label="breadcrumb" class="mt-3">
             <ol class="breadcrumb justify-content-center mb-0">
@@ -118,7 +179,9 @@
                     <a href="/" class="text-white text-decoration-none opacity-75">Beranda</a>
                 </li>
                 <li class="breadcrumb-item text-white opacity-75">Profil</li>
-                <li class="breadcrumb-item active text-white" aria-current="page">Sejarah</li>
+                <li class="breadcrumb-item active text-white" aria-current="page">
+                    {{ $title }}
+                </li>
             </ol>
         </nav>
     </div>
@@ -128,38 +191,48 @@
     <div class="container">
         <div class="row g-5 align-items-center">
 
-            <!-- Image Side -->
             <div class="col-12 col-lg-6">
                 <div class="history-image">
-                    <img src="{{ asset('assets/images/dkm/dkm-pic-2.jpg') }}"
-                         alt="Sejarah DKM Al Hikmah"
-                         class="img-full">
+                    @if($imageUrl)
+                        <img src="{{ $imageUrl }}"
+                             alt="{{ $title }}"
+                             class="img-full">
+                    @else
+                        <div class="history-image-placeholder">
+                            <div class="text-center">
+                                <i class="bi bi-image fs-1"></i>
+                                <div class="small mt-2">No Image Available</div>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
 
-            <!-- Text Side -->
             <div class="col-12 col-lg-6">
                 <h6 class="font-small uppercase history-label letter-spacing-1 fw-bold">
-                    Asal-Usul
+                    {{ $sectionLabel }}
                 </h6>
 
                 <h2 class="fw-bold mb-3">
-                    Titik Awal Perjalanan Dakwah
+                    {{ $sectionTitle }}
                 </h2>
 
-                <p class="mt-3">
-                    DKM Al Hikmah berawal dari sebuah keinginan tulus para karyawan dan warga sekitar untuk memiliki tempat ibadah yang layak di area Plant. Dimulai dari sebuah bangunan kayu sederhana pada tahun 19xx, tempat ini menjadi saksi bisu perjuangan dakwah di lingkungan industri.
-                </p>
+                @if(!empty($body1))
+                    <p class="mt-3">
+                        {{ $body1 }}
+                    </p>
+                @endif
 
-                <p>
-                    Seiring bertambahnya jumlah jamaah, renovasi demi renovasi dilakukan secara gotong royong. Semangat kebersamaan inilah yang menjadi pondasi utama berdirinya DKM Al Hikmah hingga menjadi pusat kegiatan umat seperti sekarang ini.
-                </p>
+                @if(!empty($body2))
+                    <p>
+                        {{ $body2 }}
+                    </p>
+                @endif
             </div>
         </div>
 
         <hr class="my-5" style="border-color: rgba(37, 99, 235, 0.12);">
 
-        <!-- Timeline / Milestones -->
         <div class="row g-4 mt-2">
             <div class="col-12 text-center mb-4">
                 <h6 class="font-small uppercase letter-spacing-1 fw-bold" style="color: #2563eb;">
@@ -171,56 +244,63 @@
                 </h3>
             </div>
 
-            <div class="col-12 col-md-4">
-                <div class="milestone-card text-center">
-                    <span class="milestone-year">1995</span>
-                    <h5 class="fw-bold">Peletakan Batu Pertama</h5>
-                    <p class="font-small text-muted mb-0">
-                        Inisiasi awal pembangunan musala kecil oleh pengurus angkatan pertama.
-                    </p>
-                </div>
-            </div>
+            @forelse($milestones as $milestone)
+                <div class="col-12 col-md-4">
+                    <div class="milestone-card text-center">
+                        <span class="milestone-year">
+                            {{ $milestone['year'] ?? '-' }}
+                        </span>
 
-            <div class="col-12 col-md-4">
-                <div class="milestone-card text-center">
-                    <span class="milestone-year">2010</span>
-                    <h5 class="fw-bold">Renovasi Besar</h5>
-                    <p class="font-small text-muted mb-0">
-                        Peningkatan kapasitas bangunan menjadi masjid dua lantai untuk menampung lebih banyak jamaah.
-                    </p>
-                </div>
-            </div>
+                        <h5 class="fw-bold">
+                            {{ $milestone['title'] ?? '-' }}
+                        </h5>
 
-            <div class="col-12 col-md-4">
-                <div class="milestone-card text-center">
-                    <span class="milestone-year">2024</span>
-                    <h5 class="fw-bold">Digitalisasi DKM</h5>
-                    <p class="font-small text-muted mb-0">
-                        Peluncuran sistem informasi dan manajemen masjid secara digital untuk transparansi umat.
-                    </p>
+                        <p class="font-small text-muted mb-0">
+                            {{ $milestone['description'] ?? '' }}
+                        </p>
+                    </div>
                 </div>
-            </div>
+            @empty
+                <div class="col-12">
+                    <div class="profile-empty">
+                        <div class="profile-empty-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+
+                        <h5 class="fw-bold mb-2">
+                            Milestone Belum Tersedia
+                        </h5>
+
+                        <p class="text-muted mb-0">
+                            Data milestone sejarah belum tersedia saat ini.
+                        </p>
+                    </div>
+                </div>
+            @endforelse
         </div>
     </div>
 </div>
 
-<!-- Quote Section -->
-<div class="section-sm quote-blue-section text-white">
-    <div class="container position-relative text-center">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <i class="fas fa-quote-left fa-2x mb-3 opacity-50"></i>
+@if(!empty($quoteText))
+    <div class="section-sm quote-blue-section text-white">
+        <div class="container position-relative text-center">
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <i class="fas fa-quote-left fa-2x mb-3 opacity-50"></i>
 
-                <h4 class="fw-normal italic text-white">
-                    "Masjid bukan sekadar bangunan fisik, melainkan ruh dari kebersamaan umat dalam ketaatan."
-                </h4>
+                    <h4 class="fw-normal italic text-white">
+                        "{{ $quoteText }}"
+                    </h4>
 
-                <p class="mt-3 mb-0 text-white">
-                    — Pendiri DKM Al Hikmah
-                </p>
+                    @if(!empty($quoteAuthor))
+                        <p class="mt-3 mb-0 text-white">
+                            — {{ $quoteAuthor }}
+                        </p>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
-</div>
+@endif
 
 @endsection
