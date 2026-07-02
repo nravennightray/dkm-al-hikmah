@@ -3,70 +3,143 @@
 namespace App\Providers;
 
 use App\Services\GoogleSheetService;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
         //
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
         View::composer('master.layout.header', function ($view) {
-            $categories = Cache::remember('header_kegiatan_categories', now()->addMinutes(10), function () {
-                $sheetService = app(GoogleSheetService::class);
+            $categories = collect(
+                Cache::remember(
+                    'header_kegiatan_categories',
+                    now()->addMinutes(10),
+                    fn () => $this->getHeaderKegiatanCategories()
+                )
+            );
 
-                $rows = collect(
-                    $sheetService->getSheet(
-                        config('google.spreadsheet_id'),
-                        'kategori'
-                    )
-                );
+            $musalaNavbar = collect(
+                Cache::remember(
+                    'header_musala_navbar',
+                    now()->addMinutes(10),
+                    fn () => $this->getHeaderMusalaNavbar()
+                )
+            );
 
-                if ($rows->isEmpty()) {
-                    return collect();
-                }
-
-                $header = collect($rows->shift())
-                    ->map(fn ($column) => trim($column))
-                    ->filter()
-                    ->values();
-
-                return $rows
-                    ->filter(fn ($row) => collect($row)->filter()->isNotEmpty())
-                    ->map(function ($row) use ($header) {
-                        $row = collect($row);
-
-                        if ($row->count() < $header->count()) {
-                            $row = $row->pad($header->count(), null);
-                        }
-
-                        if ($row->count() > $header->count()) {
-                            $row = $row->take($header->count());
-                        }
-
-                        return $header
-                            ->combine($row)
-                            ->toArray();
-                    })
-                    ->filter(fn ($category) => is_array($category)
-                        && !empty($category['slug'])
-                        && !empty($category['name'])
-                    )
-                    ->values();
-            });
-
-            $view->with('headerKegiatanCategories', $categories);
+            $view->with([
+                'headerKegiatanCategories' => $categories,
+                'musalaNavbar' => $musalaNavbar,
+            ]);
         });
+    }
+
+    private function getHeaderKegiatanCategories(): array
+    {
+        try {
+            $rows = $this->getSheetRows('kategori');
+
+            $columns = [
+                'name',
+                'slug',
+                'icon',
+                'desc',
+            ];
+
+            return $this->mapSheetRows($rows, $columns)
+                ->filter(fn ($category) =>
+                    !empty($category['slug']) &&
+                    !empty($category['name'])
+                )
+                ->values()
+                ->toArray();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    private function getHeaderMusalaNavbar(): array
+    {
+        try {
+            $rows = $this->getSheetRows('musala');
+
+            $columns = [
+                'slug',
+                'title',
+                'location',
+                'capacity',
+                'facilities',
+                'desc',
+                'image',
+            ];
+
+            return $this->mapSheetRows($rows, $columns)
+                ->map(function ($musala) {
+                    return [
+                        'slug' => trim((string) ($musala['slug'] ?? '')),
+                        'title' => trim((string) ($musala['title'] ?? '')),
+                    ];
+                })
+                ->filter(fn ($musala) =>
+                    !empty($musala['slug']) &&
+                    !empty($musala['title'])
+                )
+                ->values()
+                ->toArray();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+
+    private function getSheetRows(string $sheetName): Collection
+    {
+        $spreadsheetId = config('google.spreadsheet_id');
+
+        if (!$spreadsheetId) {
+            return collect();
+        }
+
+        $sheetService = app(GoogleSheetService::class);
+
+        $rows = collect(
+            $sheetService->getSheet($spreadsheetId, $sheetName)
+        );
+
+        if ($rows->isEmpty()) {
+            return collect();
+        }
+
+        // Remove header row.
+        $rows->shift();
+
+        return $rows;
+    }
+
+    private function mapSheetRows(Collection $rows, array $columns): Collection
+    {
+        return $rows
+            ->map(function ($row) use ($columns) {
+                $row = collect($row)
+                    ->pad(count($columns), '')
+                    ->take(count($columns))
+                    ->values();
+
+                return collect($columns)
+                    ->combine($row)
+                    ->toArray();
+            })
+            ->filter(fn ($row) =>
+                collect($row)
+                    ->filter(fn ($value) => trim((string) $value) !== '')
+                    ->isNotEmpty()
+            )
+            ->values();
     }
 }

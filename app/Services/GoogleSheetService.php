@@ -54,11 +54,25 @@ class GoogleSheetService
         );
     }
 
-    public function updateRow(string $spreadsheetId, string $sheetName, int $rowNumber, array $values, string $endColumn): void
-    {
-        $range = "{$sheetName}!A{$rowNumber}:{$endColumn}{$rowNumber}";
+    public function updateRow(
+        string $spreadsheetId,
+        string $sheetName,
+        int $rowNumber,
+        array $values,
+        ?string $endColumn = null,
+        string $startColumn = 'A'
+    ): void {
+        $values = array_values($values);
+
+        $startColumn = strtoupper($startColumn);
+        $endColumn = $endColumn
+            ? strtoupper($endColumn)
+            : $this->getEndColumn($startColumn, count($values));
+
+        $range = "{$sheetName}!{$startColumn}{$rowNumber}:{$endColumn}{$rowNumber}";
 
         $body = new ValueRange([
+            'majorDimension' => 'ROWS',
             'values' => [$values],
         ]);
 
@@ -67,7 +81,7 @@ class GoogleSheetService
             $range,
             $body,
             [
-                'valueInputOption' => 'USER_ENTERED',
+                'valueInputOption' => 'RAW',
             ]
         );
     }
@@ -105,5 +119,38 @@ class GoogleSheetService
         }
 
         throw new \Exception("Sheet {$sheetName} tidak ditemukan.");
+    }
+
+    private function getEndColumn(string $startColumn, int $columnCount): string
+    {
+        $startIndex = $this->columnLetterToNumber($startColumn);
+        $endIndex = $startIndex + $columnCount - 1;
+
+        return $this->numberToColumnLetter($endIndex);
+    }
+
+    private function columnLetterToNumber(string $column): int
+    {
+        $column = strtoupper($column);
+        $number = 0;
+
+        for ($i = 0; $i < strlen($column); $i++) {
+            $number = ($number * 26) + (ord($column[$i]) - ord('A') + 1);
+        }
+
+        return $number;
+    }
+
+    private function numberToColumnLetter(int $number): string
+    {
+        $letter = '';
+
+        while ($number > 0) {
+            $mod = ($number - 1) % 26;
+            $letter = chr(65 + $mod) . $letter;
+            $number = intdiv($number - $mod, 26);
+        }
+
+        return $letter;
     }
 }

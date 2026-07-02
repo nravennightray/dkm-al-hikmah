@@ -172,22 +172,23 @@ class AdminKegiatanController extends Controller
             $imageName = $this->storeImage($request, $newSlug);
         }
 
+        $payload = [
+            $idKegiatan,
+            trim($validated['title']),
+            $newSlug,
+            trim($validated['category_slug']),
+            $validated['date'] ?? '',
+            $imageName,
+            trim($validated['excerpt'] ?? ''),
+            trim($validated['content'] ?? ''),
+            trim($validated['quote'] ?? ''),
+        ];
+
         $this->sheetService->updateRow(
             $this->spreadsheetId,
             'kegiatan',
-            $post['_row_number'],
-            [
-                $idKegiatan,
-                $validated['title'],
-                $newSlug,
-                $validated['category_slug'],
-                $validated['date'] ?? '',
-                $imageName,
-                $validated['excerpt'] ?? '',
-                $validated['content'] ?? '',
-                $validated['quote'] ?? '',
-            ],
-            'I'
+            (int) $post['_row_number'],
+            $payload
         );
 
         return redirect()
