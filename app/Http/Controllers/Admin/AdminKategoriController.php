@@ -140,14 +140,13 @@ class AdminKategoriController extends Controller
         $this->sheetService->updateRow(
             $this->spreadsheetId,
             'kategori',
-            $category['_row_number'],
+            (int) $category['_row_number'],
             [
                 $validated['name'],
                 $slug,
                 $validated['icon'] ?? 'fa-folder',
                 $validated['desc'] ?? '',
-            ],
-            'D'
+            ]
         );
 
         return redirect()

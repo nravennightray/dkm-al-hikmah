@@ -152,7 +152,7 @@ class AdminUserController extends Controller
                     $emailExists = $users
                         ->reject(fn ($item) => ($item['id_user'] ?? null) == ($data['id_user'] ?? null))
                         ->pluck('email')
-                        ->map(fn ($email) => strtolower(trim($email)))
+                        ->map(fn ($email) => strtolower(trim((string) $email)))
                         ->contains(strtolower(trim($value)));
 
                     if ($emailExists) {
@@ -171,19 +171,20 @@ class AdminUserController extends Controller
             $password = Hash::make($validated['password']);
         }
 
+        $payload = [
+            $data['id_user'],
+            trim($validated['name']),
+            strtolower(trim($validated['email'])),
+            $password,
+            $validated['role'],
+            $validated['status'],
+        ];
+
         $this->sheetService->updateRow(
             $this->spreadsheetId,
             'users',
-            $data['_row_number'],
-            [
-                $data['id_user'],
-                $validated['name'],
-                strtolower(trim($validated['email'])),
-                $password,
-                $validated['role'],
-                $validated['status'],
-            ],
-            'F'
+            (int) $data['_row_number'],
+            $payload
         );
 
         return redirect()

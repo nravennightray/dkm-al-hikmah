@@ -392,30 +392,31 @@ class AdminKeuanganController extends Controller
         string $adminNote,
         string $approvalEvidence = ''
     ): void {
+        $payload = [
+            $transaction['id_transaction'],
+            $transaction['transaction_code'],
+            $transaction['requested_by_id'],
+            $transaction['requested_by_name'],
+            $transaction['target_user_id'],
+            $transaction['target_user_name'],
+            $transaction['fund_type'],
+            $transaction['action_type'],
+            $transaction['amount'],
+            $status,
+            $transaction['note'] ?? '',
+            $adminNote,
+            $this->currentUserId(),
+            $this->currentUserName(),
+            $transaction['requested_at'],
+            now()->format('Y-m-d H:i:s'),
+            $approvalEvidence ?: ($transaction['approval_evidence'] ?? ''),
+        ];
+
         $this->sheetService->updateRow(
             $this->spreadsheetId,
             'trx_tabungan',
-            $transaction['_row_number'],
-            [
-                $transaction['id_transaction'],
-                $transaction['transaction_code'],
-                $transaction['requested_by_id'],
-                $transaction['requested_by_name'],
-                $transaction['target_user_id'],
-                $transaction['target_user_name'],
-                $transaction['fund_type'],
-                $transaction['action_type'],
-                $transaction['amount'],
-                $status,
-                $transaction['note'] ?? '',
-                $adminNote,
-                $this->currentUserId(),
-                $this->currentUserName(),
-                $transaction['requested_at'],
-                now()->format('Y-m-d H:i:s'),
-                $approvalEvidence ?: ($transaction['approval_evidence'] ?? ''),
-            ],
-            'Q'
+            (int) $transaction['_row_number'],
+            $payload
         );
     }
 
@@ -473,19 +474,20 @@ class AdminKeuanganController extends Controller
             throw new \Exception('Saldo tidak mencukupi.');
         }
 
+        $payload = [
+            $balance['id_tabungan'],
+            $userId,
+            $name,
+            $fundType === 'qurban' ? $newBalance : ($balance['qurban_balance'] ?? 0),
+            $fundType === 'umrah' ? $newBalance : ($balance['umrah_balance'] ?? 0),
+            now()->format('Y-m-d H:i:s'),
+        ];
+
         $this->sheetService->updateRow(
             $this->spreadsheetId,
             'users_tabungan',
-            $balance['_row_number'],
-            [
-                $balance['id_tabungan'],
-                $userId,
-                $name,
-                $fundType === 'qurban' ? $newBalance : ($balance['qurban_balance'] ?? 0),
-                $fundType === 'umrah' ? $newBalance : ($balance['umrah_balance'] ?? 0),
-                now()->format('Y-m-d H:i:s'),
-            ],
-            'F'
+            (int) $balance['_row_number'],
+            $payload
         );
     }
 
@@ -537,16 +539,17 @@ class AdminKeuanganController extends Controller
             return;
         }
 
+        $payload = [
+            $kas['id_kas'] ?? 1,
+            $newBalance,
+            now()->format('Y-m-d H:i:s'),
+        ];
+
         $this->sheetService->updateRow(
             $this->spreadsheetId,
             'kas_tabungan',
-            $kas['_row_number'],
-            [
-                $kas['id_kas'] ?? 1,
-                $newBalance,
-                now()->format('Y-m-d H:i:s'),
-            ],
-            'C'
+            (int) $kas['_row_number'],
+            $payload
         );
     }
 

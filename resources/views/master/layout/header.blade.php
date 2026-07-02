@@ -1,79 +1,80 @@
 <style>
-	.dkm-mobile-auth {
-		display: none;
-	}
+    .dkm-header-auth {
+        display: flex !important;
+        align-items: center;
+        margin-left: 16px;
+        flex-shrink: 0;
+    }
 
-	.dkm-mobile-logout-form {
-		margin: 0;
-	}
+    .header-menu .nav .nav-item.dkm-mobile-auth {
+        display: none !important;
+    }
 
-	.dkm-mobile-logout-btn {
-		width: 100%;
-		border: 0;
-		background: transparent;
-		text-align: left;
-		cursor: pointer;
-	}
+    .dkm-mobile-logout-form {
+        margin: 0;
+    }
 
-	.dkm-header-auth {
-		display: flex;
-		align-items: center;
-		margin-left: 16px;
-		flex-shrink: 0;
-	}
+    .dkm-mobile-logout-btn {
+        width: 100%;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+    }
 
-	@media (max-width: 991px) {
-		.header .container {
-			display: flex;
-			align-items: center;
-		}
+    @media (max-width: 991px) {
+        .header .container {
+            display: flex;
+            align-items: center;
+        }
 
-		.header-logo {
-			min-width: 0;
-			flex: 1;
-		}
+        .header-logo {
+            min-width: 0;
+            flex: 1;
+        }
 
-		.dkm-header-title {
-			font-size: 17px;
-			line-height: 1.2;
-			white-space: nowrap;
-		}
+        .dkm-header-title {
+            font-size: 17px;
+            line-height: 1.2;
+            white-space: nowrap;
+        }
 
-		.dkm-header-auth {
-			display: none;
-		}
+        .dkm-header-auth {
+            display: none !important;
+        }
 
-		.dkm-mobile-auth {
-			display: block;
-		}
+        .header-menu .nav .nav-item.dkm-mobile-auth {
+            display: block !important;
+        }
 
-		.header-toggle {
-			margin-left: 12px;
-			flex-shrink: 0;
-		}
+        .header-toggle {
+            margin-left: 12px;
+            flex-shrink: 0;
+        }
 
-		.header-menu {
-			max-height: calc(100vh - 80px);
-			overflow-y: auto;
-		}
-	}
+        .header-menu {
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+    }
 
-	@media (max-width: 420px) {
-		.dkm-header-title {
-			font-size: 14px;
-			letter-spacing: 0.04em;
-		}
+    @media (max-width: 420px) {
+        .dkm-header-title {
+            font-size: 14px;
+            letter-spacing: 0.04em;
+        }
 
-		.header-logo img {
-			height: 34px !important;
-		}
+        .header-logo img {
+            height: 34px !important;
+        }
 
-		.header-logo a {
-			margin-right: 8px !important;
-		}
-	}
+        .header-logo a {
+            margin-right: 8px !important;
+        }
+    }
 </style>
-
 
 <!-- Header -->
 <div class="header right header-color-dark transparent-light sticky-autohide">
@@ -84,12 +85,12 @@
             <a href="{{ route('dashboard.index') }}" class="me-3">
                 <img class="logo-dark"
                      src="{{ asset('assets/images/dkm/dkm-logo-white.png') }}"
-                     alt="Logo"
+                     alt="DKM AL HIKMAH"
                      style="height: 40px; width: auto;">
 
                 <img class="logo-light"
                      src="{{ asset('assets/images/dkm/dkm-logo-white.png') }}"
-                     alt="Logo"
+                     alt="DKM AL HIKMAH"
                      style="height: 40px; width: auto;">
             </a>
 
@@ -103,30 +104,43 @@
         <!-- Menu -->
         <div class="header-menu">
             <ul class="nav">
+
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('profil.index') }}">Profil</a>
+                    <a class="nav-link" href="{{ route('profil.index') }}">
+                        Profil
+                    </a>
 
                     <ul class="nav-dropdown">
                         <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('profil.sejarah') }}">Sejarah</a>
+                            <a class="nav-dropdown-link" href="{{ route('profil.sejarah') }}">
+                                Sejarah
+                            </a>
                         </li>
 
                         <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('profil.visi-misi') }}">Visi dan Misi</a>
+                            <a class="nav-dropdown-link" href="{{ route('profil.visi-misi') }}">
+                                Visi dan Misi
+                            </a>
                         </li>
 
                         <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('profil.struktur') }}">Struktur Organisasi</a>
+                            <a class="nav-dropdown-link" href="{{ route('profil.struktur') }}">
+                                Struktur Organisasi
+                            </a>
                         </li>
 
                         <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('profil.kepengurusan') }}">Kepengurusan</a>
+                            <a class="nav-dropdown-link" href="{{ route('profil.kepengurusan') }}">
+                                Kepengurusan
+                            </a>
                         </li>
                     </ul>
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('kegiatan.index') }}">Kegiatan</a>
+                    <a class="nav-link" href="{{ route('kegiatan.index') }}">
+                        Kegiatan
+                    </a>
 
                     <ul class="nav-dropdown">
                         @php
@@ -140,7 +154,8 @@
 
                         @forelse($navCategories as $navCategory)
                             <li class="nav-dropdown-item">
-                                <a class="nav-dropdown-link" href="{{ route('kegiatan.category', $navCategory['slug']) }}">
+                                <a class="nav-dropdown-link"
+                                   href="{{ route('kegiatan.category', $navCategory['slug']) }}">
                                     {{ $navCategory['name'] }}
                                 </a>
                             </li>
@@ -155,7 +170,9 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('laporan.index') }}">Laporan Keuangan</a>
+                    <a class="nav-link" href="{{ route('laporan.index') }}">
+                        Laporan Keuangan
+                    </a>
 
                     <ul class="nav-dropdown">
                         <li class="nav-dropdown-item">
@@ -167,28 +184,30 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('musala.index') }}">Musala Plant</a>
+                    <a class="nav-link" href="{{ route('musala.index') }}">
+                        Musala
+                    </a>
 
-                    <ul class="nav-dropdown">
-                        <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('musala.show', 'musala-kantor') }}">
-                                Musala Kantor
-                            </a>
-                        </li>
-
-                        <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('musala.show', 'musala-plant') }}">
-                                Musala Plant
-                            </a>
-                        </li>
-                    </ul>
+                    @if(!empty($musalaNavbar) && $musalaNavbar->isNotEmpty())
+                        <ul class="nav-dropdown">
+                            @foreach($musalaNavbar as $item)
+                                <li class="nav-dropdown-item">
+                                    <a class="nav-dropdown-link" href="{{ route('musala.show', $item['slug']) }}">
+                                        {{ $item['title'] }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    @endif
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('infaq.index') }}">Infaq</a>
+                    <a class="nav-link" href="{{ route('infaq.index') }}">
+                        Infaq
+                    </a>
                 </li>
 
-                <!-- Mobile Auth Menu -->
+                <!-- Mobile Auth Only -->
                 <li class="nav-item dkm-mobile-auth">
                     @auth
                         <a class="nav-link" href="{{ route('admin.dashboard') }}">
@@ -203,19 +222,23 @@
 
                 @auth
                     <li class="nav-item dkm-mobile-auth">
-                        <form action="{{ route('logout') }}" method="POST" class="dkm-mobile-logout-form">
+                        <form action="{{ route('logout') }}"
+                              method="POST"
+                              class="dkm-mobile-logout-form">
                             @csrf
 
-                            <button type="submit" class="nav-link dkm-mobile-logout-btn">
+                            <button type="submit"
+                                    class="nav-link dkm-mobile-logout-btn">
                                 Logout
                             </button>
                         </form>
                     </li>
                 @endauth
+
             </ul>
         </div>
 
-        <!-- Desktop Auth Button -->
+        <!-- Desktop Auth Only -->
         <div class="dkm-header-auth">
             @auth
                 <a href="{{ route('admin.dashboard') }}"
