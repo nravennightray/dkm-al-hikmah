@@ -4,6 +4,9 @@
 
 @section('css')
 <style>
+    /* =========================================================
+       HERO
+       ========================================================= */
     .home-hero {
         position: relative;
         min-height: 720px;
@@ -44,6 +47,9 @@
         flex-wrap: wrap;
     }
 
+    /* =========================================================
+       FEATURE TOP CARDS
+       ========================================================= */
     .home-feature-wrapper {
         position: relative;
         z-index: 3;
@@ -62,211 +68,32 @@
         line-height: 1;
     }
 
-    .home-profile-image {
-        width: 100%;
-        height: auto;
-        display: block;
+    .home-feature-card p {
+        line-height: 1.7;
     }
 
-    .home-profile-content p {
-        line-height: 1.8;
+    /* =========================================================
+       HOME INFO / BERITA
+       ========================================================= */
+    .home-info-section {
+        background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
     }
 
-    .home-check-item {
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-        color: #475569;
-        font-size: 15px;
-        line-height: 1.5;
+    .home-info-heading {
+        max-width: 720px;
+        margin: 0 auto 46px;
+        text-align: center;
     }
 
-    .home-check-item i {
-        margin-top: 3px;
-        flex-shrink: 0;
+    .home-info-heading h2 {
+        line-height: 1.25;
     }
 
-    .home-service-card {
-        height: 100%;
+    .home-info-heading p {
+        line-height: 1.7;
     }
 
-    .home-cta-bg {
-        background-position: center;
-        background-size: cover;
-    }
-
-    .home-cta-section {
-        padding: 110px 0;
-        background: linear-gradient(
-            180deg,
-            rgba(30, 64, 175, 0.92) 0%,
-            rgba(37, 99, 235, 0.86) 55%,
-            rgba(14, 165, 233, 0.78) 100%
-        );
-    }
-
-    .home-cta-title {
-        line-height: 1.12;
-        text-wrap: balance;
-    }
-
-    @media (max-width: 991px) {
-        .home-hero,
-        .home-hero-overlay {
-            min-height: auto;
-        }
-
-        .home-hero-overlay {
-            padding: 135px 0 120px;
-        }
-
-        .home-hero-title {
-            max-width: 680px;
-            font-size: 46px;
-        }
-
-        .home-hero-text {
-            max-width: 640px;
-            font-size: 1rem;
-        }
-
-        .home-feature-wrapper {
-            margin-top: -56px;
-        }
-
-        .home-feature-card {
-            text-align: center;
-        }
-
-        .home-profile-content {
-            text-align: center;
-        }
-
-        .home-profile-content .button-text-2 {
-            justify-content: center;
-        }
-
-        .home-check-item {
-            justify-content: center;
-            text-align: left;
-        }
-
-        .home-cta-section {
-            padding: 86px 0;
-        }
-
-        .home-cta-title {
-            font-size: 40px;
-        }
-    }
-
-    @media (max-width: 575px) {
-        .home-hero-overlay {
-            padding: 118px 0 95px;
-            text-align: center;
-        }
-
-        .home-hero-title {
-            font-size: 34px;
-            line-height: 1.12;
-        }
-
-        .home-hero-text {
-            font-size: 15px;
-            line-height: 1.7;
-        }
-
-        .home-hero-actions {
-            flex-direction: column;
-            align-items: stretch;
-            width: 100%;
-        }
-
-        .home-hero-actions .button {
-            width: 100%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-        }
-
-        .home-feature-wrapper {
-            margin-top: -42px;
-        }
-
-        .home-feature-card {
-            padding: 28px !important;
-        }
-
-        .home-feature-card i {
-            font-size: 42px;
-        }
-
-        #profil {
-            padding-top: 70px;
-        }
-
-        .home-profile-content h2 {
-            font-size: 30px;
-            line-height: 1.25;
-        }
-
-        .home-check-item {
-            justify-content: flex-start;
-            font-size: 14px;
-        }
-
-        .feature-box {
-            padding-left: 18px;
-            padding-right: 18px;
-        }
-
-        .home-cta-section {
-            padding: 72px 0;
-        }
-
-        .home-cta-pill {
-            padding-left: 18px !important;
-            padding-right: 18px !important;
-            max-width: 100%;
-        }
-
-        .home-cta-pill span {
-            font-size: 11px;
-        }
-
-        .home-cta-title {
-            font-size: 32px;
-        }
-
-        .home-cta-section .lead {
-            font-size: 15px;
-            line-height: 1.7;
-        }
-
-        .home-cta-section .button {
-            width: 100%;
-            display: inline-flex;
-            justify-content: center;
-            text-align: center;
-        }
-    }
-
-    @media (max-width: 380px) {
-        .home-hero-title {
-            font-size: 30px;
-        }
-
-        .home-hero-text {
-            font-size: 14px;
-        }
-
-        .home-cta-title {
-            font-size: 28px;
-        }
-    }
-
-        .home-info-card {
+    .home-info-card {
         height: 100%;
         overflow: hidden;
         border-radius: 26px;
@@ -381,9 +208,203 @@
         line-height: 1.7;
     }
 
-    @media (max-width: 768px) {
+    .home-info-empty {
+        padding: 54px 24px;
+        text-align: center;
+        border-radius: 26px;
+        background: #ffffff;
+        border: 1px solid rgba(37, 99, 235, 0.10);
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+    }
+
+    .home-info-empty-icon {
+        width: 70px;
+        height: 70px;
+        margin: 0 auto 18px;
+        border-radius: 24px;
+        background: #eff6ff;
+        color: #2563eb;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+    }
+
+    /* =========================================================
+       LAYANAN & FASILITAS
+       ========================================================= */
+    .home-services-section {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .home-services-section .section-title h2 {
+        line-height: 1.25;
+    }
+
+    .home-service-card {
+        height: 100%;
+        padding: 34px 28px;
+        border-radius: 26px;
+        background: #ffffff;
+        border: 1px solid rgba(37, 99, 235, 0.10);
+        box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+        transition: all 0.3s ease;
+
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .home-service-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 42px rgba(37, 99, 235, 0.14);
+    }
+
+    .home-service-icon {
+        width: 68px;
+        height: 68px;
+        min-width: 68px;
+        border-radius: 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+        font-size: 26px;
+        line-height: 1;
+        box-shadow: 0 14px 26px rgba(37, 99, 235, 0.22);
+        flex-shrink: 0;
+    }
+
+    .home-service-icon i {
+        line-height: 1;
+    }
+
+    .home-service-content h5 {
+        margin-bottom: 10px;
+        color: #0f172a;
+        line-height: 1.35;
+    }
+
+    .home-service-content p {
+        margin-bottom: 0;
+        color: #64748b;
+        line-height: 1.7;
+    }
+
+    /* =========================================================
+       CTA
+       ========================================================= */
+    .home-cta-bg {
+        background-position: center;
+        background-size: cover;
+    }
+
+    .home-cta-section {
+        padding: 110px 0;
+        background: linear-gradient(
+            180deg,
+            rgba(30, 64, 175, 0.92) 0%,
+            rgba(37, 99, 235, 0.86) 55%,
+            rgba(14, 165, 233, 0.78) 100%
+        );
+    }
+
+    .home-cta-title {
+        line-height: 1.12;
+        text-wrap: balance;
+    }
+
+    /* =========================================================
+       RESPONSIVE TABLET
+       ========================================================= */
+    @media (max-width: 991px) {
+        .home-hero,
+        .home-hero-overlay {
+            min-height: auto;
+        }
+
+        .home-hero-overlay {
+            padding: 135px 0 120px;
+        }
+
+        .home-hero-title {
+            max-width: 680px;
+            font-size: 46px;
+        }
+
+        .home-hero-text {
+            max-width: 640px;
+            font-size: 1rem;
+        }
+
+        .home-feature-wrapper {
+            margin-top: -56px;
+        }
+
+        .home-feature-card {
+            text-align: center;
+        }
+
+        .home-info-heading {
+            margin-bottom: 34px;
+        }
+
+        .home-info-image-wrapper {
+            width: 38%;
+            min-width: 240px;
+        }
+
+        .home-info-body {
+            padding: 28px;
+        }
+
+        .home-services-section {
+            padding-top: 82px;
+            padding-bottom: 82px;
+        }
+
+        .home-service-card {
+            padding: 30px 26px;
+        }
+
+        .home-cta-section {
+            padding: 86px 0;
+        }
+
+        .home-cta-title {
+            font-size: 40px;
+        }
+    }
+
+    /* =========================================================
+       RESPONSIVE MOBILE
+       ========================================================= */
+    @media (max-width: 767px) {
+        .home-info-heading,
+        .home-services-section .section-title {
+            margin-bottom: 30px !important;
+        }
+
+        .home-info-heading {
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+
+        .section-title h2,
+        .home-info-heading h2 {
+            font-size: 30px;
+            line-height: 1.25;
+        }
+
+        .home-info-heading p {
+            font-size: 14px;
+        }
+
         .home-info-card {
             display: block;
+            border-radius: 22px;
         }
 
         .home-info-image-wrapper {
@@ -393,11 +414,208 @@
 
         .home-info-image-wrapper img,
         .home-info-placeholder {
-            min-height: 220px;
+            min-height: 210px;
         }
 
         .home-info-body {
+            padding: 22px;
+        }
+
+        .home-info-body h4 {
+            font-size: 20px;
+        }
+
+        .home-info-description {
+            font-size: 14px;
+        }
+
+        .home-services-section {
+            padding-top: 72px;
+            padding-bottom: 72px;
+        }
+
+        .home-service-card {
+            flex-direction: row;
+            align-items: flex-start;
+            text-align: left;
+            gap: 18px;
             padding: 24px;
+            border-radius: 24px;
+        }
+
+        .home-service-icon {
+            width: 58px;
+            height: 58px;
+            min-width: 58px;
+            border-radius: 18px;
+            margin-bottom: 0;
+            font-size: 22px;
+        }
+
+        .home-service-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .home-service-content h5 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .home-service-content p {
+            font-size: 14px;
+            line-height: 1.65;
+        }
+    }
+
+    /* =========================================================
+       RESPONSIVE SMALL MOBILE
+       ========================================================= */
+    @media (max-width: 575px) {
+        .home-hero-overlay {
+            padding: 118px 0 95px;
+            text-align: center;
+        }
+
+        .home-hero-title {
+            font-size: 34px;
+            line-height: 1.12;
+        }
+
+        .home-hero-text {
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .home-hero-actions {
+            flex-direction: column;
+            align-items: stretch;
+            width: 100%;
+        }
+
+        .home-hero-actions .button {
+            width: 100%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .home-feature-wrapper {
+            margin-top: -42px;
+        }
+
+        .home-feature-card {
+            padding: 28px !important;
+            border-radius: 22px;
+        }
+
+        .home-feature-card i {
+            font-size: 42px;
+        }
+
+        .home-feature-card h5 {
+            font-size: 18px;
+        }
+
+        .home-feature-card p {
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .home-info-type {
+            top: 14px;
+            left: 14px;
+            padding: 6px 10px;
+            font-size: 10px;
+        }
+
+        .home-info-image-wrapper img,
+        .home-info-placeholder {
+            min-height: 190px;
+        }
+
+        .home-info-body {
+            padding: 20px;
+        }
+
+        .home-services-section .container {
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+        .home-service-card {
+            gap: 14px;
+            padding: 20px;
+        }
+
+        .home-service-icon {
+            width: 52px;
+            height: 52px;
+            min-width: 52px;
+            border-radius: 17px;
+            font-size: 20px;
+        }
+
+        .home-cta-section {
+            padding: 72px 0;
+        }
+
+        .home-cta-pill {
+            padding-left: 18px !important;
+            padding-right: 18px !important;
+            max-width: 100%;
+        }
+
+        .home-cta-pill span {
+            font-size: 11px;
+        }
+
+        .home-cta-title {
+            font-size: 32px;
+        }
+
+        .home-cta-section .lead {
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .home-cta-section .button {
+            width: 100%;
+            display: inline-flex;
+            justify-content: center;
+            text-align: center;
+        }
+    }
+
+    /* =========================================================
+       RESPONSIVE EXTRA SMALL
+       ========================================================= */
+    @media (max-width: 380px) {
+        .home-hero-title {
+            font-size: 30px;
+        }
+
+        .home-hero-text {
+            font-size: 14px;
+        }
+
+        .home-info-body h4 {
+            font-size: 18px;
+        }
+
+        .home-service-card {
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .home-service-icon {
+            margin-bottom: 16px;
+        }
+
+        .home-cta-title {
+            font-size: 28px;
         }
     }
 </style>
@@ -446,7 +664,9 @@
                         <i class="bi bi-moon-stars"></i>
                     </div>
 
-                    <h5 class="fw-medium">Pusat Ibadah</h5>
+                    <h5 class="fw-medium">
+                        Pusat Ibadah
+                    </h5>
 
                     <p class="mb-0">
                         Menyelenggarakan shalat berjamaah, kajian rutin, dan peringatan hari besar Islam dengan nyaman dan khidmat.
@@ -460,7 +680,9 @@
                         <i class="bi bi-book"></i>
                     </div>
 
-                    <h5 class="fw-medium">Pendidikan & Dakwah</h5>
+                    <h5 class="fw-medium">
+                        Pendidikan & Dakwah
+                    </h5>
 
                     <p class="mb-0">
                         Membina generasi qur'ani melalui TPA, remaja masjid, serta literasi keislaman bagi seluruh lapisan masyarakat.
@@ -474,7 +696,9 @@
                         <i class="bi bi-heart-fill"></i>
                     </div>
 
-                    <h5 class="fw-medium">Pemberdayaan Sosial</h5>
+                    <h5 class="fw-medium">
+                        Pemberdayaan Sosial
+                    </h5>
 
                     <p class="mb-0">
                         Menyalurkan Zakat, Infaq, dan Shadaqah secara amanah untuk kesejahteraan umat dan warga sekitar.
@@ -534,8 +758,8 @@
                         <div class="home-info-image-wrapper">
                             @if($imageUrl)
                                 <img src="{{ $imageUrl }}"
-                                    alt="{{ $title }}"
-                                    onerror="this.closest('.home-info-image-wrapper').innerHTML='<div class=&quot;home-info-placeholder&quot;><i class=&quot;bi bi-image&quot;></i></div>';">
+                                     alt="{{ $title }}"
+                                     onerror="this.closest('.home-info-image-wrapper').innerHTML='<div class=&quot;home-info-placeholder&quot;><i class=&quot;bi bi-image&quot;></i></div>';">
                             @else
                                 <div class="home-info-placeholder">
                                     <i class="bi bi-image"></i>
@@ -592,52 +816,70 @@
     </div>
 </div>
 
-<div class="section border-top bg-light-gray">
+<div class="section border-top bg-light-gray home-services-section">
     <div class="container">
         <div class="section-title text-center mb-5">
-            <h2 class="fw-normal">Layanan & Fasilitas</h2>
+            <h6 class="font-small uppercase text-dkm-blue letter-spacing-1 fw-bold">
+                Layanan DKM
+            </h6>
+
+            <h2 class="fw-normal">
+                Layanan & Fasilitas
+            </h2>
         </div>
 
         <div class="row g-4" data-cues="fadeIn">
-            <div class="col-12 col-md-4">
-                <div class="feature-box text-center home-service-card">
-                    <div class="feature-box-icon bg-dkm-blue text-white">
+            <div class="col-12 col-lg-4">
+                <div class="home-service-card">
+                    <div class="home-service-icon bg-dkm-blue text-white">
                         <i class="fas fa-mosque"></i>
                     </div>
 
-                    <h5 class="fw-medium">Musala Kantor & Plant</h5>
+                    <div class="home-service-content">
+                        <h5 class="fw-medium">
+                            Musala Kantor & Plant
+                        </h5>
 
-                    <p>
-                        Penyediaan ruang ibadah yang bersih dan nyaman di lingkungan kerja untuk mendukung produktivitas jasmani dan rohani.
-                    </p>
+                        <p>
+                            Penyediaan ruang ibadah yang bersih dan nyaman di lingkungan kerja untuk mendukung produktivitas jasmani dan rohani.
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-12 col-md-4">
-                <div class="feature-box text-center home-service-card">
-                    <div class="feature-box-icon bg-dkm-blue text-white">
+            <div class="col-12 col-lg-4">
+                <div class="home-service-card">
+                    <div class="home-service-icon bg-dkm-blue text-white">
                         <i class="fas fa-file-invoice-dollar"></i>
                     </div>
 
-                    <h5 class="fw-medium">Transparansi Kas</h5>
+                    <div class="home-service-content">
+                        <h5 class="fw-medium">
+                            Transparansi Kas
+                        </h5>
 
-                    <p>
-                        Laporan keuangan yang diperbarui secara rutin sebagai bentuk amanah kami dalam mengelola dana umat.
-                    </p>
+                        <p>
+                            Laporan keuangan yang diperbarui secara rutin sebagai bentuk amanah kami dalam mengelola dana umat.
+                        </p>
+                    </div>
                 </div>
             </div>
 
-            <div class="col-12 col-md-4">
-                <div class="feature-box text-center home-service-card">
-                    <div class="feature-box-icon bg-dkm-blue text-white">
+            <div class="col-12 col-lg-4">
+                <div class="home-service-card">
+                    <div class="home-service-icon bg-dkm-blue text-white">
                         <i class="fas fa-hand-holding-heart"></i>
                     </div>
 
-                    <h5 class="fw-medium">Tabungan Qurban/Umroh</h5>
+                    <div class="home-service-content">
+                        <h5 class="fw-medium">
+                            Tabungan Qurban/Umroh
+                        </h5>
 
-                    <p>
-                        Program bimbingan dan pengelolaan dana untuk membantu jamaah mewujudkan niat ibadah mulia.
-                    </p>
+                        <p>
+                            Program bimbingan dan pengelolaan dana untuk membantu jamaah mewujudkan niat ibadah mulia.
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>

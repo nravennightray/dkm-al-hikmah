@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\AdminHomeInfoController;
+use App\Http\Controllers\Admin\AdminInfaqController;
 use App\Http\Controllers\Admin\AdminKategoriController;
 use App\Http\Controllers\Admin\AdminKegiatanController;
 use App\Http\Controllers\Admin\AdminKeuanganController;
@@ -60,5 +61,20 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::delete('/{id}', [AdminHomeInfoController::class, 'destroy'])->name('destroy');
 
         Route::post('/{id}/toggle-status', [AdminHomeInfoController::class, 'toggleStatus'])->name('toggle-status');
+    });
+
+    Route::prefix('infaq')->name('infaq.')->group(function () {
+        Route::get('/', [AdminInfaqController::class, 'index'])->name('index');
+
+        Route::post('/settings', [AdminInfaqController::class, 'updateSettings'])->name('settings.update');
+
+        Route::get('/accounts/create', [AdminInfaqController::class, 'createAccount'])->name('accounts.create');
+        Route::post('/accounts', [AdminInfaqController::class, 'storeAccount'])->name('accounts.store');
+
+        Route::get('/accounts/{id}/edit', [AdminInfaqController::class, 'editAccount'])->name('accounts.edit');
+        Route::post('/accounts/{id}', [AdminInfaqController::class, 'updateAccount'])->name('accounts.update');
+        Route::delete('/accounts/{id}', [AdminInfaqController::class, 'destroyAccount'])->name('accounts.destroy');
+
+        Route::post('/accounts/{id}/toggle-status', [AdminInfaqController::class, 'toggleAccountStatus'])->name('accounts.toggle-status');
     });
 });
