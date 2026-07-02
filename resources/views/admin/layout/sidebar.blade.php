@@ -21,7 +21,6 @@
     </div>
 
     <nav class="admin-sidebar-menu">
-
         {{-- ADMIN ONLY MENU --}}
         @if($isAdmin)
 
@@ -65,6 +64,12 @@
                 class="admin-sidebar-link {{ request()->routeIs('admin.home-info.*') ? 'active' : '' }}">
                 <i class="bi bi-megaphone"></i>
                 <span>Info Beranda</span>
+            </a>
+
+            <a href="{{ route('admin.infaq.index') }}"
+                class="admin-sidebar-link {{ request()->routeIs('admin.infaq.*') ? 'active' : '' }}">
+                <i class="bi bi-heart"></i>
+                <span>Infaq</span>
             </a>
         @endif
 
