@@ -265,6 +265,141 @@
             font-size: 28px;
         }
     }
+
+        .home-info-card {
+        height: 100%;
+        overflow: hidden;
+        border-radius: 26px;
+        background: #ffffff;
+        border: 1px solid rgba(37, 99, 235, 0.10);
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .home-info-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 42px rgba(37, 99, 235, 0.14);
+    }
+
+    .home-info-image-wrapper {
+        position: relative;
+        width: 34%;
+        min-width: 280px;
+        overflow: hidden;
+        background: #f1f5f9;
+    }
+
+    .home-info-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        min-height: 240px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .home-info-card:hover .home-info-image-wrapper img {
+        transform: scale(1.05);
+    }
+
+    .home-info-placeholder {
+        width: 100%;
+        height: 100%;
+        min-height: 240px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94a3b8;
+        font-size: 42px;
+        background: linear-gradient(180deg, #f8fafc 0%, #eff6ff 100%);
+    }
+
+    .home-info-type {
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 12px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(8px);
+    }
+
+    .home-info-type-info {
+        color: #1d4ed8;
+    }
+
+    .home-info-type-berita {
+        color: #15803d;
+    }
+
+    .home-info-type-iklan {
+        color: #b45309;
+    }
+
+    .home-info-body {
+        flex: 1;
+        padding: 32px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .home-info-date {
+        display: block;
+        margin-bottom: 10px;
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+    }
+
+    .home-info-body h4 {
+        margin-bottom: 8px;
+        color: #0f172a;
+        font-weight: 800;
+        line-height: 1.35;
+    }
+
+    .home-info-subtitle {
+        margin-bottom: 12px;
+        color: #334155;
+        font-weight: 700;
+    }
+
+    .home-info-description {
+        margin-bottom: 0;
+        color: #64748b;
+        line-height: 1.7;
+    }
+
+    @media (max-width: 768px) {
+        .home-info-card {
+            display: block;
+        }
+
+        .home-info-image-wrapper {
+            width: 100%;
+            min-width: 100%;
+        }
+
+        .home-info-image-wrapper img,
+        .home-info-placeholder {
+            min-height: 220px;
+        }
+
+        .home-info-body {
+            padding: 24px;
+        }
+    }
 </style>
 @endsection
 
@@ -350,53 +485,110 @@
     </div>
 </div>
 
-<div id="profil" class="section">
+<div id="info-beranda" class="section home-info-section">
     <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-12 col-lg-6">
-                <div class="box-shadow border-radius overflow-hidden">
-                    <img class="home-profile-image"
-                         src="{{ asset('assets/images/dkm/dkm-pic-1.jpeg') }}"
-                         alt="DKM Al Hikmah">
-                </div>
-            </div>
 
-            <div class="col-12 col-lg-6 home-profile-content">
-                <h6 class="font-small uppercase text-dkm-blue letter-spacing-1">
-                    Profil Masjid
-                </h6>
+        <div class="home-info-heading">
+            <h6 class="font-small uppercase text-dkm-blue letter-spacing-1 fw-bold">
+                Info Beranda
+            </h6>
 
-                <h2 class="fw-normal mb-lg-3">
-                    Membangun Umat, Menebar Manfaat di DKM Al Hikmah
-                </h2>
+            <h2 class="fw-normal mb-3">
+                Informasi & Berita Terbaru
+            </h2>
 
-                <p>
-                    DKM Al Hikmah hadir sebagai pusat peribadahan dan pembinaan umat yang inklusif.
-                    Kami berkomitmen untuk menyediakan lingkungan yang nyaman bagi jamaah untuk beribadah,
-                    belajar, dan bersosialisasi berdasarkan nilai-nilai Al-Qur'an dan Sunnah.
-                </p>
-
-                <div class="row g-3 mt-3">
-                    <div class="col-12 col-sm-6">
-                        <div class="home-check-item">
-                            <i class="bi bi-check-circle text-dkm-blue"></i>
-                            <span>Berdiri Sejak 19xx</span>
-                        </div>
-                    </div>
-
-                    <div class="col-12 col-sm-6">
-                        <div class="home-check-item">
-                            <i class="bi bi-check-circle text-dkm-blue"></i>
-                            <span>Kapasitas 1000+ Jamaah</span>
-                        </div>
-                    </div>
-                </div>
-
-                <a class="button-text-2 mt-4" href="{{ route('profil.sejarah') }}">
-                    Selengkapnya tentang Sejarah Kami
-                </a>
-            </div>
+            <p class="text-muted mb-0">
+                Update kegiatan, pengumuman, dan informasi penting dari DKM Al Hikmah.
+            </p>
         </div>
+
+        <div class="row g-4">
+            @forelse(($homeInfos ?? collect()) as $info)
+                @php
+                    $type = strtolower($info['type'] ?? 'info');
+                    $title = $info['title'] ?? '-';
+                    $subtitle = $info['subtitle'] ?? '';
+                    $description = $info['description'] ?? '';
+                    $image = $info['image'] ?? '';
+                    $publishedAt = $info['published_at'] ?? '';
+
+                    $imageUrl = !empty($image)
+                        ? asset('image/home-info/' . $image)
+                        : null;
+
+                    $typeClass = in_array($type, ['info', 'berita', 'iklan'])
+                        ? 'home-info-type-' . $type
+                        : 'home-info-type-info';
+
+                    try {
+                        $dateLabel = !empty($publishedAt)
+                            ? \Carbon\Carbon::parse($publishedAt)->translatedFormat('d F Y')
+                            : '';
+                    } catch (\Throwable $e) {
+                        $dateLabel = $publishedAt;
+                    }
+                @endphp
+
+                <div class="col-12">
+                    <div class="home-info-card">
+                        <div class="home-info-image-wrapper">
+                            @if($imageUrl)
+                                <img src="{{ $imageUrl }}"
+                                    alt="{{ $title }}"
+                                    onerror="this.closest('.home-info-image-wrapper').innerHTML='<div class=&quot;home-info-placeholder&quot;><i class=&quot;bi bi-image&quot;></i></div>';">
+                            @else
+                                <div class="home-info-placeholder">
+                                    <i class="bi bi-image"></i>
+                                </div>
+                            @endif
+
+                            <span class="home-info-type {{ $typeClass }}">
+                                {{ $type }}
+                            </span>
+                        </div>
+
+                        <div class="home-info-body">
+                            @if(!empty($dateLabel))
+                                <span class="home-info-date">
+                                    {{ $dateLabel }}
+                                </span>
+                            @endif
+
+                            <h4>
+                                {{ $title }}
+                            </h4>
+
+                            @if(!empty($subtitle))
+                                <div class="home-info-subtitle">
+                                    {{ $subtitle }}
+                                </div>
+                            @endif
+
+                            <p class="home-info-description">
+                                {{ $description }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <div class="col-12">
+                    <div class="home-info-empty">
+                        <div class="home-info-empty-icon">
+                            <i class="bi bi-megaphone"></i>
+                        </div>
+
+                        <h4 class="fw-bold mb-2">
+                            Belum Ada Info Terbaru
+                        </h4>
+
+                        <p class="text-muted mb-0">
+                            Informasi terbaru dari DKM Al Hikmah akan tampil di sini.
+                        </p>
+                    </div>
+                </div>
+            @endforelse
+        </div>
+
     </div>
 </div>
 

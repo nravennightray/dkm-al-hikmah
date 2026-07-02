@@ -1,6 +1,6 @@
 @extends('master.layout.app')
 
-@section('title', 'Struktur Organisasi - DKM Al Hikmah')
+@section('title', ($page['title'] ?? 'Struktur Organisasi') . ' - DKM Al Hikmah')
 
 @section('css')
 <style>
@@ -63,6 +63,7 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.3s ease;
     }
 
     .org-field-card:hover .org-field-icon {
@@ -86,15 +87,60 @@
     .structure-placeholder i {
         color: rgba(37, 99, 235, 0.35);
     }
+
+    .structure-image {
+        width: 100%;
+        border-radius: 18px;
+    }
+
+    .profile-empty {
+        padding: 48px 24px;
+        text-align: center;
+        border-radius: 24px;
+        background: #ffffff;
+        border: 1px solid rgba(37, 99, 235, 0.10);
+        box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+    }
+
+    .profile-empty-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        border-radius: 22px;
+        background: #eff6ff;
+        color: #2563eb;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }
 </style>
 @endsection
 
 @section('content')
 
+@php
+    $title = $page['title'] ?? 'Struktur Organisasi';
+    $heroBadge = $page['hero_badge'] ?? 'Tata Kelola DKM';
+    $heroIcon = $page['hero_icon'] ?? 'fas fa-sitemap';
+    $subtitle = $page['subtitle'] ?? 'Sinergi dalam melayani umat dan memakmurkan masjid.';
+    $sectionLabel = $page['section_label'] ?? 'Bagan Organisasi';
+    $sectionTitle = $page['section_title'] ?? 'Bagan Organisasi DKM Al Hikmah';
+    $sectionBody = $page['section_body_1'] ?? $subtitle;
+    $image = $page['image'] ?? '';
+
+    $mainStructure = $mainStructure ?? null;
+    $secondaryStructures = $secondaryStructures ?? collect();
+    $fieldStructures = $fieldStructures ?? collect();
+
+    $structureImageUrl = !empty($image)
+        ? asset('image/profil/' . $image)
+        : null;
+@endphp
+
 <div class="section-xl position-relative overflow-hidden"
      style="background: linear-gradient(180deg, rgba(30, 64, 175, 0.98) 0%, rgba(37, 99, 235, 0.95) 55%, rgba(14, 165, 233, 0.92) 100%);">
 
-    <!-- Decorative Glow -->
     <div class="position-absolute top-0 start-0 translate-middle rounded-circle"
          style="width: 320px; height: 320px; background: rgba(255,255,255,0.14); filter: blur(70px);">
     </div>
@@ -106,11 +152,15 @@
     <div class="container position-relative text-center pt-5">
         <div class="d-inline-flex align-items-center px-4 py-2 mb-4 rounded-pill"
              style="background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(10px);">
-            <i class="fas fa-sitemap me-2 text-white"></i>
-            <span class="font-small uppercase letter-spacing-1 text-white">Tata Kelola DKM</span>
+            <i class="{{ $heroIcon }} me-2 text-white"></i>
+            <span class="font-small uppercase letter-spacing-1 text-white">
+                {{ $heroBadge }}
+            </span>
         </div>
 
-        <h1 class="fw-bold text-white display-4">Struktur Organisasi</h1>
+        <h1 class="fw-bold text-white display-4">
+            {{ $title }}
+        </h1>
 
         <nav aria-label="breadcrumb" class="mt-3">
             <ol class="breadcrumb justify-content-center mb-0">
@@ -118,7 +168,9 @@
                     <a href="/" class="text-white text-decoration-none opacity-75">Beranda</a>
                 </li>
                 <li class="breadcrumb-item text-white opacity-75">Profil</li>
-                <li class="breadcrumb-item active text-white" aria-current="page">Struktur</li>
+                <li class="breadcrumb-item active text-white" aria-current="page">
+                    {{ $title }}
+                </li>
             </ol>
         </nav>
     </div>
@@ -126,88 +178,111 @@
 
 <div class="section" style="background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);">
     <div class="container">
+
         <div class="section-title text-center mb-5">
             <h6 class="font-small uppercase letter-spacing-1 fw-bold" style="color: #2563eb;">
-                Bagan Organisasi
+                {{ $sectionLabel }}
             </h6>
-            <h2 class="fw-bold">Bagan Organisasi DKM Al Hikmah</h2>
-            <p class="text-muted">Sinergi dalam melayani umat dan memakmurkan masjid.</p>
+
+            <h2 class="fw-bold">
+                {{ $sectionTitle }}
+            </h2>
+
+            @if(!empty($sectionBody))
+                <p class="text-muted">
+                    {{ $sectionBody }}
+                </p>
+            @endif
         </div>
 
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-5 col-lg-4 text-center">
-                <div class="org-main-card p-4 bg-white">
-                    <div class="org-icon-main rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
-                        <i class="fas fa-user-tie fa-lg"></i>
+        @if($mainStructure)
+            @php
+                $mainRole = $mainStructure['role'] ?? 'Ketua Umum';
+                $mainDescription = $mainStructure['description'] ?? 'Penanggung Jawab Utama';
+                $mainIcon = $mainStructure['icon'] ?? 'fas fa-user-tie';
+            @endphp
+
+            <div class="row justify-content-center mb-5">
+                <div class="col-md-5 col-lg-4 text-center">
+                    <div class="org-main-card p-4 bg-white">
+                        <div class="org-icon-main rounded-circle d-inline-flex align-items-center justify-content-center mb-3">
+                            <i class="{{ $mainIcon }} fa-lg"></i>
+                        </div>
+
+                        <h5 class="mb-1 fw-bold">
+                            {{ $mainRole }}
+                        </h5>
+
+                        <p class="org-label mb-0">
+                            {{ $mainDescription }}
+                        </p>
                     </div>
-
-                    <h5 class="mb-1 fw-bold">Ketua Umum</h5>
-                    <p class="org-label mb-0">Penanggung Jawab Utama</p>
                 </div>
             </div>
-        </div>
+        @endif
 
-        <div class="row justify-content-center g-4 mb-5">
-            <div class="col-md-4 col-lg-3 text-center">
-                <div class="org-small-card p-4 bg-white shadow-sm h-100">
-                    <h6 class="mb-1 fw-bold">Sekretaris</h6>
-                    <p class="text-muted small mb-0">Administrasi & Surat</p>
-                </div>
-            </div>
+        @if($secondaryStructures->count())
+            <div class="row justify-content-center g-4 mb-5">
+                @foreach($secondaryStructures as $structure)
+                    <div class="col-md-4 col-lg-3 text-center">
+                        <div class="org-small-card p-4 bg-white shadow-sm h-100">
+                            <h6 class="mb-1 fw-bold">
+                                {{ $structure['role'] ?? '-' }}
+                            </h6>
 
-            <div class="col-md-4 col-lg-3 text-center">
-                <div class="org-small-card p-4 bg-white shadow-sm h-100">
-                    <h6 class="mb-1 fw-bold">Bendahara</h6>
-                    <p class="text-muted small mb-0">Keuangan & Infaq</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="row g-4 text-center">
-            <div class="col-6 col-lg-3">
-                <div class="org-field-card p-4 bg-white h-100">
-                    <div class="org-field-icon">
-                        <i class="fas fa-mosque"></i>
+                            <p class="text-muted small mb-0">
+                                {{ $structure['description'] ?? '' }}
+                            </p>
+                        </div>
                     </div>
-
-                    <h6 class="mb-1 fw-bold">Bidang Idarah</h6>
-                    <p class="font-small text-muted mb-0">Manajemen & Organisasi</p>
-                </div>
+                @endforeach
             </div>
+        @endif
 
-            <div class="col-6 col-lg-3">
-                <div class="org-field-card p-4 bg-white h-100">
-                    <div class="org-field-icon">
-                        <i class="fas fa-pray"></i>
+        @if($fieldStructures->count())
+            <div class="row g-4 text-center">
+                @foreach($fieldStructures as $structure)
+                    @php
+                        $role = $structure['role'] ?? '-';
+                        $description = $structure['description'] ?? '';
+                        $icon = $structure['icon'] ?? 'fas fa-users';
+                    @endphp
+
+                    <div class="col-6 col-lg-3">
+                        <div class="org-field-card p-4 bg-white h-100">
+                            <div class="org-field-icon">
+                                <i class="{{ $icon }}"></i>
+                            </div>
+
+                            <h6 class="mb-1 fw-bold">
+                                {{ $role }}
+                            </h6>
+
+                            <p class="font-small text-muted mb-0">
+                                {{ $description }}
+                            </p>
+                        </div>
                     </div>
-
-                    <h6 class="mb-1 fw-bold">Bidang Imarah</h6>
-                    <p class="font-small text-muted mb-0">Peribadahan & Dakwah</p>
-                </div>
+                @endforeach
             </div>
+        @endif
 
-            <div class="col-6 col-lg-3">
-                <div class="org-field-card p-4 bg-white h-100">
-                    <div class="org-field-icon">
-                        <i class="fas fa-tools"></i>
-                    </div>
-
-                    <h6 class="mb-1 fw-bold">Bidang Riayah</h6>
-                    <p class="font-small text-muted mb-0">Pemeliharaan & Bangunan</p>
+        @if(!$mainStructure && !$secondaryStructures->count() && !$fieldStructures->count())
+            <div class="profile-empty">
+                <div class="profile-empty-icon">
+                    <i class="fas fa-sitemap"></i>
                 </div>
-            </div>
 
-            <div class="col-6 col-lg-3">
-                <div class="org-field-card p-4 bg-white h-100">
-                    <div class="org-field-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
+                <h5 class="fw-bold mb-2">
+                    Data Struktur Belum Tersedia
+                </h5>
 
-                    <h6 class="mb-1 fw-bold">Bidang Sosial</h6>
-                    <p class="font-small text-muted mb-0">Zakat & Pemberdayaan</p>
-                </div>
+                <p class="text-muted mb-0">
+                    Data struktur organisasi belum tersedia saat ini.
+                </p>
             </div>
-        </div>
+        @endif
+
     </div>
 </div>
 
@@ -215,20 +290,22 @@
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10 text-center">
-                <div class="p-2 bg-white shadow border-radius">
-                    <div class="structure-placeholder p-5 border-radius">
-                        <i class="fas fa-sitemap fa-3x mb-3"></i>
-                        <p class="text-muted italic mb-0">
-                            "Bagan Visual dalam proses finalisasi oleh pengurus."
-                        </p>
+                @if($structureImageUrl)
+                    <div class="p-2 bg-white shadow border-radius">
+                        <img src="{{ $structureImageUrl }}"
+                             alt="{{ $sectionTitle }}"
+                             class="img-fluid structure-image">
                     </div>
-                </div>
-
-                {{-- <div class="p-2 bg-white shadow border-radius">
-                    <img src="{{ asset('assets/images/dkm/full-structure-chart.jpg') }}"
-                         alt="Bagan Struktur Organisasi"
-                         class="img-fluid border-radius">
-                </div> --}}
+                @else
+                    <div class="p-2 bg-white shadow border-radius">
+                        <div class="structure-placeholder p-5 border-radius">
+                            <i class="fas fa-sitemap fa-3x mb-3"></i>
+                            <p class="text-muted italic mb-0">
+                                "Bagan Visual dalam proses finalisasi oleh pengurus."
+                            </p>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

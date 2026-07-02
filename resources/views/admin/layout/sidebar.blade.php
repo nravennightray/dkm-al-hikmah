@@ -49,13 +49,23 @@
                 <span>Kegiatan</span>
             </a>
 
-            {{-- MUSALA ONLY ADMIN --}}
             <a href="{{ route('admin.musala.index') }}"
                class="admin-sidebar-link {{ request()->routeIs('admin.musala.*') ? 'active' : '' }}">
                 <i class="bi bi-building"></i>
                 <span>Musala</span>
             </a>
 
+            <a href="{{ route('admin.profil.index') }}"
+                class="admin-sidebar-link {{ request()->routeIs('admin.profil.*') ? 'active' : '' }}">
+                <i class="bi bi-person-badge"></i>
+                <span>Profil DKM</span>
+            </a>
+
+            <a href="{{ route('admin.home-info.index') }}"
+                class="admin-sidebar-link {{ request()->routeIs('admin.home-info.*') ? 'active' : '' }}">
+                <i class="bi bi-megaphone"></i>
+                <span>Info Beranda</span>
+            </a>
         @endif
 
         {{-- ALL ROLES --}}
