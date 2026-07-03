@@ -217,9 +217,13 @@
         : ($musala['facilities'] ?? '');
 
     $currentImage = $musala['image'] ?? null;
-    $imageUrl = !empty($currentImage)
-        ? asset('image/musala/' . $currentImage)
-        : null;
+
+    $image = $musala['image'] ?? '';
+    $imagePath = public_path('image/musala/' . $image);
+
+    $imageUrl = !empty($image) && file_exists($imagePath)
+        ? asset('image/musala/' . $image) . '?v=' . filemtime($imagePath)
+        : asset('assets/images/dkm/default-image.jpg');
 @endphp
 
 {{-- HEADER --}}
@@ -316,7 +320,7 @@
 
                     <div class="image-preview">
                         @if($imageUrl)
-                            <img src="{{ $imageUrl }}" alt="Musala">
+                            <img src="{{ $imageUrl }}" alt="{{ $musala['title'] ?? 'Musala' }}">
                         @else
                             <div class="image-placeholder">
                                 <i class="bi bi-image"></i>

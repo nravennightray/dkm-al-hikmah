@@ -68,9 +68,15 @@
     $location = $musala['location'] ?? '-';
     $capacity = $musala['capacity'] ?? '-';
     $desc = $musala['desc'] ?? '';
-    $image = $musala['image'] ?? '';
     $facilities = $musala['facilities'] ?? [];
 
+    $image = $musala['image'] ?? '';
+    $imagePath = public_path('image/musala/' . $image);
+
+    $imageUrl = !empty($image) && file_exists($imagePath)
+        ? asset('image/musala/' . $image) . '?v=' . filemtime($imagePath)
+        : asset('assets/images/dkm/default-image.jpg');
+    
     if (is_string($facilities)) {
         $facilities = array_filter(array_map('trim', explode(';', $facilities)));
     }
@@ -97,7 +103,7 @@
             <div class="col-lg-6">
                 @if(!empty($image))
                     <div class="border-radius overflow-hidden shadow-lg bg-white">
-                        <img src="{{ asset('image/musala/' . $image) }}"
+                        <img src="{{ $imageUrl }}" 
                              class="musala-detail-image"
                              alt="{{ $title }}">
                     </div>

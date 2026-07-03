@@ -72,8 +72,18 @@
                     $location = $loc['location'] ?? '-';
                     $capacity = $loc['capacity'] ?? '-';
                     $desc = $loc['desc'] ?? '';
-                    $image = $loc['image'] ?? '';
                     $facilities = $loc['facilities'] ?? [];
+
+                    if (is_string($facilities)) {
+                        $facilities = array_filter(array_map('trim', explode(',', $facilities)));
+                    }
+
+                    $image = $loc['image'] ?? '';
+                    $imagePath = public_path('image/musala/' . $image);
+
+                    $imageUrl = !empty($image) && file_exists($imagePath)
+                        ? asset('image/musala/' . $image) . '?v=' . filemtime($imagePath)
+                        : null;
                 @endphp
 
                 <div class="col-md-6">
@@ -82,7 +92,7 @@
 
                             <div class="col-lg-5">
                                 @if(!empty($image))
-                                    <img src="{{ asset('image/musala/' . $image) }}"
+                                    <img src="{{ $imageUrl }}" 
                                          class="musala-image"
                                          alt="{{ $title }}">
                                 @else
