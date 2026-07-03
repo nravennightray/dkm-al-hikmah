@@ -183,16 +183,21 @@
             $slug = $item['slug'] ?? '';
             $title = $item['title'] ?? '';
             $location = $item['location'] ?? '';
-            $image = $item['image'] ?? null;
+
+            $image = $item['image'] ?? '';
+            $imagePath = public_path('image/musala/' . $image);
+
+            $imageUrl = !empty($image) && file_exists($imagePath)
+                ? asset('image/musala/' . $image) . '?v=' . filemtime($imagePath)
+                : asset('assets/images/dkm/default-image.jpg');
+
         @endphp
 
         <div class="musala-card">
 
             {{-- IMAGE --}}
             @if(!empty($image))
-                <img src="{{ asset('image/musala/' . $image) }}"
-                     class="musala-img"
-                     alt="{{ $title }}">
+                <img src="{{ $imageUrl }}" class="musala-img" alt="{{ $item['title'] ?? 'Musala' }}">
             @else
                 <div class="musala-placeholder">
                     <div class="text-center">
@@ -202,7 +207,6 @@
                 </div>
             @endif
 
-            {{-- BODY --}}
             <div class="musala-body">
 
                 <div class="musala-badge">

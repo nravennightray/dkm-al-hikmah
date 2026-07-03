@@ -242,13 +242,20 @@ class AdminMusalaController extends Controller
         $fileName = $this->makeImageName($slug);
         $path = $folder . DIRECTORY_SEPARATOR . $fileName;
 
+        if (is_file($path)) {
+            @unlink($path);
+            clearstatcache(true, $path);
+        }
+
         $saved = imagewebp($image, $path, 85);
 
         imagedestroy($image);
 
-        if (!$saved) {
+        clearstatcache(true, $path);
+
+        if (! $saved) {
             throw ValidationException::withMessages([
-                'image' => 'Failed to save uploaded image.',
+                'image_upload' => 'Gagal menyimpan gambar.',
             ]);
         }
 
