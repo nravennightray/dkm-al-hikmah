@@ -54,9 +54,9 @@
 <div class="section-xl musala-hero">
     <div class="container text-center pt-5">
         <h1 class="fw-normal text-white display-4">Fasilitas Musala</h1>
-        <p class="text-white-50">
+        {{-- <p class="text-white-50">
             Temukan lokasi tempat ibadah terdekat di lingkungan Plant & Office.
-        </p>
+        </p> --}}
     </div>
 </div>
 
