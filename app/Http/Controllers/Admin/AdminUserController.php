@@ -12,6 +12,18 @@ use Illuminate\Validation\Rule;
 
 class AdminUserController extends Controller
 {
+    private const SHEET_NAME = 'users';
+
+    private const COLUMNS = [
+        'id_user',
+        'nrp',
+        'name',
+        'email',
+        'password',
+        'role',
+        'status',
+    ];
+
     protected GoogleSheetService $sheetService;
 
     protected string $spreadsheetId;
@@ -42,7 +54,7 @@ class AdminUserController extends Controller
 
     public function index(Request $request)
     {
-        $allUsers = $this->getSheetCollection('users')
+        $allUsers = $this->getSheetCollection(self::SHEET_NAME)
             ->sortBy(fn ($user) => (int) ($user['id_user'] ?? 0))
             ->values();
 
@@ -77,36 +89,17 @@ class AdminUserController extends Controller
 
     public function store(Request $request)
     {
-        $users = $this->getSheetCollection('users');
+        $users = $this->getSheetCollection(self::SHEET_NAME);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'email' => [
-                'required',
-                'email',
-                'max:180',
-                function ($attribute, $value, $fail) use ($users) {
-                    $emailExists = $users
-                        ->pluck('email')
-                        ->map(fn ($email) => strtolower(trim($email)))
-                        ->contains(strtolower(trim($value)));
-
-                    if ($emailExists) {
-                        $fail('Email sudah digunakan.');
-                    }
-                },
-            ],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', Rule::in($this->roles)],
-            'status' => ['required', Rule::in($this->statuses)],
-        ]);
+        $validated = $this->validateUser($request, $users);
 
         $idUser = $this->getNextUserId($users);
 
-        $this->sheetService->appendRow($this->spreadsheetId, 'users', [
+        $this->sheetService->appendRow($this->spreadsheetId, self::SHEET_NAME, [
             $idUser,
+            $validated['nrp'],
             $validated['name'],
-            strtolower(trim($validated['email'])),
+            $validated['email'],
             Hash::make($validated['password']),
             $validated['role'],
             $validated['status'],
@@ -119,7 +112,7 @@ class AdminUserController extends Controller
 
     public function edit(string $user)
     {
-        $data = $this->getSheetCollection('users')
+        $data = $this->getSheetCollection(self::SHEET_NAME)
             ->firstWhere('id_user', $user);
 
         if (! $data) {
@@ -134,7 +127,7 @@ class AdminUserController extends Controller
 
     public function update(Request $request, string $user)
     {
-        $users = $this->getSheetCollection('users');
+        $users = $this->getSheetCollection(self::SHEET_NAME);
 
         $data = $users->firstWhere('id_user', $user);
 
@@ -142,28 +135,7 @@ class AdminUserController extends Controller
             abort(404);
         }
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:150'],
-            'email' => [
-                'required',
-                'email',
-                'max:180',
-                function ($attribute, $value, $fail) use ($users, $data) {
-                    $emailExists = $users
-                        ->reject(fn ($item) => ($item['id_user'] ?? null) == ($data['id_user'] ?? null))
-                        ->pluck('email')
-                        ->map(fn ($email) => strtolower(trim((string) $email)))
-                        ->contains(strtolower(trim($value)));
-
-                    if ($emailExists) {
-                        $fail('Email sudah digunakan.');
-                    }
-                },
-            ],
-            'password' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'role' => ['required', Rule::in($this->roles)],
-            'status' => ['required', Rule::in($this->statuses)],
-        ]);
+        $validated = $this->validateUser($request, $users, $data, false);
 
         $password = $data['password'] ?? '';
 
@@ -173,8 +145,9 @@ class AdminUserController extends Controller
 
         $payload = [
             $data['id_user'],
-            trim($validated['name']),
-            strtolower(trim($validated['email'])),
+            $validated['nrp'],
+            $validated['name'],
+            $validated['email'],
             $password,
             $validated['role'],
             $validated['status'],
@@ -182,7 +155,7 @@ class AdminUserController extends Controller
 
         $this->sheetService->updateRow(
             $this->spreadsheetId,
-            'users',
+            self::SHEET_NAME,
             (int) $data['_row_number'],
             $payload
         );
@@ -194,7 +167,7 @@ class AdminUserController extends Controller
 
     public function destroy(string $user)
     {
-        $data = $this->getSheetCollection('users')
+        $data = $this->getSheetCollection(self::SHEET_NAME)
             ->firstWhere('id_user', $user);
 
         if (! $data) {
@@ -211,13 +184,80 @@ class AdminUserController extends Controller
 
         $this->sheetService->deleteRow(
             $this->spreadsheetId,
-            'users',
-            $data['_row_number']
+            self::SHEET_NAME,
+            (int) $data['_row_number']
         );
 
         return redirect()
             ->route('admin.users.index')
             ->with('success', 'User berhasil dihapus.');
+    }
+
+    private function validateUser(
+        Request $request,
+        Collection $users,
+        ?array $currentUser = null,
+        bool $isCreate = true
+    ): array {
+        $validated = $request->validate([
+            'nrp' => [
+                'required',
+                'string',
+                'max:50',
+                function ($attribute, $value, $fail) use ($users, $currentUser) {
+                    $filteredUsers = $currentUser
+                        ? $users->reject(fn ($item) => (string) ($item['id_user'] ?? '') === (string) ($currentUser['id_user'] ?? ''))
+                        : $users;
+
+                    $nrpExists = $filteredUsers
+                        ->pluck('nrp')
+                        ->map(fn ($nrp) => strtolower(trim((string) $nrp)))
+                        ->contains(strtolower(trim((string) $value)));
+
+                    if ($nrpExists) {
+                        $fail('NRP sudah digunakan.');
+                    }
+                },
+            ],
+
+            'name' => ['required', 'string', 'max:150'],
+
+            'email' => [
+                'required',
+                'email',
+                'max:180',
+                function ($attribute, $value, $fail) use ($users, $currentUser) {
+                    $filteredUsers = $currentUser
+                        ? $users->reject(fn ($item) => (string) ($item['id_user'] ?? '') === (string) ($currentUser['id_user'] ?? ''))
+                        : $users;
+
+                    $emailExists = $filteredUsers
+                        ->pluck('email')
+                        ->map(fn ($email) => strtolower(trim((string) $email)))
+                        ->contains(strtolower(trim((string) $value)));
+
+                    if ($emailExists) {
+                        $fail('Email sudah digunakan.');
+                    }
+                },
+            ],
+
+            'password' => $isCreate
+                ? ['required', 'string', 'min:8', 'confirmed']
+                : ['nullable', 'string', 'min:8', 'confirmed'],
+
+            'role' => ['required', Rule::in($this->roles)],
+            'status' => ['required', Rule::in($this->statuses)],
+        ]);
+
+        return [
+            'nrp' => trim((string) $validated['nrp']),
+            'name' => trim((string) $validated['name']),
+            'email' => strtolower(trim((string) $validated['email'])),
+            'password' => $validated['password'] ?? null,
+            'role' => $validated['role'],
+            'status' => $validated['status'],
+        ];
     }
 
     private function getNextUserId(Collection $users): int
@@ -233,36 +273,41 @@ class AdminUserController extends Controller
 
     private function getSheetCollection(string $sheetName): Collection
     {
-        $rows = collect($this->sheetService->getSheet($this->spreadsheetId, $sheetName));
+        $rows = collect(
+            $this->sheetService->getSheet($this->spreadsheetId, $sheetName)
+        );
 
         if ($rows->isEmpty()) {
             return collect();
         }
 
-        $header = collect($rows->shift())
-            ->map(fn ($column) => trim($column))
-            ->filter()
-            ->values();
+        // Remove header row.
+        $rows->shift();
 
         return $rows
-            ->filter(fn ($row) => collect($row)->filter()->isNotEmpty())
-            ->values()
-            ->map(function ($row, $index) use ($header) {
-                $row = collect($row);
+            ->map(function ($row, $index) {
+                $row = collect($row)
+                    ->pad(count(self::COLUMNS), '')
+                    ->take(count(self::COLUMNS))
+                    ->values();
 
-                if ($row->count() < $header->count()) {
-                    $row = $row->pad($header->count(), null);
+                $data = collect(self::COLUMNS)
+                    ->combine($row)
+                    ->toArray();
+
+                foreach ($data as $key => $value) {
+                    $data[$key] = trim((string) $value);
                 }
 
-                if ($row->count() > $header->count()) {
-                    $row = $row->take($header->count());
-                }
-
-                $data = $header->combine($row)->toArray();
-
+                // Header is row 1, data starts at row 2.
                 $data['_row_number'] = $index + 2;
 
                 return $data;
-            });
+            })
+            ->filter(function ($row) {
+                return collect(self::COLUMNS)
+                    ->some(fn ($column) => trim((string) ($row[$column] ?? '')) !== '');
+            })
+            ->values();
     }
 }

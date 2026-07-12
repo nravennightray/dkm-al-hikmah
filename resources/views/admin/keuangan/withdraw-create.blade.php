@@ -212,6 +212,93 @@
             grid-template-columns: 1fr;
         }
     }
+
+    .withdraw-balance-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+        border-radius: 18px;
+        background: #eff6ff;
+        border: 1px solid rgba(37, 99, 235, 0.16);
+        color: #475569;
+    }
+
+    .withdraw-balance-notice.warning {
+        background: #fff7ed;
+        border-color: rgba(249, 115, 22, 0.20);
+    }
+
+    .withdraw-balance-notice.danger {
+        background: #fef2f2;
+        border-color: rgba(220, 38, 38, 0.18);
+    }
+
+    .withdraw-balance-notice i {
+        color: #2563eb;
+        font-size: 20px;
+        line-height: 1.2;
+        flex-shrink: 0;
+    }
+
+    .withdraw-balance-notice.warning i {
+        color: #f97316;
+    }
+
+    .withdraw-balance-notice.danger i {
+        color: #dc2626;
+    }
+
+    .withdraw-balance-title {
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 850;
+        margin-bottom: 8px;
+    }
+
+    .withdraw-balance-text {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .withdraw-balance-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .withdraw-balance-pill {
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+    }
+
+    .withdraw-balance-pill span {
+        display: block;
+        margin-bottom: 4px;
+        color: #94a3b8;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .withdraw-balance-pill strong {
+        display: block;
+        color: #0f172a;
+        font-size: 14px;
+        font-weight: 850;
+    }
+
+    @media (max-width: 768px) {
+        .withdraw-balance-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 @endsection
 
@@ -260,7 +347,14 @@
         </div>
     @endif
 
-    <form action="{{ route('admin.keuangan.withdraw.store') }}" method="POST">
+    @if($errors->any())
+        <div class="alert alert-danger border-0 rounded-4 mb-4">
+            <i class="bi bi-exclamation-circle me-2"></i>
+            {{ $errors->first() }}
+        </div>
+    @endif
+
+    <form id="withdrawForm" action="{{ route('admin.keuangan.withdraw.store') }}" method="POST">
         @csrf
 
         <div class="admin-form-grid">
@@ -294,10 +388,14 @@
                         Pilih jamaah atau karyawan yang ingin mengambil tabungan.
                     </div>
                 @else
+                    <input type="hidden"
+                           id="target_user_id"
+                           value="{{ $currentUser['id_user'] ?? session('sheet_user.id_user') ?? '' }}">
+
                     <input type="text"
-                        class="admin-form-control"
-                        value="{{ $currentUser['name'] ?? session('sheet_user.name') ?? 'User' }}"
-                        readonly>
+                           class="admin-form-control"
+                           value="{{ $currentUser['name'] ?? session('sheet_user.name') ?? 'User' }}"
+                           readonly>
 
                     <div class="admin-form-help">
                         Pengajuan ini otomatis menggunakan akun kamu sendiri.
@@ -345,6 +443,40 @@
                 @enderror
             </div>
 
+            <div class="admin-form-group-full">
+                <div class="withdraw-balance-notice" id="withdrawBalanceNotice">
+                    <i class="bi bi-info-circle"></i>
+
+                    <div>
+                        <div class="withdraw-balance-title">
+                            Informasi Saldo Tersedia
+                        </div>
+
+                        <p class="withdraw-balance-text" id="withdrawBalanceText">
+                            Pilih jamaah dan jenis tabungan untuk melihat saldo yang dapat diambil.
+                        </p>
+
+                        <div class="withdraw-balance-grid d-none" id="withdrawBalanceGrid">
+                            <div class="withdraw-balance-pill">
+                                <span>Saldo Saat Ini</span>
+                                <strong id="currentBalanceText">Rp 0</strong>
+                            </div>
+
+                            <div class="withdraw-balance-pill">
+                                <span>Pending Ambil</span>
+                                <strong id="pendingWithdrawText">Rp 0</strong>
+                            </div>
+
+                            <div class="withdraw-balance-pill">
+                                <span>Saldo Tersedia</span>
+                                <strong id="availableBalanceText">Rp 0</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- IMPORTANT: This is the missing nominal input --}}
             <div class="admin-form-group-full">
                 <label for="amount" class="admin-form-label">
                     Nominal Ambil
@@ -400,7 +532,7 @@
                 Batal
             </a>
 
-            <button type="submit" class="admin-btn-blue">
+            <button type="submit" id="submitWithdrawBtn" class="admin-btn-blue">
                 <i class="bi bi-send"></i>
                 Kirim Pengajuan
             </button>
@@ -412,9 +544,25 @@
 
 @section('script')
 <script>
+    const balanceSummary = @json($balanceSummary ?? []);
+
     const amountInput = document.getElementById('amount');
     const amountPreview = document.getElementById('amountPreview');
     const amountPreviewText = document.getElementById('amountPreviewText');
+
+    const targetUserInput = document.getElementById('target_user_id');
+    const fundTypeInput = document.getElementById('fund_type');
+
+    const withdrawBalanceNotice = document.getElementById('withdrawBalanceNotice');
+    const withdrawBalanceText = document.getElementById('withdrawBalanceText');
+    const withdrawBalanceGrid = document.getElementById('withdrawBalanceGrid');
+
+    const currentBalanceText = document.getElementById('currentBalanceText');
+    const pendingWithdrawText = document.getElementById('pendingWithdrawText');
+    const availableBalanceText = document.getElementById('availableBalanceText');
+
+    let selectedAvailableBalance = null;
+    let selectedBalanceKnown = false;
 
     function formatRupiah(value) {
         const number = Number(value || 0);
@@ -426,21 +574,117 @@
         }).format(number);
     }
 
-    function updateAmountPreview() {
-        const value = amountInput.value;
+    function getSelectedBalanceData() {
+        const userId = targetUserInput ? targetUserInput.value : '';
+        const fundType = fundTypeInput ? fundTypeInput.value : '';
 
-        if (!value || Number(value) <= 0) {
-            amountPreview.classList.remove('show');
-            amountPreviewText.textContent = 'Rp 0';
+        if (!userId || !fundType) {
+            return null;
+        }
+
+        if (!balanceSummary[userId] || !balanceSummary[userId][fundType]) {
+            return {
+                known: false,
+                current_balance: 0,
+                pending_withdraw: 0,
+                available_balance: 0
+            };
+        }
+
+        return balanceSummary[userId][fundType];
+    }
+
+    function updateBalanceNotice() {
+        const data = getSelectedBalanceData();
+
+        if (!withdrawBalanceNotice || !withdrawBalanceText || !withdrawBalanceGrid) {
+            return;
+        }
+
+        withdrawBalanceNotice.classList.remove('warning', 'danger');
+
+        if (!data) {
+            selectedAvailableBalance = null;
+            selectedBalanceKnown = false;
+
+            withdrawBalanceText.textContent = 'Pilih jamaah dan jenis tabungan untuk melihat saldo yang dapat diambil.';
+            withdrawBalanceGrid.classList.add('d-none');
+
+            updateAmountPreview();
+            return;
+        }
+
+        selectedBalanceKnown = data.known !== false;
+
+        const currentBalance = Number(data.current_balance || 0);
+        const pendingWithdraw = Number(data.pending_withdraw || 0);
+        const availableBalance = Number(data.available_balance || 0);
+
+        selectedAvailableBalance = availableBalance;
+
+        currentBalanceText.textContent = formatRupiah(currentBalance);
+        pendingWithdrawText.textContent = formatRupiah(pendingWithdraw);
+        availableBalanceText.textContent = formatRupiah(availableBalance);
+
+        withdrawBalanceGrid.classList.remove('d-none');
+
+        if (!selectedBalanceKnown) {
+            withdrawBalanceNotice.classList.add('warning');
+            withdrawBalanceText.textContent = 'Preview saldo belum tersedia. Sistem tetap akan melakukan validasi saldo saat pengajuan dikirim.';
+        } else if (availableBalance <= 0) {
+            withdrawBalanceNotice.classList.add('danger');
+            withdrawBalanceText.textContent = 'Saldo tersedia kosong. Pengajuan ambil tabungan tidak dapat dilakukan untuk pilihan ini.';
+        } else if (pendingWithdraw > 0) {
+            withdrawBalanceNotice.classList.add('warning');
+            withdrawBalanceText.textContent = 'Ada pengajuan ambil tabungan yang masih pending. Saldo tersedia sudah dikurangi nominal pending tersebut.';
+        } else {
+            withdrawBalanceText.textContent = 'Saldo tersedia dapat digunakan untuk pengajuan ambil tabungan.';
+        }
+
+        updateAmountPreview();
+    }
+
+    function updateAmountPreview() {
+        if (!amountInput || !amountPreview || !amountPreviewText) {
+            return;
+        }
+
+        const value = Number(amountInput.value || 0);
+
+        amountPreview.classList.remove('show');
+        amountPreviewText.textContent = 'Rp 0';
+
+        if (!value || value <= 0) {
             return;
         }
 
         amountPreview.classList.add('show');
+
+        if (
+            selectedBalanceKnown &&
+            selectedAvailableBalance !== null &&
+            value > selectedAvailableBalance
+        ) {
+            amountPreviewText.textContent = formatRupiah(value) + ' — melebihi saldo tersedia';
+            return;
+        }
+
         amountPreviewText.textContent = formatRupiah(value);
     }
 
-    amountInput.addEventListener('input', updateAmountPreview);
+    if (amountInput) {
+        amountInput.addEventListener('input', updateAmountPreview);
+    }
 
+    if (targetUserInput) {
+        targetUserInput.addEventListener('change', updateBalanceNotice);
+    }
+
+    if (fundTypeInput) {
+        fundTypeInput.addEventListener('change', updateBalanceNotice);
+    }
+
+    updateBalanceNotice();
     updateAmountPreview();
 </script>
 @endsection

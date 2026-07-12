@@ -31,6 +31,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
         Route::post('/{transaction}/approve', [AdminKeuanganController::class, 'approve'])->name('approve');
         Route::post('/{transaction}/reject', [AdminKeuanganController::class, 'reject'])->name('reject');
+
+        Route::get('/export', [AdminKeuanganController::class, 'export'])->name('export');
     });
 
     Route::prefix('musala')->name('musala.')->group(function () {

@@ -139,6 +139,24 @@
         font-size: 13px;
     }
 
+    .user-summary-nrp {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #475569;
+        border: 1px solid #e5e7eb;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .user-summary-nrp i {
+        color: #2563eb;
+    }
+
     .admin-btn-light {
         display: inline-flex;
         align-items: center;
@@ -159,21 +177,6 @@
         color: #2563eb;
         background: #eff6ff;
         border-color: rgba(37, 99, 235, 0.22);
-    }
-
-    @media (max-width: 768px) {
-        .form-page-header {
-            align-items: stretch;
-            flex-direction: column;
-        }
-
-        .form-page-header .admin-btn-light {
-            width: 100%;
-        }
-
-        .admin-form-grid {
-            grid-template-columns: 1fr;
-        }
     }
 
     .password-field {
@@ -206,6 +209,25 @@
         background: #eff6ff;
         color: #2563eb;
     }
+
+    @media (max-width: 768px) {
+        .form-page-header {
+            align-items: stretch;
+            flex-direction: column;
+        }
+
+        .form-page-header .admin-btn-light {
+            width: 100%;
+        }
+
+        .admin-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .user-summary-card {
+            align-items: flex-start;
+        }
+    }
 </style>
 @endsection
 
@@ -214,6 +236,7 @@
 @php
     $userName = $data['name'] ?? 'User';
     $userEmail = $data['email'] ?? '-';
+    $userNrp = $data['nrp'] ?? '-';
     $initial = strtoupper(substr($userName ?: 'U', 0, 1));
 @endphp
 
@@ -228,7 +251,8 @@
         </h3>
 
         <p class="form-subtitle">
-            Perbarui data akun <strong>{{ $userName }}</strong>, role akses, status login, atau password baru bila diperlukan.
+            Perbarui data akun <strong>{{ $userName }}</strong>, NRP, role akses, status login,
+            atau password baru bila diperlukan.
         </p>
     </div>
 
@@ -252,6 +276,11 @@
             <div class="user-summary-email">
                 {{ $userEmail }}
             </div>
+
+            <div class="user-summary-nrp">
+                <i class="bi bi-person-vcard"></i>
+                NRP: {{ $userNrp ?: '-' }}
+            </div>
         </div>
     </div>
 
@@ -260,6 +289,28 @@
         @method('PUT')
 
         <div class="admin-form-grid">
+            <div>
+                <label for="nrp" class="admin-form-label">
+                    NRP
+                </label>
+
+                <input type="text"
+                       id="nrp"
+                       name="nrp"
+                       value="{{ old('nrp', $data['nrp'] ?? '') }}"
+                       class="admin-form-control"
+                       placeholder="Contoh: 001234"
+                       required>
+
+                <div class="admin-form-help">
+                    Masukkan NRP / nomor induk karyawan. Jika ada angka 0 di depan, tetap tulis lengkap.
+                </div>
+
+                @error('nrp')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
+            </div>
+
             <div>
                 <label for="name" class="admin-form-label">
                     Nama User
@@ -347,10 +398,10 @@
 
                 <div class="password-field">
                     <input type="password"
-                        id="password"
-                        name="password"
-                        class="admin-form-control"
-                        placeholder="Kosongkan jika tidak ingin mengganti">
+                           id="password"
+                           name="password"
+                           class="admin-form-control"
+                           placeholder="Kosongkan jika tidak ingin mengganti">
 
                     <button type="button"
                             class="password-toggle"
@@ -376,10 +427,10 @@
 
                 <div class="password-field">
                     <input type="password"
-                        id="password_confirmation"
-                        name="password_confirmation"
-                        class="admin-form-control"
-                        placeholder="Ulangi password baru">
+                           id="password_confirmation"
+                           name="password_confirmation"
+                           class="admin-form-control"
+                           placeholder="Ulangi password baru">
 
                     <button type="button"
                             class="password-toggle"

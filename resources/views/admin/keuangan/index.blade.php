@@ -690,6 +690,55 @@
         font-size: 12px;
         line-height: 1.5;
     }
+
+    .finance-input,
+    .finance-select {
+        width: 100%;
+        min-height: 44px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #f8fafc;
+        padding: 10px 12px;
+        color: #0f172a;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .finance-input:focus,
+    .finance-select:focus {
+        background: #ffffff;
+        border-color: rgba(37, 99, 235, 0.45);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+    }
+
+    .finance-filter-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .finance-modal-confirm-export {
+        border: 1px solid #2563eb;
+        background: #2563eb;
+        color: #ffffff;
+    }
+
+    .finance-modal-confirm-export:hover {
+        background: #1d4ed8;
+        border-color: #1d4ed8;
+    }
+
+    .finance-modal-icon-export {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    @media (max-width: 576px) {
+        .finance-filter-grid {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 @endsection
 
@@ -716,6 +765,13 @@
     </div>
 
     <div class="keuangan-header-actions">
+        <button type="button"
+                class="admin-btn-light"
+                id="openExportModalBtn">
+            <i class="bi bi-file-earmark-excel"></i>
+            Export Excel
+        </button>
+
         <a href="{{ route('admin.keuangan.deposit.create') }}" class="admin-btn-blue">
             <i class="bi bi-plus-lg"></i>
             Setor
@@ -983,6 +1039,115 @@
     @endif
 </div>
 
+<div class="finance-modal-backdrop" id="exportModalBackdrop">
+    <div class="finance-modal">
+        <div class="finance-modal-icon finance-modal-icon-export">
+            <i class="bi bi-file-earmark-excel"></i>
+        </div>
+
+        <h4 class="finance-modal-title">
+            Export Laporan Excel
+        </h4>
+
+        <p class="finance-modal-text">
+            Pilih filter laporan. Jika tanggal dikosongkan, sistem akan memakai periode bulan berjalan.
+        </p>
+
+        <form action="{{ route('admin.keuangan.export') }}" method="GET" id="exportForm">
+            <div class="finance-filter-grid">
+
+                @if($canApprove)
+                    <div class="finance-field">
+                        <label for="export_target_user_id" class="finance-label">
+                            Karyawan
+                            <span>Opsional</span>
+                        </label>
+
+                        <select id="export_target_user_id"
+                                name="target_user_id"
+                                class="finance-select">
+                            <option value="all">Semua Karyawan & Kas</option>
+
+                            @foreach(($exportUsers ?? collect()) as $user)
+                                <option value="{{ $user['id_user'] ?? '' }}">
+                                    {{ $user['name'] ?? '-' }} — {{ $user['email'] ?? '-' }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
+                <div class="finance-field">
+                    <label for="export_start_date" class="finance-label">
+                        Dari Tanggal
+                    </label>
+
+                    <input type="date"
+                           id="export_start_date"
+                           name="start_date"
+                           class="finance-input"
+                           value="">
+                </div>
+
+                <div class="finance-field">
+                    <label for="export_end_date" class="finance-label">
+                        Sampai Tanggal
+                    </label>
+
+                    <input type="date"
+                           id="export_end_date"
+                           name="end_date"
+                           class="finance-input"
+                           value="">
+                </div>
+
+                <div class="finance-field">
+                    <label for="export_fund_type" class="finance-label">
+                        Jenis Dana
+                        <span>Opsional</span>
+                    </label>
+
+                    <select id="export_fund_type"
+                            name="fund_type"
+                            class="finance-select">
+                        <option value="">Semua</option>
+                        <option value="qurban">Qurban</option>
+                        <option value="umrah">Umrah</option>
+                        <option value="kas">Kas</option>
+                    </select>
+                </div>
+
+                <div class="finance-field">
+                    <label for="export_status" class="finance-label">
+                        Status
+                        <span>Opsional</span>
+                    </label>
+
+                    <select id="export_status"
+                            name="status"
+                            class="finance-select">
+                        <option value="">Semua</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="finance-modal-actions">
+                <button type="button" class="finance-modal-cancel" data-close-modal>
+                    Batal
+                </button>
+
+                <button type="submit" class="finance-modal-confirm finance-modal-confirm-export">
+                    <i class="bi bi-download"></i>
+                    Download Excel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="finance-modal-backdrop" id="approveModalBackdrop">
     <div class="finance-modal">
         <div class="finance-modal-icon finance-modal-icon-approve">
@@ -1135,6 +1300,9 @@
     const approvalEvidenceInput = document.getElementById('approval_evidence');
     const approvalEvidenceName = document.getElementById('approvalEvidenceName');
 
+    const openExportModalBtn = document.getElementById('openExportModalBtn');
+
+    const exportModalBackdrop = document.getElementById('exportModalBackdrop');
     const approveModalBackdrop = document.getElementById('approveModalBackdrop');
     const rejectModalBackdrop = document.getElementById('rejectModalBackdrop');
 
@@ -1162,6 +1330,10 @@
     }
 
     function closeFinanceModals() {
+        if (exportModalBackdrop) {
+            exportModalBackdrop.classList.remove('show');
+        }
+
         if (approveModalBackdrop) {
             approveModalBackdrop.classList.remove('show');
         }
@@ -1180,6 +1352,12 @@
             rejectForm.action = '#';
             rejectForm.reset();
         }
+    }
+
+    if (openExportModalBtn && exportModalBackdrop) {
+        openExportModalBtn.addEventListener('click', function () {
+            exportModalBackdrop.classList.add('show');
+        });
     }
 
     document.querySelectorAll('.approve-trigger').forEach((button) => {
@@ -1228,7 +1406,7 @@
         button.addEventListener('click', closeFinanceModals);
     });
 
-    [approveModalBackdrop, rejectModalBackdrop].forEach((backdrop) => {
+    [exportModalBackdrop, approveModalBackdrop, rejectModalBackdrop].forEach((backdrop) => {
         if (!backdrop) {
             return;
         }
