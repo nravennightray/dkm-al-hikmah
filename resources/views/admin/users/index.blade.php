@@ -446,6 +446,24 @@
     .user-status-badge {
         justify-content: center;
     }
+
+    .user-nrp-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e5e7eb;
+        font-size: 12px;
+        font-weight: 800;
+        white-space: nowrap;
+    }
+
+    .user-nrp-badge i {
+        color: #2563eb;
+    }
 </style>
 @endsection
 
@@ -462,7 +480,7 @@
         </h3>
 
         <p class="users-subtitle">
-            Kelola akun pengguna, role akses, dan status login untuk admin portal DKM AL HIKMAH.
+            Kelola akun pengguna, NRP, role akses, dan status login untuk admin portal DKM AL HIKMAH.
         </p>
     </div>
 
@@ -495,6 +513,7 @@
                     <tr>
                         <th class="text-center" style="width: 70px;">No</th>
                         <th>User</th>
+                        <th class="text-center" style="width: 150px;">NRP</th>
                         <th class="text-center" style="width: 150px;">Role</th>
                         <th class="text-center" style="width: 140px;">Status</th>
                         <th class="text-center" style="width: 130px;">Aksi</th>
@@ -505,17 +524,22 @@
                     @foreach($users as $user)
                         @php
                             $idUser = $user['id_user'] ?? null;
+                            $nrp = $user['nrp'] ?? '-';
                             $name = $user['name'] ?? '-';
                             $email = $user['email'] ?? '-';
                             $role = strtolower($user['role'] ?? 'admin');
                             $status = strtolower($user['status'] ?? 'inactive');
                             $initial = strtoupper(substr($name !== '-' ? $name : 'A', 0, 1));
+
+                            $rowNumber = method_exists($users, 'firstItem')
+                                ? $users->firstItem() + $loop->index
+                                : $loop->iteration;
                         @endphp
 
                         <tr>
                             <td class="text-center">
                                 <span class="users-number">
-                                    {{ method_exists($users, 'firstItem') ? $users->firstItem() + $loop->index : $loop->iteration }}
+                                    {{ $rowNumber }}
                                 </span>
                             </td>
 
@@ -535,6 +559,13 @@
                                         </div>
                                     </div>
                                 </div>
+                            </td>
+
+                            <td class="text-center">
+                                <span class="user-nrp-badge">
+                                    <i class="bi bi-person-vcard"></i>
+                                    {{ $nrp ?: '-' }}
+                                </span>
                             </td>
 
                             <td class="text-center">

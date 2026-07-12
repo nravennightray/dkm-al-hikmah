@@ -217,7 +217,7 @@
         </h3>
 
         <p class="form-subtitle">
-            Buat akun baru untuk pengguna admin portal. Password akan otomatis disimpan dalam bentuk bcrypt hash di Google Sheet.
+            Buat akun baru untuk pengguna admin portal. NRP digunakan sebagai nomor induk karyawan, sedangkan password akan otomatis disimpan dalam bentuk bcrypt hash di Google Sheet.
         </p>
     </div>
 
@@ -247,17 +247,39 @@
 
         <div class="admin-form-grid">
             <div>
+                <label for="nrp" class="admin-form-label">
+                    NRP
+                </label>
+
+                <input type="text"
+                    id="nrp"
+                    name="nrp"
+                    value="{{ old('nrp') }}"
+                    class="admin-form-control"
+                    placeholder="Contoh: 001234"
+                    required>
+
+                <div class="admin-form-help">
+                    Masukkan NRP / nomor induk karyawan. Jika ada angka 0 di depan, tetap tulis lengkap.
+                </div>
+
+                @error('nrp')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div>
                 <label for="name" class="admin-form-label">
                     Nama User
                 </label>
 
                 <input type="text"
-                       id="name"
-                       name="name"
-                       value="{{ old('name') }}"
-                       class="admin-form-control"
-                       placeholder="Contoh: Admin DKM"
-                       required>
+                    id="name"
+                    name="name"
+                    value="{{ old('name') }}"
+                    class="admin-form-control"
+                    placeholder="Contoh: Admin DKM"
+                    required>
 
                 @error('name')
                     <div class="admin-error">{{ $message }}</div>
@@ -270,12 +292,12 @@
                 </label>
 
                 <input type="email"
-                       id="email"
-                       name="email"
-                       value="{{ old('email') }}"
-                       class="admin-form-control"
-                       placeholder="Contoh: admin@dkmalhikmah.com"
-                       required>
+                    id="email"
+                    name="email"
+                    value="{{ old('email') }}"
+                    class="admin-form-control"
+                    placeholder="Contoh: admin@dkmalhikmah.com"
+                    required>
 
                 @error('email')
                     <div class="admin-error">{{ $message }}</div>

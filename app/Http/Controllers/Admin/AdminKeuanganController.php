@@ -4,11 +4,18 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Services\GoogleSheetService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class AdminKeuanganController extends Controller
 {
@@ -41,9 +48,29 @@ class AdminKeuanganController extends Controller
 
     public function index(Request $request)
     {
-        $transactions = $this->getSheetCollection('trx_tabungan')
+        $currentRole = $this->currentUserRole();
+        $canApprove = in_array($currentRole, ['superadmin', 'admin'], true);
+
+        $transactions = $this->getSheetCollection('trx_tabungan');
+
+        if (! $canApprove) {
+            $currentUserId = $this->currentUserId();
+
+            $transactions = $transactions
+                ->filter(fn ($transaction) =>
+                    (string) ($transaction['target_user_id'] ?? '') === (string) $currentUserId ||
+                    (string) ($transaction['requested_by_id'] ?? '') === (string) $currentUserId
+                )
+                ->values();
+        }
+
+        $transactions = $transactions
             ->sortByDesc(fn ($transaction) => (int) ($transaction['id_transaction'] ?? 0))
             ->values();
+
+        $exportUsers = $canApprove
+            ? $this->getActiveUsers()->sortBy('name')->values()
+            : collect();
 
         $perPage = 10;
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -63,7 +90,11 @@ class AdminKeuanganController extends Controller
             ]
         );
 
-        return view('admin.keuangan.index', compact('transactions'));
+        return view('admin.keuangan.index', compact(
+            'transactions',
+            'exportUsers',
+            'currentRole'
+        ));
     }
 
     public function createDeposit()
@@ -134,7 +165,14 @@ class AdminKeuanganController extends Controller
 
         $fundTypes = $this->personalFundTypes;
 
-        return view('admin.keuangan.withdraw-create', compact('users', 'fundTypes', 'currentRole'));
+        $balanceSummary = $this->buildWithdrawBalanceSummary($users, $fundTypes);
+
+        return view('admin.keuangan.withdraw-create', compact(
+            'users',
+            'fundTypes',
+            'currentRole',
+            'balanceSummary'
+        ));
     }
 
     public function storeWithdraw(Request $request)
@@ -172,10 +210,22 @@ class AdminKeuanganController extends Controller
             $validated['fund_type']
         );
 
-        if ($currentBalance < (float) $validated['amount']) {
+        $pendingWithdrawAmount = $this->getPendingWithdrawAmount(
+            $targetUser['id_user'],
+            $validated['fund_type']
+        );
+
+        $availableBalance = $currentBalance - $pendingWithdrawAmount;
+        $requestedAmount = (float) $validated['amount'];
+
+        if ($availableBalance < $requestedAmount) {
+            $message = $pendingWithdrawAmount > 0
+                ? 'Saldo tidak mencukupi. Masih ada pengajuan penarikan yang menunggu persetujuan.'
+                : 'Saldo tidak mencukupi untuk pengajuan penarikan.';
+
             return back()
                 ->withInput()
-                ->with('error', 'Saldo tidak mencukupi untuk pengajuan penarikan.');
+                ->with('error', $message);
         }
 
         $this->appendTransaction([
@@ -345,6 +395,109 @@ class AdminKeuanganController extends Controller
             ->route('admin.keuangan.index')
             ->with('success', 'Transaksi berhasil ditolak.');
     }
+
+    public function export(Request $request)
+    {
+        $currentRole = $this->currentUserRole();
+        $isAdmin = in_array($currentRole, ['superadmin', 'admin'], true);
+
+        $rules = [
+            'start_date' => ['nullable', 'date'],
+            'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
+            'fund_type' => ['nullable', Rule::in($this->fundTypes)],
+            'status' => ['nullable', Rule::in(['pending', 'approved', 'rejected'])],
+        ];
+
+        if ($isAdmin) {
+            $rules['target_user_id'] = ['nullable', 'string'];
+        }
+
+        $validated = $request->validate($rules);
+
+        $startDate = ! empty($validated['start_date'])
+            ? Carbon::parse($validated['start_date'])->startOfDay()
+            : null;
+
+        $endDate = ! empty($validated['end_date'])
+            ? Carbon::parse($validated['end_date'])->endOfDay()
+            : null;
+
+        $targetUserId = $isAdmin
+            ? ($validated['target_user_id'] ?? 'all')
+            : $this->currentUserId();
+
+        $transactions = $this->getSheetCollection('trx_tabungan')
+            ->filter(function ($transaction) use ($isAdmin, $targetUserId, $validated, $startDate, $endDate) {
+                if (! $isAdmin) {
+                    $currentUserId = $this->currentUserId();
+
+                    $isOwnTransaction =
+                        (string) ($transaction['target_user_id'] ?? '') === (string) $currentUserId ||
+                        (string) ($transaction['requested_by_id'] ?? '') === (string) $currentUserId;
+
+                    if (! $isOwnTransaction) {
+                        return false;
+                    }
+                }
+
+                if ($isAdmin && ! empty($targetUserId) && $targetUserId !== 'all') {
+                    $matchesTarget = (string) ($transaction['target_user_id'] ?? '') === (string) $targetUserId;
+                    $matchesRequester = (string) ($transaction['requested_by_id'] ?? '') === (string) $targetUserId;
+
+                    if (! $matchesTarget && ! $matchesRequester) {
+                        return false;
+                    }
+                }
+
+                if (! empty($validated['fund_type']) && ($transaction['fund_type'] ?? '') !== $validated['fund_type']) {
+                    return false;
+                }
+
+                if (! empty($validated['status']) && ($transaction['status'] ?? '') !== $validated['status']) {
+                    return false;
+                }
+
+                if ($startDate || $endDate) {
+                    $requestedAt = $this->parseTransactionDate($transaction['requested_at'] ?? null);
+
+                    if (! $requestedAt) {
+                        return false;
+                    }
+
+                    if ($startDate && $requestedAt->lt($startDate)) {
+                        return false;
+                    }
+
+                    if ($endDate && $requestedAt->gt($endDate)) {
+                        return false;
+                    }
+                }
+
+                return true;
+            })
+            ->sortBy(function ($transaction) {
+                $date = $this->parseTransactionDate($transaction['requested_at'] ?? null);
+
+                return $date
+                    ? $date->timestamp
+                    : (int) ($transaction['id_transaction'] ?? 0);
+            })
+            ->values();
+
+        $owner = $this->resolveExportOwner((string) $targetUserId, $isAdmin);
+
+        return $this->downloadTransactionsExcel(
+            $transactions,
+            $startDate,
+            $endDate,
+            (string) $targetUserId,
+            $owner
+        );
+    }
+
+
+    // PRIVATE METHODS //
+
 
     private function appendTransaction(array $payload): array
     {
@@ -677,5 +830,343 @@ class AdminKeuanganController extends Controller
         $file->move($folder, $filename);
 
         return 'image/keuangan/evidence/' . $safeTransactionCode . '/' . $filename;
+    }
+
+    private function getPendingWithdrawAmount(string $userId, string $fundType): float
+    {
+        return $this->getSheetCollection('trx_tabungan')
+            ->filter(fn ($trx) =>
+                (string) ($trx['target_user_id'] ?? '') === (string) $userId &&
+                ($trx['fund_type'] ?? '') === $fundType &&
+                ($trx['action_type'] ?? '') === 'withdraw' &&
+                ($trx['status'] ?? '') === 'pending'
+            )
+            ->sum(fn ($trx) => (float) ($trx['amount'] ?? 0));
+    }
+
+    private function buildWithdrawBalanceSummary(Collection $users, array $fundTypes): array
+    {
+        $balances = $this->getSheetCollection('users_tabungan');
+        $transactions = $this->getSheetCollection('trx_tabungan');
+
+        $summary = [];
+
+        foreach ($users as $user) {
+            $userId = (string) ($user['id_user'] ?? '');
+
+            if ($userId === '') {
+                continue;
+            }
+
+            $balance = $balances->firstWhere('id_user', $userId);
+
+            foreach ($fundTypes as $fundType) {
+                $currentBalance = $balance
+                    ? (float) ($balance[$fundType . '_balance'] ?? 0)
+                    : 0;
+
+                $pendingWithdrawAmount = $transactions
+                    ->filter(fn ($trx) =>
+                        (string) ($trx['target_user_id'] ?? '') === $userId &&
+                        ($trx['fund_type'] ?? '') === $fundType &&
+                        ($trx['action_type'] ?? '') === 'withdraw' &&
+                        ($trx['status'] ?? '') === 'pending'
+                    )
+                    ->sum(fn ($trx) => (float) ($trx['amount'] ?? 0));
+
+                $availableBalance = max($currentBalance - $pendingWithdrawAmount, 0);
+
+                $summary[$userId][$fundType] = [
+                    'known' => true,
+                    'current_balance' => $currentBalance,
+                    'pending_withdraw' => $pendingWithdrawAmount,
+                    'available_balance' => $availableBalance,
+                ];
+            }
+        }
+
+        return $summary;
+    }
+
+    private function parseTransactionDate(?string $value): ?Carbon
+    {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            $serial = (float) $value;
+
+            if ($serial > 1000) {
+                $days = (int) floor($serial);
+                $fraction = $serial - $days;
+                $seconds = (int) round($fraction * 86400);
+
+                return Carbon::create(1899, 12, 30, 0, 0, 0, config('app.timezone', 'Asia/Jakarta'))
+                    ->addDays($days)
+                    ->addSeconds($seconds);
+            }
+        }
+
+        $formats = [
+            'Y-m-d H:i:s',
+            'Y-m-d H:i',
+            'Y-m-d',
+            'd/m/Y H:i:s',
+            'd/m/Y H:i',
+            'd/m/Y',
+            'm/d/Y H:i:s',
+            'm/d/Y H:i',
+            'm/d/Y',
+        ];
+
+        foreach ($formats as $format) {
+            try {
+                $date = Carbon::createFromFormat($format, $value);
+
+                if ($date) {
+                    return $date;
+                }
+            } catch (\Throwable $e) {
+                //
+            }
+        }
+
+        try {
+            return Carbon::parse($value);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+
+    private function formatTransactionDateForExport(?string $value): string
+    {
+        $date = $this->parseTransactionDate($value);
+
+        if ($date) {
+            return $date->format('Y-m-d H:i:s');
+        }
+
+        return trim((string) $value) ?: '-';
+    }
+
+    private function resolveExportOwner(string $targetUserId, bool $isAdmin): array
+    {
+        if ($isAdmin && ($targetUserId === '' || $targetUserId === 'all')) {
+            return [
+                'name' => 'Semua Karyawan / Kas',
+                'nrp' => '-',
+            ];
+        }
+
+        $userId = $isAdmin
+            ? $targetUserId
+            : $this->currentUserId();
+
+        $user = $this->findUserById($userId);
+
+        return [
+            'name' => $user['name'] ?? $this->currentUserName(),
+            'nrp' => $user['nrp'] ?? '-',
+        ];
+    }
+
+    private function downloadTransactionsExcel(
+        Collection $transactions,
+        Carbon $startDate,
+        Carbon $endDate,
+        string $targetUserId,
+        array $owner
+    ) {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setTitle('Laporan Keuangan');
+
+        $periodText = $startDate || $endDate
+            ? ($startDate?->format('d/m/Y') ?? '-') . ' - ' . ($endDate?->format('d/m/Y') ?? '-')
+            : 'Semua Periode';
+
+        $sheet->setCellValue('A1', 'Laporan Keuangan DKM AL HIKMAH');
+
+        $sheet->setCellValue('A2', 'Periode');
+        $sheet->setCellValue('B2', $startDate->format('d/m/Y') . ' - ' . $endDate->format('d/m/Y'));
+
+        $sheet->setCellValue('A3', 'Nama Pemilik Laporan');
+        $sheet->setCellValue('B3', $owner['name'] ?? '-');
+
+        $sheet->setCellValue('A4', 'NRP');
+        $sheet->setCellValue('B4', $owner['nrp'] ?? '-');
+
+        $sheet->setCellValue('A5', 'Dicetak Oleh');
+        $sheet->setCellValue('B5', $this->currentUserName());
+
+        $sheet->setCellValue('A6', 'Tanggal Cetak');
+        $sheet->setCellValue('B6', now()->format('d/m/Y H:i:s'));
+
+        $headers = [
+            'No',
+            'Kode Transaksi',
+            'Tanggal Request',
+            'Pemohon',
+            'Target',
+            'Jenis Dana',
+            'Aksi',
+            'Nominal',
+            'Status',
+            'Catatan User',
+            'Catatan Admin',
+            'Disetujui Oleh',
+            'Tanggal Approval',
+            'Bukti Approval',
+        ];
+
+        $headerRow = 8;
+
+        foreach ($headers as $index => $header) {
+            $columnLetter = Coordinate::stringFromColumnIndex($index + 1);
+            $sheet->setCellValue($columnLetter . $headerRow, $header);
+        }
+
+        $rowNumber = $headerRow + 1;
+
+        if ($transactions->isEmpty()) {
+            $sheet->mergeCells("A{$rowNumber}:N{$rowNumber}");
+            $sheet->setCellValue("A{$rowNumber}", 'Tidak ada data transaksi sesuai filter yang dipilih.');
+
+            $sheet->getStyle("A{$rowNumber}")->applyFromArray([
+                'font' => [
+                    'italic' => true,
+                    'color' => ['rgb' => '64748B'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                ],
+            ]);
+
+            $lastDataRow = $rowNumber;
+        } else {
+            foreach ($transactions as $index => $transaction) {
+                $amount = (float) ($transaction['amount'] ?? 0);
+
+                $rowValues = [
+                    $index + 1,
+                    $transaction['transaction_code'] ?? '-',
+                    $this->formatTransactionDateForExport($transaction['requested_at'] ?? ''),
+                    $transaction['requested_by_name'] ?? '-',
+                    $transaction['target_user_name'] ?? '-',
+                    ucfirst($transaction['fund_type'] ?? '-'),
+                    ucfirst($transaction['action_type'] ?? '-'),
+                    $amount,
+                    ucfirst($transaction['status'] ?? '-'),
+                    $transaction['note'] ?? '',
+                    $transaction['admin_note'] ?? '',
+                    $transaction['approved_by_name'] ?? '',
+                    $this->formatTransactionDateForExport($transaction['approved_at'] ?? ''),
+                    $transaction['approval_evidence'] ?? '',
+                ];
+
+                foreach ($rowValues as $columnIndex => $value) {
+                    $columnLetter = Coordinate::stringFromColumnIndex($columnIndex + 1);
+                    $sheet->setCellValue($columnLetter . $rowNumber, $value);
+                }
+
+                $rowNumber++;
+            }
+
+            $lastDataRow = $rowNumber - 1;
+        }
+
+        $lastColumn = 'N';
+
+        $sheet->mergeCells('A1:N1');
+
+        $sheet->getStyle('A1')->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 16,
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+            ],
+        ]);
+
+        $sheet->getStyle("A{$headerRow}:{$lastColumn}{$headerRow}")->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '2563EB'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'E5E7EB'],
+                ],
+            ],
+        ]);
+
+        $sheet->getStyle("A{$headerRow}:{$lastColumn}{$lastDataRow}")->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'E5E7EB'],
+                ],
+            ],
+        ]);
+
+        if ($lastDataRow >= 7 && $transactions->isNotEmpty()) {
+            $sheet->getStyle("H7:H{$lastDataRow}")
+                ->getNumberFormat()
+                ->setFormatCode('#,##0');
+
+            $sheet->getStyle("A7:N{$lastDataRow}")
+                ->getAlignment()
+                ->setVertical(Alignment::VERTICAL_TOP);
+
+            $sheet->getStyle("J7:N{$lastDataRow}")
+                ->getAlignment()
+                ->setWrapText(true);
+        }
+
+        foreach (range('A', $lastColumn) as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        $sheet->getColumnDimension('J')->setWidth(32);
+        $sheet->getColumnDimension('K')->setWidth(32);
+        $sheet->getColumnDimension('N')->setWidth(38);
+
+        $sheet->freezePane('A7');
+        $sheet->setAutoFilter("A{$headerRow}:{$lastColumn}{$lastDataRow}");
+
+        $exportDir = storage_path('app/exports');
+
+        if (! File::exists($exportDir)) {
+            File::makeDirectory($exportDir, 0755, true);
+        }
+
+        $fileName = 'laporan-keuangan-'
+            . ($startDate ? $startDate->format('Ymd') : 'all')
+            . '-'
+            . ($endDate ? $endDate->format('Ymd') : 'all')
+            . '.xlsx';
+
+        $path = $exportDir . DIRECTORY_SEPARATOR . $fileName;
+
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($path);
+
+        return response()
+            ->download($path, $fileName)
+            ->deleteFileAfterSend(true);
     }
 }
