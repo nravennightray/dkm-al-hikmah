@@ -398,4 +398,84 @@
             display: none;
         }
     }
+
+    /* =========================
+    SELECT2 FILTER USER
+    ========================= */
+
+    .select2-container {
+        width: 100% !important;
+    }
+
+
+    .select2-container--default 
+    .select2-selection--single {
+
+        height: 44px !important;
+
+        border-radius: 12px !important;
+        border: 1px solid #e5e7eb !important;
+
+        background: #ffffff !important;
+
+        display: flex !important;
+        align-items: center !important;
+    }
+
+
+    .select2-container--default 
+    .select2-selection--single 
+    .select2-selection__rendered {
+
+        padding-left: 13px !important;
+
+        color: #0f172a !important;
+
+        font-size: 14px !important;
+    }
+
+
+    .select2-container--default 
+    .select2-selection--single 
+    .select2-selection__arrow {
+
+        height: 42px !important;
+        right: 10px !important;
+    }
+
+
+    .select2-dropdown {
+
+        border-radius: 14px !important;
+
+        border: 1px solid #e5e7eb !important;
+
+        overflow: hidden;
+
+        box-shadow:
+            0 12px 30px rgba(15,23,42,.12);
+    }
+
+
+    .select2-search__field {
+
+        border-radius: 10px !important;
+
+    }
+
+
+    .select2-results__option {
+
+        padding: 10px 12px !important;
+
+        font-size: 14px;
+
+    }
+
+
+    .select2-results__option--highlighted {
+
+        background: #2563eb !important;
+
+    }
 </style>

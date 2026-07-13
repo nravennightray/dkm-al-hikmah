@@ -9,6 +9,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class AdminUserController extends Controller
 {
@@ -110,6 +111,54 @@ class AdminUserController extends Controller
             ->with('success', 'User berhasil ditambahkan.');
     }
 
+    public function importForm()
+    {
+        return view('admin.users.import');
+    }
+
+    public function importStore(Request $request)
+    {
+        $validated = $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:2048'],
+        ]);
+
+        $filePath = $validated['file']->getRealPath();
+
+        if (! $filePath || ! file_exists($filePath)) {
+            return back()->with('error', 'File import tidak ditemukan.');
+        }
+
+        $spreadsheet = IOFactory::load($filePath);
+        $rows = $spreadsheet->getActiveSheet()->toArray(null, true, true, true);
+
+        $users = $this->getSheetCollection(self::SHEET_NAME);
+        $result = $this->buildImportPayloads($rows, $users);
+
+        if (empty($result['payloads'])) {
+            return redirect()
+                ->route('admin.users.index')
+                ->with('error', 'Tidak ada data user baru yang bisa diimpor.');
+        }
+
+        $nextId = $this->getNextUserId($users);
+
+        foreach ($result['payloads'] as $index => $payload) {
+            $this->sheetService->appendRow($this->spreadsheetId, self::SHEET_NAME, [
+                $nextId + $index,
+                $payload['nrp'],
+                $payload['name'],
+                $payload['email'],
+                $payload['password'],
+                $payload['role'],
+                $payload['status'],
+            ]);
+        }
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', 'Import user selesai. Ditambahkan ' . count($result['payloads']) . ' user, dilewati ' . $result['skipped'] . ' data.');
+    }
+
     public function edit(string $user)
     {
         $data = $this->getSheetCollection(self::SHEET_NAME)
@@ -191,6 +240,77 @@ class AdminUserController extends Controller
         return redirect()
             ->route('admin.users.index')
             ->with('success', 'User berhasil dihapus.');
+    }
+
+    protected function buildImportPayloads(array $rows, Collection $existingUsers): array
+    {
+        $payloads = [];
+        $skipped = 0;
+
+        $seen = collect();
+
+        foreach ($rows as $row) {
+            $values = collect($row)
+                ->map(fn ($value) => trim((string) $value))
+                ->values()
+                ->all();
+
+            if (count($values) < 2) {
+                $skipped++;
+                continue;
+            }
+
+            $nrp = $values[0] ?? '';
+            $name = $values[1] ?? '';
+
+            if (strtolower($nrp) === 'nrp' && strtolower($name) === 'name') {
+                continue;
+            }
+
+            if ($nrp === '' || $name === '') {
+                $skipped++;
+                continue;
+            }
+
+            $normalizedNrp = strtolower($nrp);
+            $normalizedName = strtolower($name);
+
+            $exists = $existingUsers->contains(function ($user) use ($normalizedNrp, $normalizedName) {
+                $existingNrp = strtolower(trim((string) ($user['nrp'] ?? '')));
+                $existingName = strtolower(trim((string) ($user['name'] ?? '')));
+
+                return $existingNrp === $normalizedNrp || $existingName === $normalizedName;
+            }) || $seen->contains(function ($item) use ($normalizedNrp, $normalizedName) {
+                $itemNrp = strtolower(trim((string) ($item['nrp'] ?? '')));
+                $itemName = strtolower(trim((string) ($item['name'] ?? '')));
+
+                return $itemNrp === $normalizedNrp || $itemName === $normalizedName;
+            });
+
+            if ($exists) {
+                $skipped++;
+                continue;
+            }
+
+            $payloads[] = [
+                'nrp' => $nrp,
+                'name' => $name,
+                'email' => '',
+                'password' => Hash::make($nrp),
+                'role' => 'karyawan',
+                'status' => 'active',
+            ];
+
+            $seen->push([
+                'nrp' => $nrp,
+                'name' => $name,
+            ]);
+        }
+
+        return [
+            'payloads' => $payloads,
+            'skipped' => $skipped,
+        ];
     }
 
     private function validateUser(

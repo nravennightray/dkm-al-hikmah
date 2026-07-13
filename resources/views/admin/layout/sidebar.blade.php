@@ -21,15 +21,14 @@
     </div>
 
     <nav class="admin-sidebar-menu">
+        <a href="{{ route('admin.dashboard') }}"
+           class="admin-sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            <i class="bi bi-speedometer2"></i>
+            <span>Dashboard</span>
+        </a>
+
         {{-- ADMIN ONLY MENU --}}
         @if($isAdmin)
-
-            <a href="{{ route('admin.dashboard') }}"
-               class="admin-sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                <i class="bi bi-speedometer2"></i>
-                <span>Dashboard</span>
-            </a>
-
             <a href="{{ route('admin.users.index') }}"
                class="admin-sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                 <i class="bi bi-people"></i>

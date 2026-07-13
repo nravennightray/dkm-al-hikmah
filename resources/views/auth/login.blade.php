@@ -95,7 +95,7 @@
                         <!-- Email Address -->
                         <div>
                             <label for="email" class="mb-2 block text-sm font-bold text-gray-700">
-                                Email Admin
+                                Email atau NRP
                             </label>
 
                             <div class="group relative">
@@ -113,13 +113,13 @@
                                 </div>
 
                                 <input id="email"
-                                    type="email"
+                                    type="text"
                                     name="email"
                                     value="{{ old('email') }}"
                                     required
                                     autofocus
                                     autocomplete="username"
-                                    placeholder="admin@email.com"
+                                    placeholder="admin@email.com atau 123456"
                                     class="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3.5 pl-12 text-sm font-medium text-slate-800 shadow-sm outline-none transition duration-200 placeholder:text-slate-400 hover:border-blue-300 hover:bg-blue-50/30 focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-500/10" />
                             </div>
 

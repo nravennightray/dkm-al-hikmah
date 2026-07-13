@@ -70,8 +70,10 @@ class AdminDashboardController extends Controller
             'umrah' => $dashboardTransactions
                 ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'umrah')
                 ->values(),
-            'kas' => $dashboardTransactions
-                ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'kas')
+            'infaq' => $dashboardTransactions
+                ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'infaq')
+                ->values(),
+            'kas' => $dashboardTransactions ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'kas')
                 ->values(),
         ];
 
@@ -79,6 +81,8 @@ class AdminDashboardController extends Controller
             'qurban' => $totalQurban,
             'umrah' => $totalUmrah,
             'kas' => $kasBalance,
+            'infaq' => $dashboardTransactions ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'infaq' )
+                ->sum(fn ($trx) => (float) ($trx['amount'] ?? 0)),
             'pending_count' => $pendingApprovals->count(),
         ];
 

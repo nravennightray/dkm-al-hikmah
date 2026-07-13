@@ -464,6 +464,46 @@
     .user-nrp-badge i {
         color: #2563eb;
     }
+
+    /* =========================
+    HEADER ACTION BUTTON
+    ========================= */
+
+    .admin-btn-light {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        height: 42px;
+        padding: 0 16px;
+
+        border-radius: 12px;
+
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+
+        color: #475569;
+
+        font-size: 14px;
+        font-weight: 700;
+
+        text-decoration: none;
+
+        transition: all .2s ease;
+    }
+
+
+    .admin-btn-light:hover {
+        background: #eff6ff;
+        border-color: rgba(37,99,235,.22);
+        color: #2563eb;
+    }
+
+
+    .admin-btn-light i {
+        font-size: 16px;
+    }
 </style>
 @endsection
 
@@ -484,10 +524,17 @@
         </p>
     </div>
 
-    <a href="{{ route('admin.users.create') }}" class="admin-btn-blue">
-        <i class="bi bi-plus-lg"></i>
-        Tambah User
-    </a>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ route('admin.users.import.form') }}" class="admin-btn-light">
+            <i class="bi bi-file-earmark-excel"></i>
+            Import Excel
+        </a>
+
+        <a href="{{ route('admin.users.create') }}" class="admin-btn-blue">
+            <i class="bi bi-plus-lg"></i>
+            Tambah User
+        </a>
+    </div>
 </div>
 
 @if(session('success'))
