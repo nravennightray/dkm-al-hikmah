@@ -15,6 +15,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::resource('kategori', AdminKategoriController::class)->except(['show']);
     Route::resource('kegiatan', AdminKegiatanController::class)->except(['show']);
+
+    Route::get('/users/import', [AdminUserController::class, 'importForm'])->name('users.import.form');
+    Route::post('/users/import', [AdminUserController::class, 'importStore'])->name('users.import.store');
     Route::resource('users', AdminUserController::class)->except(['show']);
 
     Route::prefix('keuangan')->name('keuangan.')->group(function () {
@@ -29,10 +32,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/kas/pengeluaran', [AdminKeuanganController::class, 'createKasExpense'])->name('kas.expense.create');
         Route::post('/kas/pengeluaran', [AdminKeuanganController::class, 'storeKasExpense'])->name('kas.expense.store');
 
+        Route::get('/infaq/ajukan', [AdminKeuanganController::class, 'createInfaq'])->name('infaq.create');
+        Route::post('/infaq/ajukan', [AdminKeuanganController::class, 'storeInfaq'])->name('infaq.store');
+
         Route::post('/{transaction}/approve', [AdminKeuanganController::class, 'approve'])->name('approve');
         Route::post('/{transaction}/reject', [AdminKeuanganController::class, 'reject'])->name('reject');
 
         Route::get('/export', [AdminKeuanganController::class, 'export'])->name('export');
+        Route::get( '/import', [AdminKeuanganController::class,'importForm'])->name('import.form');
+        Route::post( '/import', [AdminKeuanganController::class,'importStore'])->name('import.store');
     });
 
     Route::prefix('musala')->name('musala.')->group(function () {

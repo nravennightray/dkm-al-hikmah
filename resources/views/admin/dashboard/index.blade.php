@@ -214,7 +214,8 @@
     .trx-title {
         color: #0f172a;
         font-weight: 850;
-        margin-bottom: 4px;
+        margin-bottom: 6px;
+        line-height: 1.4;
     }
 
     .trx-meta {
@@ -223,9 +224,10 @@
         line-height: 1.5;
     }
 
-    .trx-amount {
-        font-weight: 900;
-        white-space: nowrap;
+    .trx-meta {
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.6;
     }
 
     .trx-amount.plus {
@@ -249,21 +251,6 @@
         white-space: nowrap;
     }
 
-    .trx-status-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .trx-status-approved {
-        background: #ecfdf5;
-        color: #047857;
-    }
-
-    .trx-status-rejected {
-        background: #fef2f2;
-        color: #dc2626;
-    }
-
     .trx-fund-qurban {
         background: #fef3c7;
         color: #92400e;
@@ -277,6 +264,11 @@
     .trx-fund-kas {
         background: #f0fdf4;
         color: #15803d;
+    }
+
+    .trx-fund-infaq {
+        background: #fdf2f8;
+        color: #be185d;
     }
 
     .pending-list {
@@ -447,6 +439,7 @@
         </div>
     </div>
 
+    @if($isAdmin)
     <div class="finance-summary-card solid">
         <div class="finance-summary-icon">
             <i class="bi bi-cash-coin"></i>
@@ -464,6 +457,7 @@
             Saldo kas aktif
         </div>
     </div>
+    @endif
 </div>
 
 @if($isAdmin)
@@ -509,110 +503,118 @@
     </div>
 @endif
 
-<div class="dashboard-grid-2">
-    <div class="admin-card p-4">
-        <div class="dashboard-section-header">
-            <div>
-                <h5 class="dashboard-section-title">
-                    Riwayat Transaksi
-                </h5>
+<div class="admin-card p-4 mb-4">
+    <div class="dashboard-section-header">
+        <div>
+            <h5 class="dashboard-section-title">
+                Riwayat Transaksi
+            </h5>
 
-                <p class="dashboard-section-subtitle">
-                    {{ $isAdmin ? 'Semua transaksi tabungan dan kas.' : 'Riwayat transaksi tabungan kamu.' }}
-                </p>
-            </div>
-
-            <a href="{{ route('admin.keuangan.index') }}" class="admin-btn-light">
-                <i class="bi bi-arrow-right"></i>
-                Detail
-            </a>
+            <p class="dashboard-section-subtitle">
+                {{ $isAdmin  ? 'Monitoring seluruh transaksi tabungan, infaq, dan kas DKM.'  : 'Riwayat transaksi tabungan dan infaq kamu.' }}
+            </p>
         </div>
 
-        <div class="finance-tabs">
-            <button type="button" class="finance-tab-btn active" data-tab-target="all">
-                Semua
-            </button>
+        <a href="{{ route('admin.keuangan.index') }}" class="admin-btn-light">
+            <i class="bi bi-arrow-right"></i>
+            Detail
+        </a>
+    </div>
 
-            <button type="button" class="finance-tab-btn" data-tab-target="qurban">
-                Qurban
-            </button>
+    <div class="finance-tabs">
+        <button type="button" class="finance-tab-btn active" data-tab-target="all"> Semua </button>
+        <button type="button" class="finance-tab-btn" data-tab-target="qurban"> Qurban </button>
+        <button type="button" class="finance-tab-btn" data-tab-target="umrah"> Umrah </button>
+        <button type="button" class="finance-tab-btn" data-tab-target="infaq"> Infaq  </button>
+        @if($isAdmin)
+            <button type="button" class="finance-tab-btn" data-tab-target="kas"> Kas </button>
+        @endif
+    </div>
 
-            <button type="button" class="finance-tab-btn" data-tab-target="umrah">
-                Umrah
-            </button>
-
-            <button type="button" class="finance-tab-btn" data-tab-target="kas">
-                Kas
-            </button>
-        </div>
-
-        @foreach($financeTabs as $tabKey => $transactions)
+    @foreach($financeTabs as $tabKey => $transactions)
+        @if(in_array($tabKey, ['all','qurban','umrah','infaq','kas']))
             <div class="finance-tab-panel {{ $tabKey === 'all' ? 'active' : '' }}" data-tab-panel="{{ $tabKey }}">
                 @if($transactions->count())
                     <div class="table-responsive">
                         <table class="table finance-table mb-0">
                             <thead>
                                 <tr>
-                                    <th>Transaksi</th>
-                                    <th class="text-center">Jenis</th>
-                                    <th class="text-end">Nominal</th>
-                                    <th class="text-center">Status</th>
+                                    <th> Transaksi </th>
+                                    @if($isAdmin)
+                                        <th>
+                                            User
+                                        </th>
+                                    @endif
+                                    <th class="text-center"> Jenis </th>
+                                    <th> Tanggal </th>
+                                    <th class="text-end"> Nominal </th>
                                 </tr>
                             </thead>
 
                             <tbody>
-                                @foreach($transactions->take(8) as $trx)
+                                @foreach($transactions->take(10) as $trx)
                                     @php
                                         $fundType = strtolower($trx['fund_type'] ?? '-');
                                         $actionType = strtolower($trx['action_type'] ?? '-');
-                                        $status = strtolower($trx['status'] ?? 'pending');
                                         $amount = (float) ($trx['amount'] ?? 0);
 
-                                        $actionLabel = match ($actionType) {
+
+                                        $actionLabel = match($actionType){
                                             'deposit' => 'Setor',
                                             'withdraw' => 'Ambil',
                                             'expense' => 'Kas Keluar',
-                                            default => ucfirst($actionType),
+                                            default => ucfirst($actionType)
                                         };
 
-                                        $fundLabel = match ($fundType) {
+                                        $fundLabel = match($fundType){
                                             'qurban' => 'Qurban',
                                             'umrah' => 'Umrah',
+                                            'infaq' => 'Infaq',
                                             'kas' => 'Kas',
-                                            default => ucfirst($fundType),
+                                            default => ucfirst($fundType)
                                         };
 
-                                        $amountClass = in_array($actionType, ['withdraw', 'expense'], true) ? 'minus' : 'plus';
-                                        $amountPrefix = in_array($actionType, ['withdraw', 'expense'], true) ? '-' : '+';
+                                        $amountClass = in_array($actionType,['withdraw','expense']) ? 'minus' : 'plus';
+                                        $amountPrefix = in_array($actionType,['withdraw','expense']) ? '-' : '+';
                                     @endphp
 
                                     <tr>
                                         <td>
                                             <div class="trx-title">
-                                                {{ $actionLabel }} {{ $fundLabel }}
+                                                {{ $actionLabel }}
+                                                {{ $fundLabel }}
                                             </div>
-
                                             <div class="trx-meta">
-                                                {{ $trx['transaction_code'] ?? '-' }}<br>
-                                                {{ $trx['requested_at'] ?? '-' }}
+                                                {{ $trx['transaction_code'] ?? '-' }}
                                             </div>
                                         </td>
+
+                                        @if($isAdmin)
+                                            <td>
+                                                <div class="trx-title">
+                                                    {{ $trx['target_user_name'] ?? '-' }}
+                                                </div>
+                                                <div class="trx-meta">
+                                                    Request:
+                                                    {{ $trx['requested_by_name'] ?? '-' }}
+                                                </div>
+                                            </td>
+                                        @endif
 
                                         <td class="text-center">
                                             <span class="trx-badge trx-fund-{{ $fundType }}">
                                                 {{ $fundLabel }}
                                             </span>
                                         </td>
-
+                                        <td>
+                                            <div class="trx-meta">
+                                                {{ $trx['requested_at'] ?? '-' }}
+                                            </div>
+                                        </td>
                                         <td class="text-end">
                                             <span class="trx-amount {{ $amountClass }}">
-                                                {{ $amountPrefix }} Rp {{ number_format($amount, 0, ',', '.') }}
-                                            </span>
-                                        </td>
-
-                                        <td class="text-center">
-                                            <span class="trx-badge trx-status-{{ $status }}">
-                                                {{ $status }}
+                                                {{ $amountPrefix }}
+                                                Rp {{ number_format($amount,0,',','.') }}
                                             </span>
                                         </td>
                                     </tr>
@@ -624,110 +626,13 @@
                     <div class="text-center py-5">
                         <i class="bi bi-wallet2 fs-2 text-primary"></i>
                         <p class="text-muted mt-3 mb-0">
-                            Belum ada transaksi pada tab ini.
+                            Belum ada transaksi.
                         </p>
                     </div>
                 @endif
             </div>
-        @endforeach
-    </div>
-
-    <div class="admin-card p-4">
-        @if($isAdmin)
-            <div class="dashboard-section-header">
-                <div>
-                    <h5 class="dashboard-section-title">
-                        Pengajuan Approval
-                    </h5>
-
-                    <p class="dashboard-section-subtitle">
-                        Transaksi yang menunggu persetujuan.
-                    </p>
-                </div>
-            </div>
-
-            @if(($pendingApprovals ?? collect())->count())
-                <div class="pending-list">
-                    @foreach($pendingApprovals->take(5) as $pending)
-                        @php
-                            $fundType = ucfirst($pending['fund_type'] ?? '-');
-                            $actionType = strtolower($pending['action_type'] ?? '-');
-                            $amount = (float) ($pending['amount'] ?? 0);
-
-                            $actionLabel = match ($actionType) {
-                                'deposit' => 'Setor',
-                                'withdraw' => 'Ambil',
-                                'expense' => 'Kas Keluar',
-                                default => ucfirst($actionType),
-                            };
-                        @endphp
-
-                        <div class="pending-card">
-                            <span class="pending-code">
-                                {{ $pending['transaction_code'] ?? '-' }}
-                            </span>
-
-                            <div class="pending-title">
-                                {{ $actionLabel }} {{ $fundType }}
-                            </div>
-
-                            <div class="pending-meta">
-                                Request: {{ $pending['requested_by_name'] ?? '-' }}<br>
-                                Target: {{ $pending['target_user_name'] ?? '-' }}
-                            </div>
-
-                            <div class="pending-amount">
-                                Rp {{ number_format($amount, 0, ',', '.') }}
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-
-                <div class="mt-3">
-                    <a href="{{ route('admin.keuangan.index') }}" class="admin-btn-blue w-100">
-                        <i class="bi bi-check2-circle"></i>
-                        Buka Approval
-                    </a>
-                </div>
-            @else
-                <div class="text-center py-5">
-                    <i class="bi bi-check2-circle fs-2 text-success"></i>
-                    <p class="text-muted mt-3 mb-0">
-                        Tidak ada pengajuan pending.
-                    </p>
-                </div>
-            @endif
-        @else
-            <div class="dashboard-section-header">
-                <div>
-                    <h5 class="dashboard-section-title">
-                        Aksi Cepat
-                    </h5>
-
-                    <p class="dashboard-section-subtitle">
-                        Ajukan setor atau ambil tabungan.
-                    </p>
-                </div>
-            </div>
-
-            <div class="d-grid gap-2">
-                <a href="{{ route('admin.keuangan.deposit.create') }}" class="admin-btn-blue">
-                    <i class="bi bi-plus-lg"></i>
-                    Setor Tabungan
-                </a>
-
-                <a href="{{ route('admin.keuangan.withdraw.create') }}" class="admin-btn-light">
-                    <i class="bi bi-arrow-down-circle"></i>
-                    Ambil Tabungan
-                </a>
-
-                <a href="{{ route('dashboard.index') }}" class="admin-btn-light">
-                    <i class="bi bi-globe2"></i>
-                    Lihat Website
-                </a>
-            </div>
         @endif
-    </div>
+    @endforeach
 </div>
 
 @if($isAdmin)

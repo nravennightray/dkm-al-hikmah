@@ -11,6 +11,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
 use Illuminate\Validation\Rule;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -26,6 +27,7 @@ class AdminKeuanganController extends Controller
         'qurban',
         'umrah',
         'kas',
+        'infaq',
     ];
 
     private array $personalFundTypes = [
@@ -52,6 +54,17 @@ class AdminKeuanganController extends Controller
         $canApprove = in_array($currentRole, ['superadmin', 'admin'], true);
 
         $transactions = $this->getSheetCollection('trx_tabungan');
+        $users = $this->getSheetCollection('users');
+        $userLookup = $users
+            ->mapWithKeys(fn ($user) => [(string) ($user['id_user'] ?? '') => $user])
+            ->all();
+
+        $selectedUserId = (string) $request->input('user_id', '');
+        $dateFilter = (string) $request->input('date_filter', 'all');
+        $startDateInput = (string) $request->input('start_date', '');
+        $endDateInput = (string) $request->input('end_date', '');
+        $selectedMonth = (string) $request->input('month', '');
+        $selectedYear = (string) $request->input('year', '');
 
         if (! $canApprove) {
             $currentUserId = $this->currentUserId();
@@ -63,6 +76,17 @@ class AdminKeuanganController extends Controller
                 )
                 ->values();
         }
+
+        $transactions = $this->filterTransactions(
+            $transactions,
+            $canApprove,
+            $selectedUserId,
+            $dateFilter,
+            $startDateInput,
+            $endDateInput,
+            $selectedMonth,
+            $selectedYear
+        );
 
         $transactions = $transactions
             ->sortByDesc(fn ($transaction) => (int) ($transaction['id_transaction'] ?? 0))
@@ -93,7 +117,14 @@ class AdminKeuanganController extends Controller
         return view('admin.keuangan.index', compact(
             'transactions',
             'exportUsers',
-            'currentRole'
+            'currentRole',
+            'userLookup',
+            'selectedUserId',
+            'dateFilter',
+            'startDateInput',
+            'endDateInput',
+            'selectedMonth',
+            'selectedYear'
         ));
     }
 
@@ -284,6 +315,68 @@ class AdminKeuanganController extends Controller
         return redirect()
             ->route('admin.keuangan.index')
             ->with('success', 'Pengeluaran kas berhasil dicatat.');
+    }
+
+    public function createInfaq()
+    {
+        $currentUser = $this->currentSheetUser();
+
+        if (! $currentUser) {
+            return redirect()
+                ->route('admin.dashboard')
+                ->with('error', 'Data user tidak ditemukan.');
+        }
+
+        $infaqAmounts = [100000, 250000, 300000, 350000, 400000, 500000];
+        $months = [
+            '01' => 'Januari',
+            '02' => 'Februari',
+            '03' => 'Maret',
+            '04' => 'April',
+            '05' => 'Mei',
+            '06' => 'Juni',
+            '07' => 'Juli',
+            '08' => 'Agustus',
+            '09' => 'September',
+            '10' => 'Oktober',
+            '11' => 'November',
+            '12' => 'Desember',
+        ];
+
+        return view('admin.keuangan.infaq-create', compact('currentUser', 'infaqAmounts', 'months'));
+    }
+
+    public function storeInfaq(Request $request)
+    {
+        $validated = $request->validate([
+            'infaq_amount' => ['required', 'numeric', 'min:100000'],
+            'period_month' => ['required', 'string', 'regex:/^(0[1-9]|1[0-2])$/'],
+            'period_year' => ['required', 'string', 'regex:/^\d{4}$/'],
+            'phone_number' => ['required', 'string', 'max:20'],
+            'note' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $currentUser = $this->currentSheetUser();
+
+        if (! $currentUser) {
+            return back()
+                ->withInput()
+                ->with('error', 'Data user tidak ditemukan.');
+        }
+
+        $this->appendTransaction([
+            'target_user_id' => $currentUser['id_user'],
+            'target_user_name' => $currentUser['name'],
+            'fund_type' => 'infaq',
+            'action_type' => 'salary_deduction',
+            'amount' => $validated['infaq_amount'],
+            'status' => 'approved',
+            'note' => 'Pemotonan Gaji Infaq - ' . $validated['period_month'] . '/' . $validated['period_year'] . ' - ' . $validated['phone_number'] . (! empty($validated['note']) ? ' - ' . $validated['note'] : ''),
+        ]);
+
+        return redirect()
+            ->route('admin.keuangan.index')
+            ->with('success', 'Pengajuan pemotonan gaji infaq berhasil dikirim dan menunggu persetujuan admin.');
     }
 
     public function approve(Request $request, string $transaction)
@@ -888,6 +981,71 @@ class AdminKeuanganController extends Controller
         return $summary;
     }
 
+    protected function filterTransactions(
+        Collection $transactions,
+        bool $canApprove,
+        string $selectedUserId,
+        string $dateFilter,
+        string $startDateInput,
+        string $endDateInput,
+        string $selectedMonth,
+        string $selectedYear
+    ): Collection {
+        return $transactions->filter(function ($transaction) use ($canApprove, $selectedUserId, $dateFilter, $startDateInput, $endDateInput, $selectedMonth, $selectedYear) {
+            if ($canApprove && $selectedUserId !== '') {
+                $matchesTarget = (string) ($transaction['target_user_id'] ?? '') === (string) $selectedUserId;
+                $matchesRequester = (string) ($transaction['requested_by_id'] ?? '') === (string) $selectedUserId;
+
+                if (! $matchesTarget && ! $matchesRequester) {
+                    return false;
+                }
+            }
+
+            if ($dateFilter === 'range') {
+                $startDate = ! empty($startDateInput) ? $this->parseTransactionDate($startDateInput) : null;
+                $endDate = ! empty($endDateInput) ? $this->parseTransactionDate($endDateInput) : null;
+                $requestedAt = $this->parseTransactionDate($transaction['requested_at'] ?? null);
+
+                if (! $requestedAt) {
+                    return false;
+                }
+
+                if ($startDate && $requestedAt->lt($startDate)) {
+                    return false;
+                }
+
+                if ($endDate && $requestedAt->gt($endDate)) {
+                    return false;
+                }
+            } elseif ($dateFilter === 'month' && $selectedMonth !== '') {
+                $requestedAt = $this->parseTransactionDate($transaction['requested_at'] ?? null);
+
+                if (! $requestedAt) {
+                    return false;
+                }
+
+                $expectedMonth = (int) $selectedMonth;
+                $expectedYear = $selectedYear !== '' ? (int) $selectedYear : $requestedAt->year;
+
+                if ($requestedAt->month !== $expectedMonth || $requestedAt->year !== $expectedYear) {
+                    return false;
+                }
+            } elseif ($dateFilter === 'year' && $selectedYear !== '') {
+                $requestedAt = $this->parseTransactionDate($transaction['requested_at'] ?? null);
+
+                if (! $requestedAt) {
+                    return false;
+                }
+
+                if ($requestedAt->year !== (int) $selectedYear) {
+                    return false;
+                }
+            }
+
+            return true;
+        })->values();
+    }
+
     private function parseTransactionDate(?string $value): ?Carbon
     {
         $value = trim((string) $value);
@@ -992,8 +1150,7 @@ class AdminKeuanganController extends Controller
         $sheet->setCellValue('A1', 'Laporan Keuangan DKM AL HIKMAH');
 
         $sheet->setCellValue('A2', 'Periode');
-        $sheet->setCellValue('B2', $startDate->format('d/m/Y') . ' - ' . $endDate->format('d/m/Y'));
-
+        $sheet->setCellValue('B2', $periodText);
         $sheet->setCellValue('A3', 'Nama Pemilik Laporan');
         $sheet->setCellValue('B3', $owner['name'] ?? '-');
 
@@ -1008,19 +1165,10 @@ class AdminKeuanganController extends Controller
 
         $headers = [
             'No',
-            'Kode Transaksi',
-            'Tanggal Request',
-            'Pemohon',
-            'Target',
-            'Jenis Dana',
+            'Jenis Transaksi',
             'Aksi',
+            'Tanggal',
             'Nominal',
-            'Status',
-            'Catatan User',
-            'Catatan Admin',
-            'Disetujui Oleh',
-            'Tanggal Approval',
-            'Bukti Approval',
         ];
 
         $headerRow = 8;
@@ -1033,7 +1181,7 @@ class AdminKeuanganController extends Controller
         $rowNumber = $headerRow + 1;
 
         if ($transactions->isEmpty()) {
-            $sheet->mergeCells("A{$rowNumber}:N{$rowNumber}");
+            $sheet->mergeCells("A{$rowNumber}:E{$rowNumber}");
             $sheet->setCellValue("A{$rowNumber}", 'Tidak ada data transaksi sesuai filter yang dipilih.');
 
             $sheet->getStyle("A{$rowNumber}")->applyFromArray([
@@ -1051,21 +1199,22 @@ class AdminKeuanganController extends Controller
             foreach ($transactions as $index => $transaction) {
                 $amount = (float) ($transaction['amount'] ?? 0);
 
+                $actionLabel = match ($transaction['action_type'] ?? '') {
+                    'deposit' => 'Setor',
+                    'withdraw' => 'Ambil',
+                    'expense' => 'Kas Keluar',
+                    'salary_deduction' => 'Infaq',
+                    default => ucfirst($transaction['action_type'] ?? '-'),
+                };
+
                 $rowValues = [
                     $index + 1,
-                    $transaction['transaction_code'] ?? '-',
-                    $this->formatTransactionDateForExport($transaction['requested_at'] ?? ''),
-                    $transaction['requested_by_name'] ?? '-',
-                    $transaction['target_user_name'] ?? '-',
                     ucfirst($transaction['fund_type'] ?? '-'),
-                    ucfirst($transaction['action_type'] ?? '-'),
+                    $actionLabel,
+                    $this->formatTransactionDateForExport(
+                        $transaction['requested_at'] ?? ''
+                    ),
                     $amount,
-                    ucfirst($transaction['status'] ?? '-'),
-                    $transaction['note'] ?? '',
-                    $transaction['admin_note'] ?? '',
-                    $transaction['approved_by_name'] ?? '',
-                    $this->formatTransactionDateForExport($transaction['approved_at'] ?? ''),
-                    $transaction['approval_evidence'] ?? '',
                 ];
 
                 foreach ($rowValues as $columnIndex => $value) {
@@ -1077,11 +1226,51 @@ class AdminKeuanganController extends Controller
             }
 
             $lastDataRow = $rowNumber - 1;
+            $summaryRow = $lastDataRow + 3;
+
+            $totalQurban = $transactions
+                ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'qurban')
+                ->sum(function ($trx) {
+                    $amount = (float) ($trx['amount'] ?? 0);
+                    return ($trx['action_type'] ?? '') === 'withdraw'
+                        ? -$amount
+                        : $amount;
+                });
+
+            $totalUmrah = $transactions
+                ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'umrah')
+                ->sum(function ($trx) {
+                    $amount = (float) ($trx['amount'] ?? 0);
+                    return ($trx['action_type'] ?? '') === 'withdraw'
+                        ? -$amount
+                        : $amount;
+                });
+
+            $sheet->setCellValue(
+                "A{$summaryRow}",
+                'Total Tabungan Qurban'
+            );
+
+            $sheet->setCellValue(
+                "B{$summaryRow}",
+                $totalQurban
+            );
+
+
+            $sheet->setCellValue(
+                "A" . ($summaryRow + 1),
+                'Total Tabungan Umrah'
+            );
+
+            $sheet->setCellValue(
+                "B" . ($summaryRow + 1),
+                $totalUmrah
+            );
         }
 
-        $lastColumn = 'N';
+        $lastColumn = 'E';
 
-        $sheet->mergeCells('A1:N1');
+        $sheet->mergeCells('A1:E1');
 
         $sheet->getStyle('A1')->applyFromArray([
             'font' => [
@@ -1124,15 +1313,15 @@ class AdminKeuanganController extends Controller
         ]);
 
         if ($lastDataRow >= 7 && $transactions->isNotEmpty()) {
-            $sheet->getStyle("H7:H{$lastDataRow}")
+            $sheet->getStyle("E9:E{$lastDataRow}")
                 ->getNumberFormat()
                 ->setFormatCode('#,##0');
 
-            $sheet->getStyle("A7:N{$lastDataRow}")
+            $sheet->getStyle("A8:E{$lastDataRow}")
                 ->getAlignment()
                 ->setVertical(Alignment::VERTICAL_TOP);
 
-            $sheet->getStyle("J7:N{$lastDataRow}")
+            $sheet->getStyle("A8:E{$lastDataRow}")
                 ->getAlignment()
                 ->setWrapText(true);
         }
@@ -1141,9 +1330,11 @@ class AdminKeuanganController extends Controller
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
-        $sheet->getColumnDimension('J')->setWidth(32);
-        $sheet->getColumnDimension('K')->setWidth(32);
-        $sheet->getColumnDimension('N')->setWidth(38);
+        $sheet->getColumnDimension('A')->setWidth(8);
+        $sheet->getColumnDimension('B')->setWidth(20);
+        $sheet->getColumnDimension('C')->setWidth(18);
+        $sheet->getColumnDimension('D')->setWidth(22);
+        $sheet->getColumnDimension('E')->setWidth(18);
 
         $sheet->freezePane('A7');
         $sheet->setAutoFilter("A{$headerRow}:{$lastColumn}{$lastDataRow}");
@@ -1168,5 +1359,178 @@ class AdminKeuanganController extends Controller
         return response()
             ->download($path, $fileName)
             ->deleteFileAfterSend(true);
+    }
+
+    public function importForm()
+    {
+        $this->authorizeAdminAction();
+
+        return view('admin.keuangan.import');
+    }
+
+    public function importStore(Request $request)
+    {
+        $this->authorizeAdminAction();
+        $request->validate([
+            'file' => [
+                'required',
+                'file',
+                'mimes:xlsx,xls,csv'
+            ]
+        ]);
+
+        $spreadsheet = IOFactory::load($request->file('file')->getRealPath());
+        $rows = collect($spreadsheet->getActiveSheet()->toArray());
+        $header = $rows->shift();
+        $imported = 0;
+        $failed = [];
+
+        foreach ($rows as $index => $row) {
+            if (!array_filter($row)) {
+                continue;
+            }
+
+            try {
+                $data = [
+                    'nrp' => trim($row[1] ?? ''),
+                    'fund_type' => strtolower(trim($row[2] ?? '')),
+                    'action' => strtolower(trim($row[3] ?? '')),
+                    'amount' => $this->parseImportAmount($row[4] ?? 0),
+                    'date' => $row[5] ?? null,
+                ];
+
+                $user = $this->findUserByNrp($data['nrp']);
+
+                if (!$user) {
+                    throw new \Exception(
+                        "NRP {$data['nrp']} tidak ditemukan"
+                    );
+                }
+
+                $fundType = $this->normalizeFundType(
+                    $data['fund_type']
+                );
+
+                $actionType = $this->normalizeActionType(
+                    $data['action']
+                );
+
+                $transaction = $this->appendTransaction([
+                    'target_user_id' => $user['id_user'],
+                    'target_user_name' => $user['name'],
+                    'fund_type' => $fundType,
+                    'action_type' => $actionType,
+                    'amount' => $data['amount'],
+                    'status' => 'approved',
+                    'note' => 'Import Excel',
+                ]);
+
+                if ($fundType === 'qurban' || $fundType === 'umrah') {
+                    if ($actionType === 'deposit') {
+                        $this->increaseUserBalance(
+                            $user['id_user'],
+                            $user['name'],
+                            $fundType,
+                            $data['amount']
+                        );
+                    }
+
+                    if ($actionType === 'withdraw') {
+                        $this->decreaseUserBalance(
+                            $user['id_user'],
+                            $user['name'],
+                            $fundType,
+                            $data['amount']
+                        );
+                    }
+                }
+
+                $imported++;
+            } catch(\Throwable $e) {
+                $failed[] = [
+                    'row' => $index + 2,
+                    'message'=>$e->getMessage()
+                ];
+            }
+
+        }
+
+        return redirect()
+            ->route('admin.keuangan.index')
+            ->with(
+                'success',
+                "{$imported} transaksi berhasil diimport."
+            );
+
+    }
+
+    private function findUserByNrp(string $nrp): ?array
+    {
+        return $this->getSheetCollection('users')
+            ->first(function ($user) use ($nrp){
+                return trim(
+                    (string)($user['nrp'] ?? '')
+                ) === trim($nrp);
+            });
+    }
+
+    private function normalizeFundType(string $value): string
+    {
+        return match(strtolower($value)){
+            'qurban' => 'qurban',
+            'umrah' => 'umrah',
+            'infaq' => 'infaq',
+            'kas' => 'kas',
+
+            default => throw new \Exception(
+                "Jenis transaksi tidak valid: {$value}"
+            )
+        };
+    }
+
+    private function normalizeActionType(string $value): string
+    {
+        return match(strtolower($value)){
+            'setor',
+            'deposit' => 'deposit',
+
+            'ambil',
+            'withdraw' => 'withdraw',
+
+            'infaq',
+            'potong',
+            'salary deduction' => 'salary_deduction',
+
+            'kas keluar',
+            'expense' => 'expense',
+
+            default => throw new \Exception(
+                "Aksi tidak valid: {$value}"
+            )
+
+        };
+    }
+
+    protected function parseImportAmount($value): float
+    {
+        $text = trim((string) $value);
+
+        if ($text === '') {
+            return 0.0;
+        }
+
+        // Indonesian thousands separator syntax.
+        if (preg_match('/^[0-9]{1,3}(\.[0-9]{3})*(,[0-9]+)?$/', $text)) {
+            $normalized = str_replace(['.', ','], ['', '.'], $text);
+            return (float) $normalized;
+        }
+
+        // Indonesian decimal-only syntax.
+        if (preg_match('/^[0-9]+(,[0-9]+)?$/', $text)) {
+            $normalized = str_replace(',', '.', $text);
+            return (float) $normalized;
+        }
+
+        return is_numeric($text) ? (float) $text : 0.0;
     }
 }

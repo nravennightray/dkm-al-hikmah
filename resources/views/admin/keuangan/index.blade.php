@@ -108,19 +108,6 @@
         text-align: center;
     }
 
-    .trx-number {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        background: #eff6ff;
-        color: #2563eb;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
     .trx-code {
         display: inline-flex;
         align-items: center;
@@ -136,6 +123,21 @@
 
     .trx-main {
         min-width: 240px;
+    }
+
+    .trx-title {
+        color: #0f172a;
+        font-size:14px;
+        font-weight:850;
+        line-height:1.4;
+        margin-bottom:5px;
+    }
+
+
+    .trx-meta {
+        color:#64748b;
+        font-size:12px;
+        line-height:1.6;
     }
 
     .trx-title {
@@ -187,6 +189,11 @@
         color: #15803d;
     }
 
+    .trx-fund-infaq {
+        background: #fdf2f8;
+        color: #be185d;
+    }
+
     .trx-action-deposit {
         background: #ecfdf5;
         color: #047857;
@@ -201,22 +208,6 @@
         background: #fef2f2;
         color: #dc2626;
     }
-
-    .trx-status-pending {
-        background: #fef3c7;
-        color: #92400e;
-    }
-
-    .trx-status-approved {
-        background: #ecfdf5;
-        color: #047857;
-    }
-
-    .trx-status-rejected {
-        background: #fef2f2;
-        color: #dc2626;
-    }
-
     .trx-amount {
         color: #0f172a;
         font-size: 14px;
@@ -712,10 +703,174 @@
         box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
     }
 
-    .finance-filter-grid {
+    .keuangan-filter-card {
+        margin-bottom: 24px;
+        padding: 22px;
+        border-radius: 24px;
+        background: linear-gradient(
+            180deg,
+            #ffffff 0%,
+            #f8fbff 100%
+        );
+        border: 1px solid rgba(37, 99, 235, 0.12);
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
+    }
+
+
+    .keuangan-filter-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+    }
+
+
+    .keuangan-filter-header i {
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+
+    .keuangan-filter-header h6 {
+        margin: 0;
+        color: #0f172a;
+        font-size: 15px;
+        font-weight: 850;
+    }
+
+
+    /* GRID */
+
+    .keuangan-filter-grid {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+
+    .keuangan-filter-field {
+        min-width: 0;
+    }
+
+
+    .keuangan-filter-field label {
+        display: block;
+        margin-bottom: 7px;
+        color: #64748b;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+
+
+    .keuangan-filter-control {
+        width: 100%;
+        height: 44px;
+        padding: 0 13px;
+
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+
+        color: #0f172a;
+        font-size: 14px;
+
+        outline: none;
+        transition: all .2s ease;
+    }
+
+
+    .keuangan-filter-control:focus {
+        border-color: rgba(37,99,235,.45);
+        box-shadow: 0 0 0 4px rgba(37,99,235,.10);
+    }
+
+    .keuangan-filter-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+
+    .keuangan-filter-btn {
+        height: 42px;
+        padding: 0 18px;
+
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+
+        border-radius: 12px;
+
+        font-size: 13px;
+        font-weight: 800;
+
+        text-decoration: none;
+        border: 1px solid transparent;
+
+        transition: all .2s ease;
+    }
+
+
+    .keuangan-filter-btn-primary {
+        background: #2563eb;
+        color: #fff;
+    }
+
+
+    .keuangan-filter-btn-primary:hover {
+        background: #1d4ed8;
+        color:#fff;
+    }
+
+
+    .keuangan-filter-btn-secondary {
+        background:#fff;
+        color:#475569;
+        border-color:#e5e7eb;
+    }
+
+
+    .keuangan-filter-btn-secondary:hover {
+        background:#eff6ff;
+        color:#2563eb;
+    }
+
+
+    @media(max-width:1200px){
+
+        .keuangan-filter-grid {
+            grid-template-columns: repeat(2, minmax(0,1fr));
+        }
+
+    }
+
+
+    @media(max-width:576px){
+
+        .keuangan-filter-grid {
+            grid-template-columns:1fr;
+        }
+
+
+        .keuangan-filter-footer {
+            flex-direction:column;
+        }
+
+
+        .keuangan-filter-btn {
+            width:100%;
+        }
+
     }
 
     .finance-modal-confirm-export {
@@ -734,11 +889,6 @@
         color: #2563eb;
     }
 
-    @media (max-width: 576px) {
-        .finance-filter-grid {
-            grid-template-columns: 1fr;
-        }
-    }
 </style>
 @endsection
 
@@ -760,32 +910,46 @@
         </h3>
 
         <p class="keuangan-subtitle">
-            Pantau transaksi setor, ambil tabungan, dan penggunaan kas DKM. Transaksi pending perlu disetujui admin sebelum saldo berubah.
+            @if($canApprove)
+                Pantau transaksi setor, ambil tabungan, dan penggunaan kas DKM.
+            @else
+                Pantau riwayat infaq, qurban, umrah, dan kas yang Anda ajukan.
+            @endif
         </p>
     </div>
 
     <div class="keuangan-header-actions">
-        <button type="button"
-                class="admin-btn-light"
-                id="openExportModalBtn">
+        @if($canApprove)
+            <a href="{{ route('admin.keuangan.import.form') }}" class="admin-btn-light">
+                <i class="bi bi-file-earmark-arrow-up"></i>
+                Import Excel
+            </a>
+        @endif
+
+        <button type="button" class="admin-btn-light" id="openExportModalBtn">
             <i class="bi bi-file-earmark-excel"></i>
             Export Excel
         </button>
 
-        <a href="{{ route('admin.keuangan.deposit.create') }}" class="admin-btn-blue">
-            <i class="bi bi-plus-lg"></i>
-            Setor
-        </a>
-
-        <a href="{{ route('admin.keuangan.withdraw.create') }}" class="admin-btn-light">
-            <i class="bi bi-arrow-down-circle"></i>
-            Ambil
-        </a>
-
         @if($canApprove)
+            <a href="{{ route('admin.keuangan.deposit.create') }}" class="admin-btn-blue">
+                <i class="bi bi-plus-lg"></i>
+                Setor
+            </a>
+
+            <a href="{{ route('admin.keuangan.withdraw.create') }}" class="admin-btn-light">
+                <i class="bi bi-arrow-down-circle"></i>
+                Ambil
+            </a>
+
             <a href="{{ route('admin.keuangan.kas.expense.create') }}" class="admin-btn-light">
                 <i class="bi bi-cash-coin"></i>
                 Kas Keluar
+            </a>
+        @else
+            <a href="{{ route('admin.keuangan.infaq.create') }}" class="admin-btn-blue">
+                <i class="bi bi-heart"></i>
+                Ajukan Infaq
             </a>
         @endif
     </div>
@@ -806,170 +970,206 @@
 @endif
 
 <div class="admin-card overflow-hidden">
+    @if($canApprove)
+        <div class="keuangan-filter-card">
+            <div class="keuangan-filter-header">
+                <i class="bi bi-funnel"></i>
+                <h6>
+                    Filter Transaksi
+                </h6>
+            </div>
+
+            <form method="GET"
+                action="{{ route('admin.keuangan.index') }}">
+                <div class="keuangan-filter-grid">
+                    <div class="keuangan-filter-field">
+                        <label for="user_id">
+                            Karyawan
+                        </label>
+
+                        <select id="user_id"
+                            name="user_id"
+                            class="keuangan-filter-control keuangan-user-select">
+
+                        <option value="">
+                            Semua Karyawan
+                        </option>
+
+                        @foreach(($exportUsers ?? collect()) as $user)
+
+                            <option value="{{ $user['id_user'] ?? '' }}"
+                                data-name="{{ $user['name'] ?? '' }}"
+                                data-nrp="{{ $user['nrp'] ?? '' }}"
+                                data-email="{{ $user['email'] ?? '' }}"
+
+                                @selected(($selectedUserId ?? '') == ($user['id_user'] ?? ''))>
+
+                                {{ $user['name'] ?? '-' }}
+                                | NRP: {{ $user['nrp'] ?? '-' }}
+                                | {{ $user['email'] ?? '' }}
+
+                            </option>
+
+                        @endforeach
+
+                    </select>
+                    </div>
+
+                    <div class="keuangan-filter-field">
+                        <label> Jenis Periode </label>
+
+                        <select name="date_filter" class="keuangan-filter-control">
+                            <option value="all"> Semua Waktu </option>
+                            <option value="range"> Rentang Tanggal </option>
+                            <option value="month"> Bulanan </option>
+                            <option value="year"> Tahunan </option>
+                        </select>
+                    </div>
+
+                    <div class="keuangan-filter-field">
+                        <label> Dari </label>
+                        <input type="date"
+                            name="start_date"
+                            value="{{ $startDateInput ?? '' }}"
+                            class="keuangan-filter-control">
+                    </div>
+
+                    <div class="keuangan-filter-field">
+                        <label> Sampai </label>
+
+                        <input type="date"
+                            name="end_date"
+                            value="{{ $endDateInput ?? '' }}"
+                            class="keuangan-filter-control">
+                    </div>
+
+                    <div class="keuangan-filter-field">
+                        <label> Bulan </label>
+                        <select name="month" class="keuangan-filter-control">
+                            <option value=""> Semua Bulan </option>
+                            @for($month=1;$month<=12;$month++)
+                                <option value="{{ $month }}">
+                                    {{ DateTime::createFromFormat('!m',$month)->format('F') }}
+                                </option>
+                            @endfor
+                        </select>
+                    </div>
+
+                    <div class="keuangan-filter-field">
+                        <label> Tahun </label>
+                        <select name="year" class="keuangan-filter-control">
+                            <option value=""> Semua Tahun </option>
+                            @for($year=now()->year;$year>=now()->year-5;$year--)
+                                <option value="{{ $year }}">
+                                    {{ $year }}
+                                </option>
+                            @endfor
+                        </select>
+                    </div>
+                </div>
+
+                <div class="keuangan-filter-footer">
+                    <button type="submit" class="keuangan-filter-btn keuangan-filter-btn-primary">
+                        <i class="bi bi-check2-circle"></i>
+                        Terapkan Filter
+                    </button>
+                    <a href="{{ route('admin.keuangan.index') }}" class="keuangan-filter-btn keuangan-filter-btn-secondary">
+                        <i class="bi bi-arrow-counterclockwise"></i>
+                        Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    @endif
+
     @if(($transactions ?? collect())->count())
 
         <div class="table-responsive">
             <table class="table keuangan-table mb-0">
                 <thead>
                     <tr>
-                        <th class="text-center" style="width: 70px;">No</th>
-                        <th>Kode</th>
-                        <th>Transaksi</th>
-                        <th class="text-center">Jenis</th>
-                        <th class="text-center">Aksi</th>
-                        <th class="text-end">Nominal</th>
-                        <th class="text-center">Status</th>
-                        <th>Catatan</th>
-                        <th class="text-center" style="width: 130px;">Approval</th>
+                        <th> Transaksi </th>
+                        @if($canApprove)
+                            <th> User </th>
+                        @endif
+                        <th class="text-center"> Jenis </th>
+                        <th> Tanggal </th>
+                        <th class="text-end"> Nominal </th>
                     </tr>
                 </thead>
 
                 <tbody>
                     @foreach($transactions as $trx)
                         @php
-                            $idTransaction = $trx['id_transaction'] ?? null;
-                            $code = $trx['transaction_code'] ?? '-';
-                            $requestedBy = $trx['requested_by_name'] ?? '-';
-                            $targetUser = $trx['target_user_name'] ?? '-';
                             $fundType = strtolower($trx['fund_type'] ?? '-');
                             $actionType = strtolower($trx['action_type'] ?? '-');
                             $amount = (float) ($trx['amount'] ?? 0);
-                            $status = strtolower($trx['status'] ?? 'pending');
-                            $note = $trx['note'] ?? '-';
-                            $adminNote = $trx['admin_note'] ?? '';
+                            $note = $trx['note'] ?? '';
                             $requestedAt = $trx['requested_at'] ?? '-';
+
+                            $userRecord = null;
+                            $userId = (string) ($trx['target_user_id'] ?? '') ?: (string) ($trx['requested_by_id'] ?? '');
+
+                            if (! empty($userId) && isset($userLookup[$userId])) {
+                                $userRecord = $userLookup[$userId];
+                            }
+
+                            $userName = $userRecord['name'] ?? ($trx['target_user_name'] ?? $trx['requested_by_name'] ?? '-');
+                            $userNrp = $userRecord['nrp'] ?? ($trx['target_user_nrp'] ?? $trx['requested_by_nrp'] ?? '-');
 
                             $actionLabel = match ($actionType) {
                                 'deposit' => 'Setor',
                                 'withdraw' => 'Ambil',
                                 'expense' => 'Kas Keluar',
-                                default => ucfirst($actionType),
+                                'salary_deduction' => 'Infaq',
+                                default => ucfirst($actionType)
                             };
 
                             $fundLabel = match ($fundType) {
                                 'qurban' => 'Qurban',
                                 'umrah' => 'Umrah',
                                 'kas' => 'Kas',
-                                default => ucfirst($fundType),
+                                'infaq' => 'Infaq',
+                                default => ucfirst($fundType)
                             };
                         @endphp
-
                         <tr>
-                            <td class="text-center">
-                                <span class="trx-number">
-                                    {{ method_exists($transactions, 'firstItem') ? $transactions->firstItem() + $loop->index : $loop->iteration }}
-                                </span>
-                            </td>
-
                             <td>
-                                <span class="trx-code">
-                                    {{ $code }}
-                                </span>
-                            </td>
-
-                            <td>
-                                <div class="trx-main">
-                                    <div class="trx-title">
-                                        {{ $actionLabel }} {{ $fundLabel }}
-                                    </div>
-
-                                    <div class="trx-meta">
-                                        Request: {{ $requestedBy }}<br>
-                                        Target: {{ $targetUser ?: '-' }}<br>
-                                        {{ $requestedAt }}
-                                    </div>
+                                <div class="trx-title">
+                                    {{ $actionLabel }}
+                                    {{ $fundLabel }}
+                                </div>
+                                <div class="trx-meta">
+                                    {{ $trx['transaction_code'] ?? '-' }}
                                 </div>
                             </td>
-
+                            @if($canApprove)
+                                <td>
+                                    <div class="trx-title">
+                                        {{ $userName }}
+                                    </div>
+                                    <div class="trx-meta">
+                                        NRP: {{ $userNrp }}
+                                    </div>
+                                </td>
+                            @endif
                             <td class="text-center">
                                 <span class="trx-badge trx-fund-{{ $fundType }}">
-                                    <i class="bi bi-wallet2"></i>
                                     {{ $fundLabel }}
                                 </span>
                             </td>
-
-                            <td class="text-center">
-                                <span class="trx-badge trx-action-{{ $actionType }}">
-                                    @if($actionType === 'deposit')
-                                        <i class="bi bi-arrow-up-circle"></i>
-                                    @elseif($actionType === 'withdraw')
-                                        <i class="bi bi-arrow-down-circle"></i>
-                                    @else
-                                        <i class="bi bi-cash"></i>
-                                    @endif
-
-                                    {{ $actionLabel }}
-                                </span>
-                            </td>
-
-                            <td class="text-end">
-                                <span class="trx-amount">
-                                    Rp {{ number_format($amount, 0, ',', '.') }}
-                                </span>
-                            </td>
-
-                            <td class="text-center">
-                                <span class="trx-badge trx-status-{{ $status }}">
-                                    @if($status === 'approved')
-                                        <i class="bi bi-check-circle"></i>
-                                    @elseif($status === 'rejected')
-                                        <i class="bi bi-x-circle"></i>
-                                    @else
-                                        <i class="bi bi-clock"></i>
-                                    @endif
-
-                                    {{ $status }}
-                                </span>
-                            </td>
-
                             <td>
-                                <div class="trx-note">
-                                    {{ $note ?: '-' }}
-
-                                    @if($adminNote)
-                                        <br>
-                                        <strong>Admin:</strong> {{ $adminNote }}
-                                    @endif
-
-                                    @if(! empty($trx['approval_evidence'] ?? null))
-                                        <br>
-                                        <a href="{{ asset($trx['approval_evidence']) }}"
-                                        target="_blank"
-                                        class="fw-bold text-decoration-none">
-                                            <i class="bi bi-paperclip"></i>
-                                            Lihat Bukti
-                                        </a>
-                                    @endif
+                                <div class="trx-meta">
+                                    {{ $requestedAt }}
                                 </div>
                             </td>
-
-                            <td class="text-center">
-                                @if($canApprove && $status === 'pending' && $idTransaction)
-                                    <div class="trx-action-group">
-                                        <button type="button"
-                                                class="trx-mini-btn trx-mini-approve approve-trigger"
-                                                title="Setujui"
-                                                data-action="{{ route('admin.keuangan.approve', $idTransaction) }}"
-                                                data-code="{{ $code }}"
-                                                data-title="{{ $actionLabel }} {{ $fundLabel }}"
-                                                data-amount="Rp {{ number_format($amount, 0, ',', '.') }}">
-                                            <i class="bi bi-check-lg"></i>
-                                        </button>
-
-                                        <button type="button"
-                                                class="trx-mini-btn trx-mini-reject reject-trigger"
-                                                title="Tolak"
-                                                data-action="{{ route('admin.keuangan.reject', $idTransaction) }}"
-                                                data-code="{{ $code }}">
-                                            <i class="bi bi-x-lg"></i>
-                                        </button>
-                                    </div>
-                                @else
-                                    <span class="text-muted small">-</span>
-                                @endif
+                            <td class="text-end">
+                                <span class="trx-amount">
+                                    Rp {{ number_format($amount,0,',','.') }}
+                                </span>
                             </td>
                         </tr>
-                    @endforeach
+                        @endforeach
                 </tbody>
             </table>
         </div>

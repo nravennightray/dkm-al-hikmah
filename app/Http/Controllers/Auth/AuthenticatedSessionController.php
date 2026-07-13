@@ -29,7 +29,7 @@ class AuthenticatedSessionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'email' => ['required', 'email'],
+            'email' => ['required', 'string'],
             'password' => ['required', 'string'],
         ]);
 
@@ -72,8 +72,13 @@ class AuthenticatedSessionController extends Controller
             })
             ->values();
 
-        $sheetUser = $users->first(function ($user) use ($request) {
-            return strtolower(trim($user['email'] ?? '')) === strtolower(trim($request->email));
+        $credential = trim((string) $request->email);
+
+        $sheetUser = $users->first(function ($user) use ($credential) {
+            $email = strtolower(trim((string) ($user['email'] ?? '')));
+            $nrp = strtolower(trim((string) ($user['nrp'] ?? '')));
+
+            return $email === strtolower($credential) || $nrp === strtolower($credential);
         });
 
         if (! $sheetUser) {
@@ -105,9 +110,11 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
+        $authEmail = $sheetUser['email'] ?: $sheetUser['nrp'] ?: ('user-' . ($sheetUser['id_user'] ?? 'unknown'));
+
         $user = User::firstOrCreate(
             [
-                'email' => $sheetUser['email'],
+                'email' => $authEmail,
             ],
             [
                 'name' => $sheetUser['name'] ?? 'Admin DKM',
@@ -126,7 +133,7 @@ class AuthenticatedSessionController extends Controller
         $request->session()->put('sheet_user', [
             'id_user' => $sheetUser['id_user'] ?? null,
             'name' => $sheetUser['name'] ?? 'Admin DKM',
-            'email' => $sheetUser['email'],
+            'email' => $sheetUser['email'] ?: $sheetUser['nrp'] ?: '',
             'role' => $sheetUser['role'] ?? 'admin',
             'status' => $sheetUser['status'] ?? 'active',
         ]);
