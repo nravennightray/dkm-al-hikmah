@@ -286,7 +286,7 @@
     </div>
 </div>
 
-<div class="section pt-0" style="background: #ffffff;">
+{{-- <div class="section pt-0" style="background: #ffffff;">
     <div class="container">
         <div class="row justify-content-center">
             <div class="col-lg-10 text-center">
@@ -308,7 +308,7 @@
                 @endif
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 
 @endsection

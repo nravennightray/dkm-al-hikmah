@@ -25,12 +25,20 @@ class AdminMusalaController extends Controller
     ];
 
     protected GoogleSheetService $sheetService;
+
     protected string $spreadsheetId;
 
     public function __construct(GoogleSheetService $sheetService)
     {
         $this->sheetService = $sheetService;
-        $this->spreadsheetId = config('google.spreadsheet_id');
+
+        $spreadsheetId = config('google.spreadsheet_id');
+
+        if (! $spreadsheetId) {
+            throw new \Exception('Spreadsheet ID belum diatur. Cek config/google.php dan .env.');
+        }
+
+        $this->spreadsheetId = $spreadsheetId;
     }
 
     public function index()
@@ -38,6 +46,37 @@ class AdminMusalaController extends Controller
         $musala = $this->getMusalaCollection();
 
         return view('admin.musala.index', compact('musala'));
+    }
+
+    public function create()
+    {
+        return view('admin.musala.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $this->validateMusala($request);
+
+        $baseSlug = $this->makeSlug($validated['title']);
+        $slug = $this->makeUniqueSlug($baseSlug);
+
+        $imageName = '';
+
+        if ($request->hasFile('image')) {
+            $imageName = $this->storeImage($request, $slug);
+        }
+
+        $payload = $this->buildCreateSheetPayload($slug, $validated, $imageName);
+
+        $this->sheetService->appendRow(
+            $this->spreadsheetId,
+            self::SHEET_NAME,
+            $payload
+        );
+
+        return redirect()
+            ->route('admin.musala.index')
+            ->with('success', 'Musala berhasil ditambahkan.');
     }
 
     public function edit(string $slug)
@@ -59,7 +98,7 @@ class AdminMusalaController extends Controller
             $imageName = $this->storeImage($request, $musala['slug']);
         }
 
-        $payload = $this->buildSheetPayload($musala, $validated, $imageName);
+        $payload = $this->buildUpdateSheetPayload($musala, $validated, $imageName);
 
         $this->sheetService->updateRow(
             $this->spreadsheetId,
@@ -70,7 +109,24 @@ class AdminMusalaController extends Controller
 
         return redirect()
             ->route('admin.musala.index')
-            ->with('success', 'Musala updated successfully.');
+            ->with('success', 'Musala berhasil diperbarui.');
+    }
+
+    public function destroy(string $slug)
+    {
+        $musala = $this->findMusalaOrFail($slug);
+
+        $this->deleteImageIfExists($musala['image'] ?? '');
+
+        $this->sheetService->deleteRow(
+            $this->spreadsheetId,
+            self::SHEET_NAME,
+            (int) $musala['_row_number']
+        );
+
+        return redirect()
+            ->route('admin.musala.index')
+            ->with('success', 'Musala berhasil dihapus.');
     }
 
     private function validateMusala(Request $request): array
@@ -88,7 +144,7 @@ class AdminMusalaController extends Controller
 
         if ($facilities === '') {
             throw ValidationException::withMessages([
-                'facilities' => 'Facilities cannot be empty.',
+                'facilities' => 'Fasilitas tidak boleh kosong.',
             ]);
         }
 
@@ -101,7 +157,22 @@ class AdminMusalaController extends Controller
         ];
     }
 
-    private function buildSheetPayload(array $musala, array $validated, ?string $imageName): array
+    private function buildCreateSheetPayload(string $slug, array $validated, ?string $imageName): array
+    {
+        $payload = [
+            $slug,
+            $validated['title'] ?? '',
+            $validated['location'] ?? '',
+            $validated['capacity'] ?? '',
+            $validated['facilities'] ?? '',
+            $validated['desc'] ?? '',
+            $imageName ?? '',
+        ];
+
+        return $this->normalizePayload($payload);
+    }
+
+    private function buildUpdateSheetPayload(array $musala, array $validated, ?string $imageName): array
     {
         $payload = [
             $musala['slug'] ?? '',
@@ -113,6 +184,11 @@ class AdminMusalaController extends Controller
             $imageName ?? '',
         ];
 
+        return $this->normalizePayload($payload);
+    }
+
+    private function normalizePayload(array $payload): array
+    {
         return array_values(
             array_slice(
                 array_pad($payload, count(self::EXPECTED_COLUMNS), ''),
@@ -127,7 +203,7 @@ class AdminMusalaController extends Controller
         $musala = $this->getMusalaCollection()
             ->firstWhere('slug', $slug);
 
-        abort_if(!$musala, 404);
+        abort_if(! $musala, 404);
 
         return $musala;
     }
@@ -147,7 +223,6 @@ class AdminMusalaController extends Controller
             return collect();
         }
 
-        // Remove header row.
         $rows->shift();
 
         return $rows
@@ -173,7 +248,7 @@ class AdminMusalaController extends Controller
 
                 return $data;
             })
-            ->filter(fn ($row) => !empty($row['slug']))
+            ->filter(fn ($row) => ! empty($row['slug']))
             ->values();
     }
 
@@ -201,25 +276,59 @@ class AdminMusalaController extends Controller
         return $isValidImageName ? $imageName : '';
     }
 
+    private function makeSlug(string $value): string
+    {
+        $slug = strtolower(trim($value));
+
+        $slug = preg_replace('/[^a-z0-9]+/', '-', $slug);
+        $slug = preg_replace('/-+/', '-', $slug);
+        $slug = trim($slug, '-');
+
+        if ($slug === '') {
+            $slug = 'musala-' . time();
+        }
+
+        return $slug;
+    }
+
+    private function makeUniqueSlug(string $baseSlug): string
+    {
+        $existingSlugs = $this->getMusalaCollection()
+            ->pluck('slug')
+            ->map(fn ($slug) => strtolower((string) $slug))
+            ->values()
+            ->all();
+
+        $slug = $baseSlug;
+        $counter = 2;
+
+        while (in_array(strtolower($slug), $existingSlugs, true)) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
+    }
+
     private function storeImage(Request $request, string $slug): string
     {
-        if (!function_exists('imagecreatefromstring') || !function_exists('imagewebp')) {
+        if (! function_exists('imagecreatefromstring') || ! function_exists('imagewebp')) {
             throw ValidationException::withMessages([
-                'image' => 'Server does not support GD WebP image processing.',
+                'image' => 'Server tidak mendukung proses gambar WebP.',
             ]);
         }
 
         $folder = public_path(self::IMAGE_DIRECTORY);
 
-        if (!is_dir($folder)) {
+        if (! is_dir($folder)) {
             mkdir($folder, 0755, true);
         }
 
         $file = $request->file('image');
 
-        if (!$file || !$file->isValid()) {
+        if (! $file || ! $file->isValid()) {
             throw ValidationException::withMessages([
-                'image' => 'Uploaded image is invalid.',
+                'image' => 'File gambar tidak valid.',
             ]);
         }
 
@@ -227,15 +336,15 @@ class AdminMusalaController extends Controller
 
         if ($contents === false) {
             throw ValidationException::withMessages([
-                'image' => 'Failed to read uploaded image.',
+                'image' => 'Gagal membaca file gambar.',
             ]);
         }
 
         $image = imagecreatefromstring($contents);
 
-        if (!$image) {
+        if (! $image) {
             throw ValidationException::withMessages([
-                'image' => 'Failed to process uploaded image.',
+                'image' => 'Gagal memproses file gambar.',
             ]);
         }
 
@@ -255,7 +364,7 @@ class AdminMusalaController extends Controller
 
         if (! $saved) {
             throw ValidationException::withMessages([
-                'image_upload' => 'Gagal menyimpan gambar.',
+                'image' => 'Gagal menyimpan gambar.',
             ]);
         }
 
@@ -270,6 +379,25 @@ class AdminMusalaController extends Controller
         $slug = preg_replace('/-+/', '-', $slug);
         $slug = trim($slug, '-');
 
+        if ($slug === '') {
+            $slug = 'musala-' . time();
+        }
+
         return $slug . '.webp';
+    }
+
+    private function deleteImageIfExists(?string $imageName): void
+    {
+        $imageName = $this->cleanImageName($imageName);
+
+        if ($imageName === '') {
+            return;
+        }
+
+        $path = public_path(self::IMAGE_DIRECTORY . '/' . $imageName);
+
+        if (is_file($path)) {
+            @unlink($path);
+        }
     }
 }

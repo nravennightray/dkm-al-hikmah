@@ -1,14 +1,11 @@
 @extends('admin.layout.app')
 
-@section('title', 'Edit Musala')
-@section('page_title', 'Edit Musala')
-@section('page_subtitle', 'Perbarui data fasilitas musala')
+@section('title', 'Tambah Musala')
+@section('page_title', 'Tambah Musala')
+@section('page_subtitle', 'Tambahkan data Musala Kantor atau Musala Plant')
 
 @section('css')
 <style>
-    /* =========================
-       HEADER (MATCH KEGIATAN STYLE)
-       ========================= */
     .form-page-header {
         display: flex;
         align-items: center;
@@ -49,13 +46,6 @@
         color: #64748b;
         font-size: 14px;
         line-height: 1.7;
-    }
-
-    /* =========================
-       FORM SYSTEM (MATCH KEGIATAN)
-       ========================= */
-    .admin-form-card {
-        width: 100%;
     }
 
     .admin-form-grid {
@@ -111,9 +101,6 @@
         color: #dc2626;
     }
 
-    /* =========================
-       IMAGE
-       ========================= */
     .image-upload-box {
         border: 1px dashed #cbd5e1;
         border-radius: 18px;
@@ -123,22 +110,15 @@
 
     .image-preview {
         width: 100%;
-        height: 260px;
+        min-height: 180px;
         border-radius: 16px;
         border: 1px solid #e5e7eb;
-        background: #fff;
-        overflow: hidden;
+        background: #ffffff;
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 14px;
         color: #94a3b8;
-    }
-
-    .image-preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
     }
 
     .image-placeholder {
@@ -151,26 +131,10 @@
     }
 
     .image-placeholder i {
-        font-size: 30px;
+        font-size: 34px;
         color: #2563eb;
     }
 
-    .current-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 7px;
-        padding: 7px 11px;
-        border-radius: 999px;
-        background: #eff6ff;
-        color: #2563eb;
-        font-size: 12px;
-        font-weight: 800;
-        margin-bottom: 12px;
-    }
-
-    /* =========================
-       BUTTONS
-       ========================= */
     .admin-btn-light {
         display: inline-flex;
         align-items: center;
@@ -201,51 +165,36 @@
         .admin-form-grid {
             grid-template-columns: 1fr;
         }
-
-        .image-preview {
-            height: 220px;
-        }
     }
 </style>
 @endsection
 
 @section('content')
 
-@php
-    $facilitiesText = is_array($musala['facilities'] ?? null)
-        ? implode(';', $musala['facilities'])
-        : ($musala['facilities'] ?? '');
-
-    $currentImage = $musala['image'] ?? null;
-
-    $image = $musala['image'] ?? '';
-    $imagePath = public_path('image/musala/' . $image);
-
-    $imageUrl = !empty($image) && file_exists($imagePath)
-        ? asset('image/musala/' . $image) . '?v=' . filemtime($imagePath)
-        : asset('assets/images/dkm/default-image.jpg');
-@endphp
-
-{{-- HEADER --}}
 <div class="form-page-header">
     <div>
-        <span class="form-eyebrow">Form Musala</span>
-        <h3 class="form-title">Edit Musala</h3>
+        <span class="form-eyebrow">
+            Form Musala
+        </span>
+
+        <h3 class="form-title">
+            Tambah Musala
+        </h3>
+
         <p class="form-subtitle">
-            Perbarui data Musala Kantor atau Musala Plant sesuai kebutuhan operasional.
+            Tambahkan data Musala Kantor atau Musala Plant baru ke daftar fasilitas DKM.
         </p>
     </div>
 
-    <a href="{{ route('admin.musala.index') }}" class="admin-btn-light">
+    <a href="{{ route('admin.musala.index') }}"
+       class="admin-btn-light">
         <i class="bi bi-arrow-left"></i>
         Kembali
     </a>
 </div>
 
-{{-- FORM --}}
 <div class="admin-card p-4">
-
-    <form action="{{ route('admin.musala.update', $musala['slug']) }}"
+    <form action="{{ route('admin.musala.store') }}"
           method="POST"
           enctype="multipart/form-data">
 
@@ -253,78 +202,101 @@
 
         <div class="admin-form-grid">
             <div>
-                <label class="admin-form-label">Nama Musala</label>
+                <label class="admin-form-label">
+                    Nama Musala
+                </label>
+
                 <input type="text"
                        name="title"
                        class="admin-form-control"
-                       value="{{ old('title', $musala['title'] ?? '') }}"
+                       value="{{ old('title') }}"
+                       placeholder="Contoh: Musala Plant 1"
                        required>
+
+                @error('title')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div>
-                <label class="admin-form-label">Lokasi</label>
+                <label class="admin-form-label">
+                    Lokasi
+                </label>
+
                 <input type="text"
                        name="location"
                        class="admin-form-control"
-                       value="{{ old('location', $musala['location'] ?? '') }}"
+                       value="{{ old('location') }}"
+                       placeholder="Contoh: Area Plant 1"
                        required>
+
+                @error('location')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div>
-                <label class="admin-form-label">Kapasitas</label>
+                <label class="admin-form-label">
+                    Kapasitas
+                </label>
+
                 <input type="text"
                        name="capacity"
                        class="admin-form-control"
-                       value="{{ old('capacity', $musala['capacity'] ?? '') }}"
+                       value="{{ old('capacity') }}"
+                       placeholder="Contoh: 50 Jamaah"
                        required>
+
+                @error('capacity')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div>
-                <label class="admin-form-label">Fasilitas</label>
+                <label class="admin-form-label">
+                    Fasilitas
+                </label>
+
                 <textarea name="facilities"
                           class="admin-form-control"
-                          placeholder="AC;Wudhu;Mukena">{{ old('facilities', $facilitiesText) }}</textarea>
+                          placeholder="AC;Tempat Wudhu;Mukena"
+                          required>{{ old('facilities') }}</textarea>
 
                 <div class="admin-form-help">
-                    Pisahkan dengan tanda <b>;</b>
+                    Pisahkan fasilitas dengan tanda <b>;</b>
                 </div>
+
+                @error('facilities')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="admin-form-group-full">
-                <label class="admin-form-label">Deskripsi</label>
+                <label class="admin-form-label">
+                    Deskripsi
+                </label>
 
-                <textarea name="desc" class="admin-form-control"
-                    rows="3" placeholder="Deskripsi tambahan untuk Musala (opsional)">
-                    {{ old('desc', $musala['desc'] ?? '') }}
-                </textarea>
+                <textarea name="desc"
+                          class="admin-form-control"
+                          rows="3"
+                          placeholder="Deskripsi tambahan untuk musala">{{ old('desc') }}</textarea>
 
-                <div class="admin-form-help">
-                    Deskripsi khusus (contoh: info tambahan Musala Plant).
-                </div>
+                @error('desc')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="admin-form-group-full">
-
-                <label class="admin-form-label">Gambar</label>
+                <label class="admin-form-label">
+                    Gambar
+                </label>
 
                 <div class="image-upload-box">
-
-                    @if($imageUrl)
-                        <div class="current-badge">
-                            <i class="bi bi-image"></i>
-                            Gambar saat ini
-                        </div>
-                    @endif
-
                     <div class="image-preview">
-                        @if($imageUrl)
-                            <img src="{{ $imageUrl }}" alt="{{ $musala['title'] ?? 'Musala' }}">
-                        @else
-                            <div class="image-placeholder">
-                                <i class="bi bi-image"></i>
-                                <span>No Image Available</span>
-                            </div>
-                        @endif
+                        <div class="image-placeholder">
+                            <i class="bi bi-image"></i>
+                            <span>Upload gambar musala</span>
+                        </div>
                     </div>
 
                     <input type="file"
@@ -333,24 +305,29 @@
                            accept="image/*">
 
                     <div class="admin-form-help">
-                        Kosongkan jika tidak ingin mengganti gambar.
+                        Opsional. Format JPG, PNG, JPEG, atau WebP. Maksimal 4MB.
                     </div>
+
+                    @error('image')
+                        <div class="admin-error">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
         </div>
 
-        {{-- ACTION --}}
         <div class="d-flex justify-content-end gap-2 mt-4">
-
             <a href="{{ route('admin.musala.index') }}"
                class="admin-btn-light">
                 Batal
             </a>
-            <button type="submit" class="admin-btn-blue">
+
+            <button type="submit"
+                    class="admin-btn-blue">
                 <i class="bi bi-check-lg"></i>
-                Simpan Perubahan
+                Simpan Musala
             </button>
         </div>
     </form>
 </div>
+
 @endsection

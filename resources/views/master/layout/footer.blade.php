@@ -74,8 +74,8 @@
                         </li>
 
                         <li>
-                            <a href="{{ route('profil.kepengurusan') }}" class="text-decoration-none">
-                                Kepengurusan
+                            <a href="{{ route('profil.prestasi') }}" class="text-decoration-none">
+                                Prestasi
                             </a>
                         </li>
 
@@ -97,7 +97,7 @@
                         <i class="bi bi-geo-alt me-2 text-dkm-blue mt-1"></i>
 
                         <div>
-                            <div>PT SRI</div>
+                            <div>PT Suryaraya Rubberindo Industries</div>
                             <div>Kawasan Industri Menara Permai</div>
                             <div>Jl. Raya Narogong KM 23,8</div>
                             <div>Desa Dayeuh, Cileungsi</div>
