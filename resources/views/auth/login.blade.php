@@ -73,9 +73,9 @@
                     </div>
 
                     <div class="mb-8">
-                        <p class="text-sm font-semibold uppercase tracking-[0.25em] text-blue-600">
+                        {{-- <p class="text-sm font-semibold uppercase tracking-[0.25em] text-blue-600">
                             Admin Login
-                        </p>
+                        </p> --}}
 
                         <h2 class="mt-3 text-3xl font-extrabold text-gray-900">
                             Selamat Datang
