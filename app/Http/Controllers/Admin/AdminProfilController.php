@@ -142,41 +142,27 @@ class AdminProfilController extends Controller
             ],
         ],
 
-        'pengurus' => [
-            'label' => 'Kepengurusan',
-            'sheet' => 'profil_pengurus',
-            'key' => 'id_pengurus',
-            'image_column' => 'image',
-            'columns' => [
-                'id_pengurus',
-                'name',
-                'role',
-                'division',
-                'type',
-                'image',
-                'sort_order',
-                'status',
-            ],
-            'required' => [
-                'name',
-                'role',
-                'type',
-            ],
-        ],
-
-        'divisions' => [
-            'label' => 'Divisi',
-            'sheet' => 'profil_divisions',
+        'prestasi' => [
+            'label' => 'Prestasi',
+            'sheet' => 'profil_prestasi',
             'key' => 'slug',
+            'image_column' => 'image',
             'columns' => [
                 'slug',
                 'title',
-                'icon',
+                'category',
+                'short_desc',
+                'content',
+                'image',
+                'achieved_at',
                 'sort_order',
                 'status',
             ],
             'required' => [
                 'title',
+                'category',
+                'short_desc',
+                'content',
             ],
         ],
     ];
@@ -316,6 +302,11 @@ class AdminProfilController extends Controller
 
         $item = $this->findItemOrFail($config, $id);
 
+        if (! empty($config['image_column'])) {
+            $imageColumn = $config['image_column'];
+            $this->deleteImageIfExists($item[$imageColumn] ?? '');
+        }
+
         $this->sheetService->deleteRow(
             $this->spreadsheetId,
             $config['sheet'],
@@ -429,7 +420,13 @@ class AdminProfilController extends Controller
             $imageColumn = $config['image_column'];
 
             if ($request->hasFile('image_upload')) {
-                $data[$imageColumn] = $this->storeImage($request, $data, $config);
+                $newImageName = $this->storeImage($request, $data, $config);
+
+                if (! empty($oldData[$imageColumn]) && $oldData[$imageColumn] !== $newImageName) {
+                    $this->deleteImageIfExists($oldData[$imageColumn]);
+                }
+
+                $data[$imageColumn] = $newImageName;
             } elseif (empty($data[$imageColumn]) && ! empty($oldData[$imageColumn])) {
                 $data[$imageColumn] = $oldData[$imageColumn];
             }
@@ -473,8 +470,15 @@ class AdminProfilController extends Controller
                 'section_body_2',
                 'quote_text',
                 'subtitle',
+                'short_desc',
+                'content',
             ], true)) {
                 $rules[$column] = array_merge($baseRule, ['string']);
+                continue;
+            }
+
+            if ($column === 'achieved_at') {
+                $rules[$column] = array_merge($baseRule, ['string', 'max:100']);
                 continue;
             }
 
@@ -628,5 +632,24 @@ class AdminProfilController extends Controller
         }
 
         return $fileName;
+    }
+
+    private function deleteImageIfExists(?string $imageName): void
+    {
+        $imageName = trim((string) $imageName);
+
+        if ($imageName === '') {
+            return;
+        }
+
+        if (! preg_match('/^[a-zA-Z0-9._-]+\.(webp|jpg|jpeg|png)$/', $imageName)) {
+            return;
+        }
+
+        $path = public_path(self::IMAGE_DIRECTORY . '/' . $imageName);
+
+        if (is_file($path)) {
+            @unlink($path);
+        }
     }
 }

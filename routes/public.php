@@ -11,7 +11,8 @@ Route::prefix('profil')->group(function () {
     Route::get('/sejarah', [ProfilController::class, 'sejarah'])->name('profil.sejarah');
     Route::get('/visi-misi', [ProfilController::class, 'visiMisi'])->name('profil.visi-misi');
     Route::get('/struktur-organisasi', [ProfilController::class, 'struktur'])->name('profil.struktur');
-    Route::get('/kepengurusan', [ProfilController::class, 'kepengurusan'])->name('profil.kepengurusan');
+    Route::get('/prestasi', [ProfilController::class, 'prestasi']) ->name('profil.prestasi');
+    Route::get('/prestasi/{slug}', [ProfilController::class, 'prestasiShow'])->name('profil.prestasi.show');
 });
 
 Route::prefix('kegiatan')->group(function () {

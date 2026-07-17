@@ -13,38 +13,281 @@
         );
     }
 
-    .musala-card {
-        transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+    .musala-breadcrumb {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 15px;
+        margin-bottom: 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 13px;
+        font-weight: 700;
     }
 
-    .musala-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.10) !important;
+    .musala-breadcrumb a {
+        color: #ffffff;
+        text-decoration: none;
     }
 
-    .musala-image {
+    .musala-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .musala-list-card {
+        margin-top: -70px;
+        position: relative;
+        z-index: 2;
+        border-radius: 26px;
+        background: #ffffff;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        overflow: hidden;
+    }
+
+    .musala-list-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 28px 32px;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .musala-list-title {
+        margin-bottom: 6px;
+        color: #111827;
+        font-size: 26px;
+        font-weight: 800;
+    }
+
+    .musala-list-subtitle {
+        margin-bottom: 0;
+        color: #6c757d;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .musala-search {
         width: 100%;
+        max-width: 380px;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .musala-search i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        font-size: 14px;
+    }
+
+    .musala-search input {
+        width: 100%;
+        height: 46px;
+        padding: 0 15px 0 43px;
+        border-radius: 999px;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        color: #111827;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.2s ease;
+    }
+
+    .musala-search input:focus {
+        border-color: rgba(37, 99, 235, 0.45);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
+    }
+
+    .musala-grid-wrapper {
+        padding: 32px;
+    }
+
+    .musala-public-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+    }
+
+    .musala-public-card {
         height: 100%;
-        min-height: 260px;
+        border-radius: 24px;
+        overflow: hidden;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06);
+        transition: all 0.25s ease;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .musala-public-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+    }
+
+    .musala-public-image {
+        width: 100%;
+        height: 220px;
         object-fit: cover;
+        background: #f8fafc;
     }
 
-    .musala-placeholder {
-        min-height: 260px;
+    .musala-public-placeholder {
+        width: 100%;
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f8fafc, #eef2f7);
+        color: #94a3b8;
     }
 
-    .facility-badge {
+    .musala-public-body {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    .musala-public-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        width: fit-content;
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 12px;
+    }
+
+    .musala-public-name {
+        color: #111827;
+        font-size: 18px;
+        font-weight: 900;
+        margin-bottom: 8px;
+        line-height: 1.35;
+    }
+
+    .musala-public-location {
+        color: #6c757d;
+        font-size: 13px;
+        line-height: 1.6;
+        margin-bottom: 12px;
+    }
+
+    .musala-public-desc {
+        color: #6c757d;
+        font-size: 13px;
+        line-height: 1.7;
+        margin-bottom: 16px;
+    }
+
+    .musala-public-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 18px;
+    }
+
+    .musala-public-pill {
         display: inline-flex;
         align-items: center;
         gap: 6px;
         padding: 6px 10px;
         border-radius: 999px;
-        background: rgba(25, 135, 84, 0.10);
-        color: #198754;
+        background: #f8fafc;
+        color: #475569;
+        border: 1px solid #e5e7eb;
         font-size: 12px;
-        font-weight: 600;
-        margin-right: 6px;
-        margin-bottom: 6px;
+        font-weight: 700;
+    }
+
+    .musala-public-action {
+        margin-top: auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 42px;
+        padding: 0 16px;
+        border-radius: 12px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .musala-public-action:hover {
+        background: #1d4ed8;
+        color: #ffffff;
+    }
+
+    .musala-empty {
+        grid-column: 1 / -1;
+        padding: 70px 24px;
+        text-align: center;
+    }
+
+    .musala-empty-icon {
+        width: 68px;
+        height: 68px;
+        border-radius: 22px;
+        background: rgba(37, 99, 235, 0.10);
+        color: #2563eb;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 18px;
+    }
+
+    .cleanliness-note {
+        margin-top: 40px;
+        padding: 28px;
+        border-radius: 24px;
+        background: #ffffff;
+        border-left: 5px solid #2563eb;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+    }
+
+    @media (max-width: 991px) {
+        .musala-list-card {
+            margin-top: -40px;
+        }
+
+        .musala-list-header {
+            align-items: flex-start;
+            flex-direction: column;
+        }
+
+        .musala-search {
+            max-width: 100%;
+        }
+
+        .musala-public-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .musala-grid-wrapper {
+            padding: 22px;
+        }
+
+        .musala-public-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 @endsection
@@ -53,124 +296,230 @@
 
 <div class="section-xl musala-hero">
     <div class="container text-center pt-5">
-        <h1 class="fw-normal text-white display-4">Fasilitas Musala</h1>
-        {{-- <p class="text-white-50">
-            Temukan lokasi tempat ibadah terdekat di lingkungan Plant & Office.
-        </p> --}}
+        <div class="musala-breadcrumb">
+            <a href="{{ url('/') }}">
+                Beranda
+            </a>
+
+            <i class="fas fa-chevron-right small"></i>
+
+            <span>
+                Fasilitas Musala
+            </span>
+        </div>
+
+        <h1 class="fw-normal text-white display-4">
+            Musala Kantor & Plant
+        </h1>
+
+        <p class="text-white-50 mb-0">
+            Temukan informasi lokasi musala, kapasitas, dan fasilitas pendukung di lingkungan kerja.
+        </p>
     </div>
 </div>
 
 <div class="section bg-light-gray">
     <div class="container">
 
-        <div class="row g-4 justify-content-center">
+        <div class="musala-list-card">
+            <div class="musala-list-header">
+                <div>
+                    <h3 class="musala-list-title">
+                        Daftar Lokasi Musala
+                    </h3>
 
-            @forelse($locations as $loc)
-                @php
-                    $title = $loc['title'] ?? '-';
-                    $slug = $loc['slug'] ?? '';
-                    $location = $loc['location'] ?? '-';
-                    $capacity = $loc['capacity'] ?? '-';
-                    $desc = $loc['desc'] ?? '';
-                    $facilities = $loc['facilities'] ?? [];
+                    <p class="musala-list-subtitle">
+                        Menampilkan {{ ($locations ?? collect())->count() }} lokasi musala kantor dan plant.
+                    </p>
+                </div>
 
-                    if (is_string($facilities)) {
-                        $facilities = array_filter(array_map('trim', explode(',', $facilities)));
-                    }
+                <div class="musala-search">
+                    <i class="fas fa-search"></i>
 
-                    $image = $loc['image'] ?? '';
-                    $imagePath = public_path('image/musala/' . $image);
+                    <input type="text"
+                           id="musalaSearchInput"
+                           placeholder="Cari nama atau lokasi musala...">
+                </div>
+            </div>
 
-                    $imageUrl = !empty($image) && file_exists($imagePath)
-                        ? asset('image/musala/' . $image) . '?v=' . filemtime($imagePath)
-                        : null;
-                @endphp
+            <div class="musala-grid-wrapper">
+                <div class="musala-public-grid" id="musalaGrid">
+                    @forelse($locations as $loc)
+                        @php
+                            $slug = $loc['slug'] ?? '';
+                            $title = $loc['title'] ?? ($loc['name'] ?? 'Musala');
+                            $location = $loc['location'] ?? '';
+                            $capacity = $loc['capacity'] ?? '';
+                            $desc = $loc['desc'] ?? '';
+                            $facilities = $loc['facilities'] ?? [];
 
-                <div class="col-md-6">
-                    <div class="card border-0 shadow-sm border-radius overflow-hidden h-100 musala-card">
-                        <div class="row g-0 h-100">
+                            if (is_string($facilities)) {
+                                $facilities = array_values(array_filter(array_map(
+                                    'trim',
+                                    preg_split('/[;,]/', $facilities)
+                                )));
+                            }
 
-                            <div class="col-lg-5">
-                                @if(!empty($image))
-                                    <img src="{{ $imageUrl }}" 
-                                         class="musala-image"
-                                         alt="{{ $title }}">
-                                @else
-                                    <div class="musala-placeholder d-flex align-items-center justify-content-center h-100 bg-light text-muted">
-                                        <div class="text-center">
-                                            <i class="bi bi-image fs-1"></i>
-                                            <div class="small mt-2">No Image</div>
+                            $image = $loc['image'] ?? '';
+                            $imagePath = public_path('image/musala/' . $image);
+
+                            $imageUrl = !empty($image) && file_exists($imagePath)
+                                ? asset('image/musala/' . $image) . '?v=' . filemtime($imagePath)
+                                : null;
+
+                            $searchText = strtolower(
+                                $title . ' ' .
+                                $slug . ' ' .
+                                $location . ' ' .
+                                $capacity . ' ' .
+                                implode(' ', $facilities)
+                            );
+                        @endphp
+
+                        <div class="musala-public-card"
+                             data-musala-card
+                             data-search="{{ $searchText }}">
+
+                            @if(!empty($imageUrl))
+                                <img src="{{ $imageUrl }}"
+                                     class="musala-public-image"
+                                     alt="{{ $title }}">
+                            @else
+                                <div class="musala-public-placeholder">
+                                    <div class="text-center">
+                                        <i class="fas fa-image fa-2x"></i>
+
+                                        <div class="small mt-2">
+                                            No Image Available
                                         </div>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="musala-public-body">
+                                @if($slug)
+                                    <div class="musala-public-tag">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        {{ strtoupper(str_replace('-', ' ', $slug)) }}
                                     </div>
                                 @endif
-                            </div>
 
-                            <div class="col-lg-7">
-                                <div class="card-body p-4 d-flex flex-column h-100">
+                                <h3 class="musala-public-name">
+                                    {{ $title }}
+                                </h3>
 
-                                    <h3 class="fw-normal text-dark mb-2">
-                                        {{ $title }}
-                                    </h3>
+                                <div class="musala-public-location">
+                                    <i class="fas fa-location-dot me-1"></i>
+                                    {{ $location ?: 'Lokasi belum tersedia' }}
+                                </div>
 
-                                    <div class="text-muted small mb-3">
-                                        <i class="fas fa-map-marker-alt me-1"></i>
-                                        {{ $location }}
-                                    </div>
+                                <p class="musala-public-desc">
+                                    {{ $desc ?: 'Fasilitas musala tersedia untuk menunjang kenyamanan jamaah dalam beribadah.' }}
+                                </p>
 
-                                    <p class="text-muted small flex-grow-1">
-                                        {{ $desc ?: 'Fasilitas musala tersedia untuk menunjang kenyamanan jamaah dalam beribadah.' }}
-                                    </p>
-
-                                    <div class="mb-3">
-                                        <div class="facility-badge">
+                                <div class="musala-public-meta">
+                                    @if($capacity)
+                                        <span class="musala-public-pill">
                                             <i class="fas fa-users"></i>
                                             {{ $capacity }}
-                                        </div>
+                                        </span>
+                                    @endif
 
-                                        @foreach(array_slice($facilities, 0, 3) as $facility)
-                                            <div class="facility-badge">
-                                                <i class="fas fa-check"></i>
-                                                {{ $facility }}
-                                            </div>
-                                        @endforeach
-                                    </div>
-
-                                    <div class="mt-auto">
-                                        <a href="{{ route('musala.show', $slug) }}"
-                                           class="btn btn-success border-radius">
-                                            Lihat Detail Fasilitas
-                                            <i class="fas fa-arrow-right ms-1"></i>
-                                        </a>
-                                    </div>
-
+                                    @if(count($facilities))
+                                        <span class="musala-public-pill">
+                                            <i class="fas fa-circle-check"></i>
+                                            {{ count($facilities) }} Fasilitas
+                                        </span>
+                                    @endif
                                 </div>
+
+                                <a href="{{ route('musala.show', $slug) }}"
+                                   class="musala-public-action">
+                                    Lihat Detail
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="musala-empty">
+                            <div class="musala-empty-icon">
+                                <i class="fas fa-building"></i>
                             </div>
 
-                        </div>
-                    </div>
-                </div>
-            @empty
-                <div class="col-12">
-                    <div class="text-center p-5 bg-white border-radius shadow-sm">
-                        <i class="bi bi-building fs-1 text-muted"></i>
-                        <h4 class="fw-normal mt-3 mb-2">Data Musala Belum Tersedia</h4>
-                        <p class="text-muted mb-0">
-                            Data lokasi musala belum tersedia saat ini.
-                        </p>
-                    </div>
-                </div>
-            @endforelse
+                            <h5 class="fw-bold mb-2">
+                                Data Musala Belum Tersedia
+                            </h5>
 
+                            <p class="text-muted mb-0">
+                                Informasi musala akan ditampilkan setelah admin menambahkan data.
+                            </p>
+                        </div>
+                    @endforelse
+                </div>
+
+                <div class="musala-empty d-none" id="musalaEmptySearch">
+                    <div class="musala-empty-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+
+                    <h5 class="fw-bold mb-2">
+                        Musala Tidak Ditemukan
+                    </h5>
+
+                    <p class="text-muted mb-0">
+                        Coba gunakan kata kunci pencarian lain.
+                    </p>
+                </div>
+            </div>
         </div>
 
-        <div class="mt-5 text-center p-5 bg-white border-radius shadow-sm">
-            <h4 class="fw-normal mb-3">Menjaga Kebersihan Bersama</h4>
-            <p class="text-muted mx-auto mb-0" style="max-width: 600px;">
-                Mohon untuk selalu menjaga kebersihan area wudhu dan merapikan kembali sarung/mukena setelah digunakan demi kenyamanan jamaah berikutnya.
-            </p>
+        <div class="cleanliness-note">
+            <div class="row align-items-center">
+                <div class="col-md-1 text-center d-none d-md-block">
+                    <i class="fas fa-info-circle text-primary fa-2x"></i>
+                </div>
+
+                <div class="col-md-11">
+                    <h5 class="fw-normal mb-1">
+                        Menjaga Kebersihan Bersama
+                    </h5>
+
+                    <p class="text-muted small mb-0">
+                        Mohon untuk selalu menjaga kebersihan area wudhu dan merapikan kembali sarung atau mukena setelah digunakan demi kenyamanan jamaah berikutnya.
+                    </p>
+                </div>
+            </div>
         </div>
 
     </div>
 </div>
+
+<script>
+    const musalaSearchInput = document.getElementById('musalaSearchInput');
+    const musalaCards = document.querySelectorAll('[data-musala-card]');
+    const musalaEmptySearch = document.getElementById('musalaEmptySearch');
+
+    if (musalaSearchInput) {
+        musalaSearchInput.addEventListener('input', function () {
+            const keyword = this.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            musalaCards.forEach(function (card) {
+                const haystack = card.dataset.search || '';
+                const isVisible = haystack.includes(keyword);
+
+                card.style.display = isVisible ? '' : 'none';
+
+                if (isVisible) {
+                    visibleCount++;
+                }
+            });
+
+            if (musalaEmptySearch) {
+                musalaEmptySearch.classList.toggle('d-none', visibleCount > 0);
+            }
+        });
+    }
+</script>
 
 @endsection

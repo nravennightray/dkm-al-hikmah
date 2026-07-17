@@ -22,22 +22,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::prefix('keuangan')->name('keuangan.')->group(function () {
         Route::get('/', [AdminKeuanganController::class, 'index'])->name('index');
-
         Route::get('/setor', [AdminKeuanganController::class, 'createDeposit'])->name('deposit.create');
         Route::post('/setor', [AdminKeuanganController::class, 'storeDeposit'])->name('deposit.store');
-
         Route::get('/ambil', [AdminKeuanganController::class, 'createWithdraw'])->name('withdraw.create');
         Route::post('/ambil', [AdminKeuanganController::class, 'storeWithdraw'])->name('withdraw.store');
-
         Route::get('/kas/pengeluaran', [AdminKeuanganController::class, 'createKasExpense'])->name('kas.expense.create');
         Route::post('/kas/pengeluaran', [AdminKeuanganController::class, 'storeKasExpense'])->name('kas.expense.store');
-
         Route::get('/infaq/ajukan', [AdminKeuanganController::class, 'createInfaq'])->name('infaq.create');
         Route::post('/infaq/ajukan', [AdminKeuanganController::class, 'storeInfaq'])->name('infaq.store');
-
         Route::post('/{transaction}/approve', [AdminKeuanganController::class, 'approve'])->name('approve');
         Route::post('/{transaction}/reject', [AdminKeuanganController::class, 'reject'])->name('reject');
-
         Route::get('/export', [AdminKeuanganController::class, 'export'])->name('export');
         Route::get( '/import', [AdminKeuanganController::class,'importForm'])->name('import.form');
         Route::post( '/import', [AdminKeuanganController::class,'importStore'])->name('import.store');
@@ -45,17 +39,18 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::prefix('musala')->name('musala.')->group(function () {
         Route::get('/', [AdminMusalaController::class, 'index'])->name('index');
+        Route::get('/create', [AdminMusalaController::class, 'create'])->name('create');
+        Route::post('/', [AdminMusalaController::class, 'store'])->name('store');
         Route::get('/{slug}/edit', [AdminMusalaController::class, 'edit'])->name('edit');
         Route::post('/{slug}', [AdminMusalaController::class, 'update'])->name('update');
+        Route::delete('/{slug}', [AdminMusalaController::class, 'destroy'])->name('destroy');
     });
 
     Route::prefix('profil')->name('profil.')->group(function () {
         Route::get('/', [AdminProfilController::class, 'index'])->name('index');
-
         Route::get('/{section}', [AdminProfilController::class, 'section'])->name('section.index');
         Route::get('/{section}/create', [AdminProfilController::class, 'create'])->name('section.create');
         Route::post('/{section}', [AdminProfilController::class, 'store'])->name('section.store');
-
         Route::get('/{section}/{id}/edit', [AdminProfilController::class, 'edit'])->name('section.edit');
         Route::post('/{section}/{id}', [AdminProfilController::class, 'update'])->name('section.update');
         Route::delete('/{section}/{id}', [AdminProfilController::class, 'destroy'])->name('section.destroy');
@@ -65,7 +60,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/', [AdminHomeInfoController::class, 'index'])->name('index');
         Route::get('/create', [AdminHomeInfoController::class, 'create'])->name('create');
         Route::post('/', [AdminHomeInfoController::class, 'store'])->name('store');
-
         Route::get('/{id}/edit', [AdminHomeInfoController::class, 'edit'])->name('edit');
         Route::post('/{id}', [AdminHomeInfoController::class, 'update'])->name('update');
         Route::delete('/{id}', [AdminHomeInfoController::class, 'destroy'])->name('destroy');
@@ -75,16 +69,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::prefix('infaq')->name('infaq.')->group(function () {
         Route::get('/', [AdminInfaqController::class, 'index'])->name('index');
-
         Route::post('/settings', [AdminInfaqController::class, 'updateSettings'])->name('settings.update');
-
         Route::get('/accounts/create', [AdminInfaqController::class, 'createAccount'])->name('accounts.create');
         Route::post('/accounts', [AdminInfaqController::class, 'storeAccount'])->name('accounts.store');
-
         Route::get('/accounts/{id}/edit', [AdminInfaqController::class, 'editAccount'])->name('accounts.edit');
         Route::post('/accounts/{id}', [AdminInfaqController::class, 'updateAccount'])->name('accounts.update');
         Route::delete('/accounts/{id}', [AdminInfaqController::class, 'destroyAccount'])->name('accounts.destroy');
-
         Route::post('/accounts/{id}/toggle-status', [AdminInfaqController::class, 'toggleAccountStatus'])->name('accounts.toggle-status');
     });
 });

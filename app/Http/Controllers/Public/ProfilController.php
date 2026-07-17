@@ -74,21 +74,14 @@ class ProfilController extends Controller
         'status',
     ];
 
-    private const PENGURUS_COLUMNS = [
-        'id_pengurus',
-        'name',
-        'role',
-        'division',
-        'type',
-        'image',
-        'sort_order',
-        'status',
-    ];
-
-    private const DIVISION_COLUMNS = [
+    private const PRESTASI_COLUMNS = [
         'slug',
         'title',
-        'icon',
+        'category',
+        'short_desc',
+        'content',
+        'image',
+        'achieved_at',
         'sort_order',
         'status',
     ];
@@ -181,31 +174,36 @@ class ProfilController extends Controller
         ));
     }
 
-    public function kepengurusan()
+    public function prestasi()
     {
-        $page = $this->getPageOrFail('kepengurusan');
+        $page = $this->getPageOrFail('prestasi');
 
-        $pengurus = $this->activeRows(
-            $this->getSheetCollection('profil_pengurus', self::PENGURUS_COLUMNS)
+        $prestasi = $this->activeRows(
+            $this->getSheetCollection('profil_prestasi', self::PRESTASI_COLUMNS)
         );
 
-        $dailyPengurus = $pengurus
-            ->where('type', 'daily')
-            ->values();
-
-        $divisionPengurus = $pengurus
-            ->where('type', 'division')
-            ->groupBy('division');
-
-        $divisions = $this->activeRows(
-            $this->getSheetCollection('profil_divisions', self::DIVISION_COLUMNS)
-        );
-
-        return view('public.profil.kepengurusan', compact(
+        return view('public.profil.prestasi', compact(
             'page',
-            'dailyPengurus',
-            'divisionPengurus',
-            'divisions'
+            'prestasi'
+        ));
+    }
+
+    public function prestasiShow(string $slug)
+    {
+        $page = $this->getPageOrFail('prestasi');
+
+        $prestasi = $this->activeRows(
+            $this->getSheetCollection('profil_prestasi', self::PRESTASI_COLUMNS)
+        )
+            ->firstWhere('slug', $slug);
+
+        if (! $prestasi) {
+            abort(404);
+        }
+
+        return view('public.profil.prestasi-show', compact(
+            'page',
+            'prestasi'
         ));
     }
 

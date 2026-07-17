@@ -159,6 +159,63 @@
         background: #1d4ed8;
         color: #fff;
     }
+
+    .admin-btn-blue {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 12px;
+        background: #2563eb;
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        border: none;
+        transition: all .2s ease;
+    }
+
+    .admin-btn-blue:hover {
+        background: #1d4ed8;
+        color: #ffffff;
+    }
+
+    .musala-card-actions {
+        margin-top: auto;
+        display: flex;
+        gap: 10px;
+    }
+
+    .musala-card-actions form {
+        flex: 1;
+    }
+
+    .musala-action,
+    .musala-delete-action {
+        width: 100%;
+    }
+
+    .musala-delete-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid rgba(220, 38, 38, 0.12);
+        font-size: 13px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: .2s ease;
+    }
+
+    .musala-delete-action:hover {
+        background: #dc2626;
+        color: #ffffff;
+    }
 </style>
 @endsection
 
@@ -167,11 +224,17 @@
 <div class="musala-page-header">
     <div>
         <span class="musala-eyebrow">Manajemen Data</span>
-        <h3 class="musala-title">Musala Management</h3>
+        <h3 class="musala-title"> Musala Management </h3>
         <p class="musala-subtitle">
             Kelola data Musala Kantor & Musala Plant untuk kebutuhan operasional DKM AL HIKMAH.
         </p>
     </div>
+
+    <a href="{{ route('admin.musala.create') }}"
+       class="admin-btn-blue">
+        <i class="bi bi-plus-lg"></i>
+        Tambah Musala
+    </a>
 </div>
 
 {{-- GRID --}}
@@ -222,11 +285,26 @@
                     {{ $location }}
                 </div>
 
-                <a href="{{ route('admin.musala.edit', $slug) }}"
-                   class="musala-action">
-                    <i class="bi bi-pencil"></i>
-                    Edit Data
-                </a>
+                <div class="musala-card-actions">
+                    <a href="{{ route('admin.musala.edit', $slug) }}"
+                    class="musala-action">
+                        <i class="bi bi-pencil"></i>
+                        Edit
+                    </a>
+
+                    <form action="{{ route('admin.musala.destroy', $slug) }}"
+                        method="POST"
+                        onsubmit="return confirm('Yakin ingin menghapus data musala ini?')">
+                        @csrf
+                        @method('DELETE')
+
+                        <button type="submit"
+                                class="musala-delete-action">
+                            <i class="bi bi-trash"></i>
+                            Hapus
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     @empty
