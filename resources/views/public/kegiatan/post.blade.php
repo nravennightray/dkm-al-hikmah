@@ -4,14 +4,51 @@
 
 @section('css')
 <style>
-    .breadcrumb-item + .breadcrumb-item::before {
-        color: rgba(255, 255, 255, 0.55) !important;
-        content: "/" !important;
+    .post-breadcrumb {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 8px;
+        padding: 9px 15px;
+        margin-bottom: 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 13px;
+        font-weight: 700;
     }
 
-    .breadcrumb-item a:hover {
-        color: #fff !important;
+    .post-breadcrumb a {
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .post-breadcrumb a:hover {
         text-decoration: underline;
+    }
+
+    .post-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 14px;
+        margin-bottom: 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    @media (max-width: 767px) {
+        .post-breadcrumb {
+            border-radius: 18px;
+            line-height: 1.6;
+        }
     }
 
     .post-hero {
@@ -72,38 +109,40 @@
     $quote = $post['quote'] ?? null;
 @endphp
 
-<div class="section-sm post-hero">
+<div class="section-xl post-hero">
     <div class="container pt-5">
         <div class="row justify-content-center text-center">
             <div class="col-lg-9">
-                <h1 class="fw-bold text-white display-5 mb-3">
+                <div class="post-breadcrumb">
+                    <a href="{{ url('/') }}">
+                        Beranda
+                    </a>
+
+                    <i class="fas fa-chevron-right small"></i>
+
+                    <a href="{{ route('kegiatan.index') }}">
+                        Kegiatan
+                    </a>
+
+                    <i class="fas fa-chevron-right small"></i>
+
+                    <a href="{{ route('kegiatan.category', $currentCategory['slug']) }}">
+                        {{ $currentCategory['name'] }}
+                    </a>
+
+                    <i class="fas fa-chevron-right small"></i>
+
+                    <span>
+                        {{ $title }}
+                    </span>
+                </div>
+
+                <h1 class="fw-normal text-white display-5 mb-3">
                     {{ $title }}
                 </h1>
 
-                <nav aria-label="breadcrumb" class="d-flex justify-content-center mb-4">
-                    <ol class="breadcrumb justify-content-center mb-0">
-                        <li class="breadcrumb-item">
-                            <a href="/" class="text-white-50 text-decoration-none">Beranda</a>
-                        </li>
-
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('kegiatan.index') }}" class="text-white-50 text-decoration-none">Kegiatan</a>
-                        </li>
-
-                        <li class="breadcrumb-item">
-                            <a href="{{ route('kegiatan.category', $currentCategory['slug']) }}" class="text-white-50 text-decoration-none">
-                                {{ $currentCategory['name'] }}
-                            </a>
-                        </li>
-
-                        <li class="breadcrumb-item active text-white" aria-current="page">
-                            {{ $title }}
-                        </li>
-                    </ol>
-                </nav>
-
                 @if(! empty($excerpt))
-                    <p class="text-white mb-0">
+                    <p class="text-white-50 mb-0">
                         {{ $excerpt }}
                     </p>
                 @endif

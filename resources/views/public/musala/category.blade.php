@@ -1,10 +1,10 @@
 @extends('master.layout.app')
 
-@section('title', 'Lokasi Musala - DKM Al Hikmah')
+@section('title', $typeLabel . ' - DKM Al Hikmah')
 
 @section('css')
 <style>
-    .musala-hero {
+    .musala-category-hero {
         background: linear-gradient(
             180deg,
             rgba(30, 64, 175, 0.98) 0%,
@@ -36,7 +36,7 @@
         text-decoration: underline;
     }
 
-    .musala-list-card {
+    .musala-category-card-wrapper {
         margin-top: -70px;
         position: relative;
         z-index: 2;
@@ -47,32 +47,76 @@
         overflow: hidden;
     }
 
-    .musala-list-header {
+    .musala-category-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 18px;
-        padding: 28px 32px;
+        padding: 30px 32px;
         border-bottom: 1px solid #e9ecef;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
     }
 
-    .musala-list-title {
+    .musala-category-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        width: fit-content;
+        padding: 8px 13px;
+        border-radius: 999px;
+        background: #eff6ff;
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 900;
+        margin-bottom: 12px;
+    }
+
+    .musala-category-title {
         margin-bottom: 6px;
         color: #111827;
-        font-size: 26px;
-        font-weight: 800;
+        font-size: 28px;
+        font-weight: 900;
     }
 
-    .musala-list-subtitle {
+    .musala-category-subtitle {
         margin-bottom: 0;
         color: #6c757d;
         font-size: 14px;
         line-height: 1.7;
     }
 
+    .musala-category-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+    }
+
+    .musala-back-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        height: 44px;
+        padding: 0 16px;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #2563eb;
+        border: 1px solid rgba(37, 99, 235, 0.18);
+        font-size: 13px;
+        font-weight: 900;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .musala-back-btn:hover {
+        background: #eff6ff;
+        color: #1d4ed8;
+    }
+
     .musala-search {
         width: 100%;
-        max-width: 380px;
+        max-width: 360px;
         position: relative;
         flex-shrink: 0;
     }
@@ -131,6 +175,10 @@
         box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
     }
 
+    .musala-image-wrap {
+        position: relative;
+    }
+
     .musala-public-image {
         width: 100%;
         height: 220px;
@@ -146,6 +194,22 @@
         justify-content: center;
         background: linear-gradient(135deg, #f8fafc, #eef2f7);
         color: #94a3b8;
+    }
+
+    .musala-floating-type {
+        position: absolute;
+        left: 14px;
+        top: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 7px 11px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.94);
+        color: #2563eb;
+        font-size: 12px;
+        font-weight: 900;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.10);
     }
 
     .musala-public-body {
@@ -261,149 +325,19 @@
         box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
     }
 
-    .musala-category-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 24px;
-        margin-bottom: 32px;
-    }
-
-    .musala-category-card {
-        position: relative;
-        overflow: hidden;
-        padding: 28px;
-        border-radius: 24px;
-        background: linear-gradient(135deg, #3b82f6, #38bdf8);
-        color: #ffffff !important;
-        text-decoration: none;
-        box-shadow: 0 14px 32px rgba(59, 130, 246, 0.16);
-        transition: all 0.25s ease;
-    }
-
-    .musala-category-card:hover {
-        transform: translateY(-6px);
-        color: #ffffff !important;
-        box-shadow: 0 20px 44px rgba(59, 130, 246, 0.24);
-    }
-
-    .musala-category-card:hover .musala-category-title,
-    .musala-category-card:hover .musala-category-desc,
-    .musala-category-card:hover .musala-category-count {
-        color: #ffffff !important;
-    }
-
-    .musala-category-title {
-        margin-bottom: 8px;
-        font-size: 24px;
-        font-weight: 900;
-        color: #ffffff !important;
-    }
-
-    .musala-category-desc {
-        margin-bottom: 18px;
-        color: rgba(255, 255, 255, 0.88) !important;
-        font-size: 14px;
-        line-height: 1.7;
-    }
-
-    .musala-category-count {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.18);
-        color: #ffffff !important;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .musala-category-card:hover {
-        transform: translateY(-6px);
-        color: #ffffff;
-        box-shadow: 0 20px 44px rgba(37, 99, 235, 0.26);
-    }
-
-    .musala-category-icon {
-        width: 58px;
-        height: 58px;
-        margin-bottom: 18px;
-        border-radius: 18px;
-        background: rgba(255, 255, 255, 0.16);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 26px;
-    }
-
-    .musala-category-title {
-        margin-bottom: 8px;
-        font-size: 24px;
-        font-weight: 900;
-    }
-
-    .musala-category-desc {
-        margin-bottom: 18px;
-        color: rgba(255, 255, 255, 0.82);
-        font-size: 14px;
-        line-height: 1.7;
-    }
-
-    .musala-category-count {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 12px;
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.16);
-        color: #ffffff;
-        font-size: 13px;
-        font-weight: 800;
-    }
-
-    .musala-type-filter {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
-        margin-bottom: 24px;
-    }
-
-    .musala-type-btn {
-        border: 1px solid #e5e7eb;
-        background: #ffffff;
-        color: #64748b;
-        border-radius: 999px;
-        padding: 9px 14px;
-        font-size: 13px;
-        font-weight: 800;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .musala-type-btn.active,
-    .musala-type-btn:hover {
-        background: #2563eb;
-        border-color: #2563eb;
-        color: #ffffff;
-    }
-
-    @media (max-width: 768px) {
-        .musala-category-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
     @media (max-width: 991px) {
-        .musala-list-card {
+        .musala-category-card-wrapper {
             margin-top: -40px;
         }
 
-        .musala-list-header {
+        .musala-category-header {
             align-items: flex-start;
             flex-direction: column;
         }
 
+        .musala-category-actions,
         .musala-search {
+            width: 100%;
             max-width: 100%;
         }
 
@@ -429,16 +363,17 @@
 @php
     $locations = collect($locations ?? []);
 
-    $typeOptions = $typeOptions ?? [
-        'plant' => 'Musala Plant',
-        'kantor' => 'Musala Kantor',
-    ];
+    $type = $type ?? '';
+    $typeLabel = $typeLabel ?? ($typeOptions[$type] ?? 'Musala');
 
-    $plantCount = $locations->where('type', 'plant')->count();
-    $kantorCount = $locations->where('type', 'kantor')->count();
+    $typeIcon = $type === 'plant' ? 'fa-industry' : 'fa-building';
+
+    $typeDesc = $type === 'plant'
+        ? 'Daftar sub musala yang berada di area plant.'
+        : 'Daftar sub musala yang berada di area kantor.';
 @endphp
 
-<div class="section-xl musala-hero">
+<div class="section-xl musala-category-hero">
     <div class="container text-center pt-5">
         <div class="musala-breadcrumb">
             <a href="{{ url('/') }}">
@@ -447,17 +382,23 @@
 
             <i class="fas fa-chevron-right small"></i>
 
-            <span>
+            <a href="{{ route('musala.index') }}">
                 Fasilitas Musala
+            </a>
+
+            <i class="fas fa-chevron-right small"></i>
+
+            <span>
+                {{ $typeLabel }}
             </span>
         </div>
 
         <h1 class="fw-normal text-white display-4">
-            Musala Kantor & Plant
+            {{ $typeLabel }}
         </h1>
 
         <p class="text-white-50 mb-0">
-            Temukan informasi lokasi musala, kapasitas, dan fasilitas pendukung di lingkungan kerja.
+            {{ $typeDesc }}
         </p>
     </div>
 </div>
@@ -465,96 +406,45 @@
 <div class="section bg-light-gray">
     <div class="container">
 
-        <div class="musala-list-card">
-            <div class="musala-list-header">
+        <div class="musala-category-card-wrapper">
+            <div class="musala-category-header">
                 <div>
-                    <h3 class="musala-list-title">
-                        Daftar Lokasi Musala
+                    <div class="musala-category-label">
+                        <i class="fas {{ $typeIcon }}"></i>
+                        {{ $typeLabel }}
+                    </div>
+
+                    <h3 class="musala-category-title">
+                        Daftar {{ $typeLabel }}
                     </h3>
 
-                    <p class="musala-list-subtitle">
-                        Menampilkan {{ ($locations ?? collect())->count() }} lokasi musala kantor dan plant.
+                    <p class="musala-category-subtitle">
+                        Menampilkan {{ $locations->count() }} lokasi {{ strtolower($typeLabel) }}.
                     </p>
                 </div>
 
-                <div class="musala-search">
-                    <i class="fas fa-search"></i>
+                <div class="musala-category-actions">
+                    <a href="{{ route('musala.index') }}"
+                       class="musala-back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        Semua Musala
+                    </a>
 
-                    <input type="text"
-                           id="musalaSearchInput"
-                           placeholder="Cari nama atau lokasi musala...">
+                    <div class="musala-search">
+                        <i class="fas fa-search"></i>
+
+                        <input type="text"
+                               id="musalaSearchInput"
+                               placeholder="Cari nama atau lokasi...">
+                    </div>
                 </div>
             </div>
 
             <div class="musala-grid-wrapper">
-                <div class="musala-category-grid">
-                    <a href="{{ route('musala.category', 'plant') }}"
-                    class="musala-category-card">
-                        <div class="musala-category-icon">
-                            <i class="fas fa-industry"></i>
-                        </div>
-
-                        <h3 class="musala-category-title">
-                            Musala Plant
-                        </h3>
-
-                        <p class="musala-category-desc">
-                            Lihat daftar sub musala yang berada di area plant.
-                        </p>
-
-                        <span class="musala-category-count">
-                            <i class="fas fa-location-dot"></i>
-                            {{ $plantCount }} Lokasi
-                        </span>
-                    </a>
-
-                    <a href="{{ route('musala.category', 'kantor') }}"
-                    class="musala-category-card">
-                        <div class="musala-category-icon">
-                            <i class="fas fa-building"></i>
-                        </div>
-
-                        <h3 class="musala-category-title">
-                            Musala Kantor
-                        </h3>
-
-                        <p class="musala-category-desc">
-                            Lihat daftar sub musala yang berada di area kantor.
-                        </p>
-
-                        <span class="musala-category-count">
-                            <i class="fas fa-location-dot"></i>
-                            {{ $kantorCount }} Lokasi
-                        </span>
-                    </a>
-                </div>
-
-                <div class="musala-type-filter">
-                    <button type="button"
-                            class="musala-type-btn active"
-                            data-musala-filter="all">
-                        Semua
-                    </button>
-
-                    <button type="button"
-                            class="musala-type-btn"
-                            data-musala-filter="plant">
-                        Musala Plant
-                    </button>
-
-                    <button type="button"
-                            class="musala-type-btn"
-                            data-musala-filter="kantor">
-                        Musala Kantor
-                    </button>
-                </div>
-
                 <div class="musala-public-grid" id="musalaGrid">
                     @forelse($locations as $loc)
                         @php
                             $slug = $loc['slug'] ?? '';
-                            $type = $loc['type'] ?? '';
-                            $typeLabel = $loc['type_label'] ?? ($typeOptions[$type] ?? 'Belum Dikategorikan');
                             $title = $loc['title'] ?? ($loc['name'] ?? 'Musala');
                             $location = $loc['location'] ?? '';
                             $capacity = $loc['capacity'] ?? '';
@@ -578,8 +468,6 @@
 
                             $searchText = strtolower(implode(' ', [
                                 $slug,
-                                $type,
-                                $typeLabel,
                                 $title,
                                 $location,
                                 $capacity,
@@ -590,30 +478,36 @@
                         @endphp
 
                         <div class="musala-public-card"
-                            data-musala-card
-                            data-type="{{ $type }}"
-                            data-search="{{ e($searchText) }}">
+                             data-musala-card
+                             data-search="{{ e($searchText) }}">
 
-                            @if(!empty($imageUrl))
-                                <img src="{{ $imageUrl }}"
-                                    class="musala-public-image"
-                                    alt="{{ $title }}">
-                            @else
-                                <div class="musala-public-placeholder">
-                                    <div class="text-center">
-                                        <i class="fas fa-image fa-2x"></i>
+                            <div class="musala-image-wrap">
+                                @if(!empty($imageUrl))
+                                    <img src="{{ $imageUrl }}"
+                                         class="musala-public-image"
+                                         alt="{{ $title }}">
+                                @else
+                                    <div class="musala-public-placeholder">
+                                        <div class="text-center">
+                                            <i class="fas fa-image fa-2x"></i>
 
-                                        <div class="small mt-2">
-                                            No Image Available
+                                            <div class="small mt-2">
+                                                No Image Available
+                                            </div>
                                         </div>
                                     </div>
+                                @endif
+
+                                <div class="musala-floating-type">
+                                    <i class="fas {{ $typeIcon }}"></i>
+                                    {{ $typeLabel }}
                                 </div>
-                            @endif
+                            </div>
 
                             <div class="musala-public-body">
                                 <div class="musala-public-tag">
-                                    <i class="fas {{ $type === 'plant' ? 'fa-industry' : 'fa-building' }}"></i>
-                                    {{ $typeLabel }}
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    {{ strtoupper(str_replace('-', ' ', $slug)) }}
                                 </div>
 
                                 <h3 class="musala-public-name">
@@ -653,7 +547,7 @@
                                 </div>
 
                                 <a href="{{ route('musala.show', $slug) }}"
-                                class="musala-public-action">
+                                   class="musala-public-action">
                                     Lihat Detail
                                     <i class="fas fa-arrow-right"></i>
                                 </a>
@@ -662,15 +556,15 @@
                     @empty
                         <div class="musala-empty">
                             <div class="musala-empty-icon">
-                                <i class="fas fa-building"></i>
+                                <i class="fas {{ $typeIcon }}"></i>
                             </div>
 
                             <h5 class="fw-bold mb-2">
-                                Data Musala Belum Tersedia
+                                Data {{ $typeLabel }} Belum Tersedia
                             </h5>
 
                             <p class="text-muted mb-0">
-                                Informasi musala akan ditampilkan setelah admin menambahkan data.
+                                Informasi akan ditampilkan setelah admin menambahkan data.
                             </p>
                         </div>
                     @endforelse
@@ -686,7 +580,7 @@
                     </h5>
 
                     <p class="text-muted mb-0">
-                        Coba gunakan kata kunci pencarian atau kategori lain.
+                        Coba gunakan kata kunci pencarian lain.
                     </p>
                 </div>
             </div>
@@ -700,11 +594,11 @@
 
                 <div class="col-md-11">
                     <h5 class="fw-normal mb-1">
-                        Menjaga Kebersihan Bersama
+                        Menjaga Kenyamanan Bersama
                     </h5>
 
                     <p class="text-muted small mb-0">
-                        Mohon untuk selalu menjaga kebersihan area wudhu dan merapikan kembali sarung atau mukena setelah digunakan demi kenyamanan jamaah berikutnya.
+                        Mohon untuk selalu menjaga kebersihan area musala dan merapikan kembali fasilitas ibadah setelah digunakan.
                     </p>
                 </div>
             </div>
@@ -718,11 +612,8 @@
         const musalaSearchInput = document.getElementById('musalaSearchInput');
         const musalaCards = document.querySelectorAll('[data-musala-card]');
         const musalaEmptySearch = document.getElementById('musalaEmptySearch');
-        const filterButtons = document.querySelectorAll('[data-musala-filter]');
 
-        let activeType = 'all';
-
-        function applyMusalaFilter() {
+        function applyMusalaSearch() {
             const keyword = musalaSearchInput
                 ? musalaSearchInput.value.toLowerCase().trim()
                 : '';
@@ -730,13 +621,8 @@
             let visibleCount = 0;
 
             musalaCards.forEach(function (card) {
-                const cardType = card.getAttribute('data-type') || '';
                 const haystack = card.getAttribute('data-search') || '';
-
-                const matchesType = activeType === 'all' || cardType === activeType;
-                const matchesKeyword = keyword === '' || haystack.includes(keyword);
-
-                const isVisible = matchesType && matchesKeyword;
+                const isVisible = keyword === '' || haystack.includes(keyword);
 
                 card.style.display = isVisible ? '' : 'none';
 
@@ -750,24 +636,11 @@
             }
         }
 
-        filterButtons.forEach(function (button) {
-            button.addEventListener('click', function () {
-                filterButtons.forEach(function (item) {
-                    item.classList.remove('active');
-                });
-
-                button.classList.add('active');
-                activeType = button.getAttribute('data-musala-filter') || 'all';
-
-                applyMusalaFilter();
-            });
-        });
-
         if (musalaSearchInput) {
-            musalaSearchInput.addEventListener('input', applyMusalaFilter);
+            musalaSearchInput.addEventListener('input', applyMusalaSearch);
         }
 
-        applyMusalaFilter();
+        applyMusalaSearch();
     });
 </script>
 

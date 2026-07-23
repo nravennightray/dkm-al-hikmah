@@ -165,14 +165,6 @@
                     <a class="nav-link" href="{{ route('laporan.index') }}">
                         Laporan Keuangan
                     </a>
-
-                    <ul class="nav-dropdown">
-                        <li class="nav-dropdown-item">
-                            <a class="nav-dropdown-link" href="{{ route('laporan.index') }}">
-                                Laporan Kas
-                            </a>
-                        </li>
-                    </ul>
                 </li>
 
                 <li class="nav-item">
@@ -180,17 +172,19 @@
                         Musala
                     </a>
 
-                    @if(!empty($musalaNavbar) && $musalaNavbar->isNotEmpty())
-                        <ul class="nav-dropdown">
-                            @foreach($musalaNavbar as $item)
-                                <li class="nav-dropdown-item">
-                                    <a class="nav-dropdown-link" href="{{ route('musala.show', $item['slug']) }}">
-                                        {{ $item['title'] }}
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
+                    <ul class="nav-dropdown">
+                        <li class="nav-dropdown-item">
+                            <a class="nav-dropdown-link" href="{{ route('musala.category', 'plant') }}">
+                                Musala Plant
+                            </a>
+                        </li>
+
+                        <li class="nav-dropdown-item">
+                            <a class="nav-dropdown-link" href="{{ route('musala.category', 'kantor') }}">
+                                Musala Kantor
+                            </a>
+                        </li>
+                    </ul>
                 </li>
 
                 <li class="nav-item">

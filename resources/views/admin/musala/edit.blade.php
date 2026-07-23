@@ -2,7 +2,7 @@
 
 @section('title', 'Edit Musala')
 @section('page_title', 'Edit Musala')
-@section('page_subtitle', 'Perbarui data fasilitas musala')
+@section('page_subtitle', 'Perbarui data sub musala kantor atau plant')
 
 @section('css')
 <style>
@@ -212,16 +212,21 @@
 @section('content')
 
 @php
+    $typeOptions = $typeOptions ?? [
+        'plant' => 'Musala Plant',
+        'kantor' => 'Musala Kantor',
+    ];
+
     $facilitiesText = is_array($musala['facilities'] ?? null)
         ? implode(';', $musala['facilities'])
         : ($musala['facilities'] ?? '');
 
-    $currentImage = $musala['image'] ?? null;
-
     $image = $musala['image'] ?? '';
     $imagePath = public_path('image/musala/' . $image);
 
-    $imageUrl = !empty($image) && file_exists($imagePath)
+    $hasImage = !empty($image) && file_exists($imagePath);
+
+    $imageUrl = $hasImage
         ? asset('image/musala/' . $image) . '?v=' . filemtime($imagePath)
         : asset('assets/images/dkm/default-image.jpg');
 @endphp
@@ -232,7 +237,7 @@
         <span class="form-eyebrow">Form Musala</span>
         <h3 class="form-title">Edit Musala</h3>
         <p class="form-subtitle">
-            Perbarui data Musala Kantor atau Musala Plant sesuai kebutuhan operasional.
+            Perbarui data sub musala berdasarkan kategori Musala Kantor atau Musala Plant.
         </p>
     </div>
 
@@ -253,63 +258,169 @@
 
         <div class="admin-form-grid">
             <div>
-                <label class="admin-form-label">Nama Musala</label>
-                <input type="text"
-                       name="title"
-                       class="admin-form-control"
-                       value="{{ old('title', $musala['title'] ?? '') }}"
-                       required>
+                <label class="admin-form-label">
+                    Jenis Musala
+                </label>
+
+                <select name="type"
+                        class="admin-form-control"
+                        required>
+                    <option value="">Pilih Jenis Musala</option>
+
+                    @foreach($typeOptions as $typeValue => $typeLabel)
+                        <option value="{{ $typeValue }}"
+                            @selected(old('type', $musala['type'] ?? '') === $typeValue)>
+                            {{ $typeLabel }}
+                        </option>
+                    @endforeach
+                </select>
+
+                @error('type')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div>
-                <label class="admin-form-label">Lokasi</label>
+                <label class="admin-form-label">
+                    Nama Sub Musala
+                </label>
+
                 <input type="text"
-                       name="location"
-                       class="admin-form-control"
-                       value="{{ old('location', $musala['location'] ?? '') }}"
-                       required>
+                    name="title"
+                    class="admin-form-control"
+                    value="{{ old('title', $musala['title'] ?? '') }}"
+                    placeholder="Contoh: Musala Plant 1 / Musala Kantor 1"
+                    required>
+
+                @error('title')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div>
-                <label class="admin-form-label">Kapasitas</label>
+                <label class="admin-form-label">
+                    Lokasi
+                </label>
+
                 <input type="text"
-                       name="capacity"
-                       class="admin-form-control"
-                       value="{{ old('capacity', $musala['capacity'] ?? '') }}"
-                       required>
+                    name="location"
+                    class="admin-form-control"
+                    value="{{ old('location', $musala['location'] ?? '') }}"
+                    placeholder="Contoh: Area Plant 1 / Gedung Kantor Lantai 1"
+                    required>
+
+                @error('location')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div>
-                <label class="admin-form-label">Fasilitas</label>
+                <label class="admin-form-label">
+                    Kapasitas
+                </label>
+
+                <input type="text"
+                    name="capacity"
+                    class="admin-form-control"
+                    value="{{ old('capacity', $musala['capacity'] ?? '') }}"
+                    placeholder="Contoh: 50 Jamaah"
+                    required>
+
+                @error('capacity')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div>
+                <label class="admin-form-label">
+                    Urutan
+                </label>
+
+                <input type="number"
+                    name="sort_order"
+                    class="admin-form-control"
+                    value="{{ old('sort_order', $musala['sort_order'] ?? '') }}"
+                    min="1"
+                    placeholder="Contoh: 1">
+
+                <div class="admin-form-help">
+                    Urutan tampil di dalam kategori Musala Plant atau Musala Kantor.
+                </div>
+
+                @error('sort_order')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div>
+                <label class="admin-form-label">
+                    Status
+                </label>
+
+                <select name="status"
+                        class="admin-form-control">
+                    <option value="active"
+                        @selected(old('status', $musala['status'] ?? 'active') === 'active')>
+                        Active
+                    </option>
+
+                    <option value="inactive"
+                        @selected(old('status', $musala['status'] ?? 'active') === 'inactive')>
+                        Inactive
+                    </option>
+                </select>
+
+                @error('status')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
+            </div>
+
+            <div class="admin-form-group-full">
+                <label class="admin-form-label">
+                    Fasilitas
+                </label>
+
                 <textarea name="facilities"
-                          class="admin-form-control"
-                          placeholder="AC;Wudhu;Mukena">{{ old('facilities', $facilitiesText) }}</textarea>
+                        class="admin-form-control"
+                        placeholder="AC;Wudhu;Mukena"
+                        required>{{ old('facilities', $facilitiesText) }}</textarea>
 
                 <div class="admin-form-help">
                     Pisahkan dengan tanda <b>;</b>
                 </div>
+
+                @error('facilities')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="admin-form-group-full">
-                <label class="admin-form-label">Deskripsi</label>
+                <label class="admin-form-label">
+                    Deskripsi
+                </label>
 
-                <textarea name="desc" class="admin-form-control"
-                    rows="3" placeholder="Deskripsi tambahan untuk Musala (opsional)">
-                    {{ old('desc', $musala['desc'] ?? '') }}
-                </textarea>
+                <textarea name="desc"
+                        class="admin-form-control"
+                        rows="3"
+                        placeholder="Deskripsi tambahan untuk Musala">{{ old('desc', $musala['desc'] ?? '') }}</textarea>
 
                 <div class="admin-form-help">
-                    Deskripsi khusus (contoh: info tambahan Musala Plant).
+                    Deskripsi khusus untuk sub musala ini.
                 </div>
+
+                @error('desc')
+                    <div class="admin-error">{{ $message }}</div>
+                @enderror
             </div>
 
             <div class="admin-form-group-full">
-
-                <label class="admin-form-label">Gambar</label>
+                <label class="admin-form-label">
+                    Gambar
+                </label>
 
                 <div class="image-upload-box">
 
-                    @if($imageUrl)
+                    @if($hasImage)
                         <div class="current-badge">
                             <i class="bi bi-image"></i>
                             Gambar saat ini
@@ -317,8 +428,9 @@
                     @endif
 
                     <div class="image-preview">
-                        @if($imageUrl)
-                            <img src="{{ $imageUrl }}" alt="{{ $musala['title'] ?? 'Musala' }}">
+                        @if($hasImage)
+                            <img src="{{ $imageUrl }}"
+                                alt="{{ $musala['title'] ?? 'Musala' }}">
                         @else
                             <div class="image-placeholder">
                                 <i class="bi bi-image"></i>
@@ -328,13 +440,17 @@
                     </div>
 
                     <input type="file"
-                           name="image"
-                           class="admin-form-control"
-                           accept="image/*">
+                        name="image"
+                        class="admin-form-control"
+                        accept="image/*">
 
                     <div class="admin-form-help">
                         Kosongkan jika tidak ingin mengganti gambar.
                     </div>
+
+                    @error('image')
+                        <div class="admin-error">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
         </div>

@@ -4,6 +4,29 @@
 
 @section('css')
 <style>
+    .prestasi-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 14px;
+        margin-bottom: 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    @media (max-width: 767px) {
+        .prestasi-breadcrumb {
+            flex-wrap: wrap;
+            border-radius: 18px;
+            line-height: 1.6;
+        }
+    }
     .prestasi-hero {
         background: linear-gradient(
             180deg,
