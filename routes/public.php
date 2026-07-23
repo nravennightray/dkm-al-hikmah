@@ -24,6 +24,7 @@ Route::prefix('kegiatan')->group(function () {
 Route::get('/laporan-keuangan', [LaporanController::class, 'index'])->name('laporan.index');
 
 Route::get('/musala', [MusalaController::class, 'index'])->name('musala.index');
-Route::get('/musala/{slug}', [MusalaController::class, 'show'])->name('musala.show');
+Route::get('/musala/kategori/{type}', [MusalaController::class, 'category'])->name('musala.category');
+Route::get('/musala/detail/{slug}', [MusalaController::class, 'show'])->name('musala.show');
 
 Route::get('/infaq', [InfaqController::class, 'index'])->name('infaq.index');

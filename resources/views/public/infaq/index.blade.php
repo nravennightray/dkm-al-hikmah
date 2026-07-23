@@ -4,11 +4,53 @@
 
 @section('css')
 <style>
-    .breadcrumb-item + .breadcrumb-item::before {
-        color: rgba(255, 255, 255, 0.55) !important;
-        content: "/" !important;
+    .infaq-hero {
+        background: linear-gradient(
+            180deg,
+            rgba(30, 64, 175, 0.98) 0%,
+            rgba(37, 99, 235, 0.95) 55%,
+            rgba(14, 165, 233, 0.92) 100%
+        );
     }
 
+    .infaq-breadcrumb {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 15px;
+        margin-bottom: 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .infaq-breadcrumb a {
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .infaq-breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .infaq-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 14px;
+        margin-bottom: 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
     .section-xl {
         padding-top: 140px !important;
         padding-bottom: 70px !important;
@@ -255,32 +297,33 @@
         : null;
 @endphp
 
-<div class="section-xl position-relative overflow-hidden"
-     style="background: linear-gradient(180deg, rgba(30, 64, 175, 0.98) 0%, rgba(37, 99, 235, 0.95) 55%, rgba(14, 165, 233, 0.92) 100%);">
+<div class="section-xl infaq-hero">
+    <div class="container text-center pt-5">
+        <div class="infaq-breadcrumb">
+            <a href="{{ url('/') }}">
+                Beranda
+            </a>
 
-    <div class="position-absolute top-0 start-0 translate-middle rounded-circle"
-         style="width: 320px; height: 320px; background: rgba(255,255,255,0.14); filter: blur(70px);">
-    </div>
+            <i class="fas fa-chevron-right small"></i>
 
-    <div class="position-absolute bottom-0 end-0 translate-middle-y rounded-circle"
-         style="width: 380px; height: 380px; background: rgba(125, 211, 252, 0.22); filter: blur(80px);">
-    </div>
-
-    <div class="container position-relative text-center pt-5">
-        <div class="d-inline-flex align-items-center px-4 py-2 mb-4 rounded-pill"
-             style="background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(10px);">
-            <i class="bi bi-heart-fill me-2 text-white"></i>
-            <span class="font-small uppercase letter-spacing-1 text-white">
-                {{ $heroBadge }}
+            <span>
+                Infaq
             </span>
         </div>
 
-        <h1 class="fw-bold text-white display-4">
+        @if(!empty($heroBadge))
+            <div class="infaq-hero-badge">
+                <i class="bi bi-heart-fill"></i>
+                {{ $heroBadge }}
+            </div>
+        @endif
+
+        <h1 class="fw-normal text-white display-4">
             {{ $heroTitle }}
         </h1>
 
         @if(!empty($heroQuote))
-            <p class="text-white mt-3 mb-0">
+            <p class="text-white-50 mb-0">
                 {{ $heroQuote }}
             </p>
         @endif

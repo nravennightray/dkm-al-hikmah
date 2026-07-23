@@ -10,17 +10,26 @@ class MusalaController extends Controller
 {
     private const SHEET_NAME = 'musala';
 
+    private const TYPE_OPTIONS = [
+        'plant' => 'Musala Plant',
+        'kantor' => 'Musala Kantor',
+    ];
+
     private const EXPECTED_COLUMNS = [
         'slug',
+        'type',
         'title',
         'location',
         'capacity',
         'facilities',
         'desc',
         'image',
+        'sort_order',
+        'status',
     ];
 
     protected GoogleSheetService $sheetService;
+
     protected string $spreadsheetId;
 
     public function __construct(GoogleSheetService $sheetService)
@@ -35,14 +44,45 @@ class MusalaController extends Controller
 
     public function index()
     {
-        $locations = $this->getMusalaCollection();
+        $locations = $this->getActiveMusalaCollection();
 
-        return view('public.musala.index', compact('locations'));
+        $groupedLocations = $locations->groupBy('type');
+
+        $typeOptions = self::TYPE_OPTIONS;
+
+        return view('public.musala.index', compact(
+            'locations',
+            'groupedLocations',
+            'typeOptions'
+        ));
+    }
+
+    public function category(string $type)
+    {
+        $type = $this->normalizeType($type);
+
+        if ($type === '') {
+            abort(404);
+        }
+
+        $locations = $this->getActiveMusalaCollection()
+            ->where('type', $type)
+            ->values();
+
+        $typeOptions = self::TYPE_OPTIONS;
+        $typeLabel = $this->getTypeLabel($type);
+
+        return view('public.musala.category', compact(
+            'locations',
+            'type',
+            'typeLabel',
+            'typeOptions'
+        ));
     }
 
     public function show(string $slug)
     {
-        $musala = $this->getMusalaCollection()
+        $musala = $this->getActiveMusalaCollection()
             ->firstWhere('slug', $slug);
 
         if (! $musala) {
@@ -50,6 +90,13 @@ class MusalaController extends Controller
         }
 
         return view('public.musala.show', compact('musala'));
+    }
+
+    private function getActiveMusalaCollection(): Collection
+    {
+        return $this->getMusalaCollection()
+            ->where('status', 'active')
+            ->values();
     }
 
     private function getMusalaCollection(): Collection
@@ -62,7 +109,6 @@ class MusalaController extends Controller
             return collect();
         }
 
-        // Remove header row.
         $rows->shift();
 
         return $rows
@@ -78,7 +124,15 @@ class MusalaController extends Controller
 
                 return $this->normalizeMusalaData($data);
             })
-            ->filter(fn ($item) => !empty($item['slug']))
+            ->filter(fn ($item) => ! empty($item['slug']))
+            ->sortBy(function ($item) {
+                return sprintf(
+                    '%s-%05d-%s',
+                    $item['type'] ?? '',
+                    (int) ($item['sort_order'] ?? 999),
+                    $item['title'] ?? ''
+                );
+            })
             ->values();
     }
 
@@ -86,9 +140,13 @@ class MusalaController extends Controller
     {
         $title = trim((string) ($data['title'] ?? ''));
         $desc = trim((string) ($data['desc'] ?? ''));
+        $type = $this->normalizeType($data['type'] ?? '');
+        $status = trim((string) ($data['status'] ?? 'active')) ?: 'active';
 
         return [
             'slug' => trim((string) ($data['slug'] ?? '')),
+            'type' => $type,
+            'type_label' => $this->getTypeLabel($type),
             'title' => $title,
             'name' => $title,
             'location' => trim((string) ($data['location'] ?? '')),
@@ -96,18 +154,33 @@ class MusalaController extends Controller
             'facilities' => $this->normalizeFacilities($data['facilities'] ?? ''),
             'desc' => $desc,
             'short_desc' => $desc,
-
             'image' => $this->cleanImageName($data['image'] ?? ''),
+            'sort_order' => trim((string) ($data['sort_order'] ?? '')),
+            'status' => $status,
         ];
     }
 
     private function normalizeFacilities(?string $facilities): array
     {
-        return collect(explode(';', (string) $facilities))
+        return collect(preg_split('/[;,]/', (string) $facilities))
             ->map(fn ($item) => trim($item))
             ->filter()
             ->values()
             ->toArray();
+    }
+
+    private function normalizeType(?string $type): string
+    {
+        $type = strtolower(trim((string) $type));
+
+        return array_key_exists($type, self::TYPE_OPTIONS) ? $type : '';
+    }
+
+    private function getTypeLabel(?string $type): string
+    {
+        $type = $this->normalizeType($type);
+
+        return self::TYPE_OPTIONS[$type] ?? 'Belum Dikategorikan';
     }
 
     private function cleanImageName(?string $imageName): string

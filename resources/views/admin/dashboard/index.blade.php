@@ -563,7 +563,8 @@
                                             'deposit' => 'Setor',
                                             'withdraw' => 'Ambil',
                                             'expense' => 'Kas Keluar',
-                                            default => ucfirst($actionType)
+                                            'salary_deduction' => 'Infaq',
+                                            default => ucfirst(str_replace('_', ' ', $actionType))
                                         };
 
                                         $fundLabel = match($fundType){
@@ -675,27 +676,31 @@
     </div>
 @endif
 
-@endsection
-
-@section('script')
 <script>
-    const tabButtons = document.querySelectorAll('.finance-tab-btn');
-    const tabPanels = document.querySelectorAll('.finance-tab-panel');
+    document.addEventListener('DOMContentLoaded', function () {
+        const tabButtons = document.querySelectorAll('.finance-tab-btn');
+        const tabPanels = document.querySelectorAll('.finance-tab-panel');
 
-    tabButtons.forEach((button) => {
-        button.addEventListener('click', function () {
-            const target = this.dataset.tabTarget;
+        tabButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                const target = button.getAttribute('data-tab-target');
 
-            tabButtons.forEach((item) => item.classList.remove('active'));
-            tabPanels.forEach((panel) => panel.classList.remove('active'));
+                tabButtons.forEach(function (item) {
+                    item.classList.remove('active');
+                });
 
-            this.classList.add('active');
+                tabPanels.forEach(function (panel) {
+                    panel.classList.remove('active');
+                });
 
-            const activePanel = document.querySelector(`[data-tab-panel="${target}"]`);
+                button.classList.add('active');
 
-            if (activePanel) {
-                activePanel.classList.add('active');
-            }
+                const activePanel = document.querySelector('[data-tab-panel="' + target + '"]');
+
+                if (activePanel) {
+                    activePanel.classList.add('active');
+                }
+            });
         });
     });
 </script>

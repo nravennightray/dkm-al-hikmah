@@ -27,7 +27,8 @@ class AdminDashboardController extends Controller
 
     public function index()
     {
-        $currentRole = strtolower(session('sheet_user.role') ?? 'karyawan');
+        $currentRole = strtolower(trim((string) session('sheet_user.role', 'karyawan')));
+        $currentUserId = (string) (session('sheet_user.id_user') ?? '');
         $isAdmin = in_array($currentRole, ['superadmin', 'admin'], true);
 
         $kegiatans = $this->getSheetCollection('kegiatan');
@@ -35,13 +36,24 @@ class AdminDashboardController extends Controller
         $users = $this->getSheetCollection('users');
         $userBalances = $this->getSheetCollection('users_tabungan');
         $kasRows = $this->getSheetCollection('kas_tabungan');
+
         $transactions = $this->getSheetCollection('trx_tabungan')
             ->sortByDesc(fn ($trx) => (int) ($trx['id_transaction'] ?? 0))
             ->values();
 
-        $currentUserId = (string) (session('sheet_user.id_user') ?? '');
-
         $kasBalance = (float) ($kasRows->first()['balance'] ?? 0);
+
+        $dashboardTransactions = $isAdmin
+            ? $transactions
+            : $transactions
+                ->filter(fn ($trx) => $this->transactionBelongsToCurrentUser($trx, $currentUserId))
+                ->values();
+
+        $pendingApprovals = $isAdmin
+            ? $transactions
+                ->filter(fn ($trx) => strtolower(trim((string) ($trx['status'] ?? ''))) === 'pending')
+                ->values()
+            : collect();
 
         $totalQurban = $isAdmin
             ? $userBalances->sum(fn ($row) => (float) ($row['qurban_balance'] ?? 0))
@@ -51,38 +63,21 @@ class AdminDashboardController extends Controller
             ? $userBalances->sum(fn ($row) => (float) ($row['umrah_balance'] ?? 0))
             : (float) ($userBalances->firstWhere('id_user', $currentUserId)['umrah_balance'] ?? 0);
 
-        $dashboardTransactions = $isAdmin
-            ? $transactions
-            : $transactions
-                ->filter(fn ($trx) => (string) ($trx['target_user_id'] ?? '') === $currentUserId
-                    || (string) ($trx['requested_by_id'] ?? '') === $currentUserId)
-                ->values();
-
-        $pendingApprovals = $transactions
-            ->filter(fn ($trx) => strtolower($trx['status'] ?? '') === 'pending')
-            ->values();
-
         $financeTabs = [
             'all' => $dashboardTransactions,
-            'qurban' => $dashboardTransactions
-                ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'qurban')
-                ->values(),
-            'umrah' => $dashboardTransactions
-                ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'umrah')
-                ->values(),
-            'infaq' => $dashboardTransactions
-                ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'infaq')
-                ->values(),
-            'kas' => $dashboardTransactions ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'kas')
-                ->values(),
+            'qurban' => $this->filterByFundType($dashboardTransactions, 'qurban'),
+            'umrah' => $this->filterByFundType($dashboardTransactions, 'umrah'),
+            'infaq' => $this->filterByFundType($dashboardTransactions, 'infaq'),
+            'kas' => $isAdmin
+                ? $this->filterByFundType($dashboardTransactions, 'kas')
+                : collect(),
         ];
 
         $financeStats = [
             'qurban' => $totalQurban,
             'umrah' => $totalUmrah,
             'kas' => $kasBalance,
-            'infaq' => $dashboardTransactions ->filter(fn ($trx) => strtolower($trx['fund_type'] ?? '') === 'infaq' )
-                ->sum(fn ($trx) => (float) ($trx['amount'] ?? 0)),
+            'infaq' => $this->sumApprovedIncoming($financeTabs['infaq']),
             'pending_count' => $pendingApprovals->count(),
         ];
 
@@ -90,7 +85,7 @@ class AdminDashboardController extends Controller
             'total_kegiatans' => $kegiatans->count(),
             'total_categories' => $categories->count(),
             'active_users' => $users
-                ->filter(fn ($user) => strtolower($user['status'] ?? '') === 'active')
+                ->filter(fn ($user) => strtolower(trim((string) ($user['status'] ?? ''))) === 'active')
                 ->count(),
         ];
 
@@ -109,6 +104,40 @@ class AdminDashboardController extends Controller
             'financeTabs',
             'pendingApprovals'
         ));
+    }
+
+    private function transactionBelongsToCurrentUser(array $transaction, string $currentUserId): bool
+    {
+        if ($currentUserId === '') {
+            return false;
+        }
+
+        return (string) ($transaction['target_user_id'] ?? '') === $currentUserId
+            || (string) ($transaction['requested_by_id'] ?? '') === $currentUserId;
+    }
+
+    private function filterByFundType(Collection $transactions, string $fundType): Collection
+    {
+        $fundType = strtolower(trim($fundType));
+
+        return $transactions
+            ->filter(function ($trx) use ($fundType) {
+                return strtolower(trim((string) ($trx['fund_type'] ?? ''))) === $fundType;
+            })
+            ->values();
+    }
+
+    private function sumApprovedIncoming(Collection $transactions): float
+    {
+        return $transactions
+            ->filter(function ($trx) {
+                $status = strtolower(trim((string) ($trx['status'] ?? '')));
+                $actionType = strtolower(trim((string) ($trx['action_type'] ?? '')));
+
+                return $status === 'approved'
+                    && ! in_array($actionType, ['withdraw', 'expense'], true);
+            })
+            ->sum(fn ($trx) => (float) ($trx['amount'] ?? 0));
     }
 
     private function getSheetCollection(string $sheetName): Collection

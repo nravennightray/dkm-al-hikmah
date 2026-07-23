@@ -144,6 +144,7 @@ class AdminKeuanganController extends Controller
     public function storeDeposit(Request $request)
     {
         $currentRole = $this->currentUserRole();
+        $isAdmin = $this->isFinanceAdmin($currentRole);
 
         $rules = [
             'fund_type' => ['required', Rule::in($this->fundTypes)],
@@ -151,17 +152,15 @@ class AdminKeuanganController extends Controller
             'note' => ['nullable', 'string', 'max:500'],
         ];
 
-        if (in_array($currentRole, ['superadmin', 'admin'], true)) {
+        if ($isAdmin) {
             $rules['target_user_id'] = ['required', 'string'];
         }
 
         $validated = $request->validate($rules);
 
-        if (in_array($currentRole, ['superadmin', 'admin'], true)) {
-            $targetUserId = $validated['target_user_id'];
-        } else {
-            $targetUserId = $this->currentUserId();
-        }
+        $targetUserId = $isAdmin
+            ? $validated['target_user_id']
+            : $this->currentUserId();
 
         $targetUser = $this->findUserById($targetUserId);
 
@@ -171,7 +170,7 @@ class AdminKeuanganController extends Controller
                 ->with('error', 'User tujuan tidak ditemukan.');
         }
 
-        $this->appendTransaction([
+        $payload = [
             'target_user_id' => $targetUser['id_user'],
             'target_user_name' => $targetUser['name'],
             'fund_type' => $validated['fund_type'],
@@ -179,11 +178,24 @@ class AdminKeuanganController extends Controller
             'amount' => $validated['amount'],
             'status' => 'pending',
             'note' => $validated['note'] ?? '',
-        ]);
+        ];
+
+        $payload = $this->markPayloadApprovedByAdmin(
+            $payload,
+            'Setoran dicatat dan disetujui otomatis oleh admin.'
+        );
+
+        $this->appendTransaction($payload);
+
+        $this->applyApprovedBalanceEffect($payload, $targetUser);
+
+        $message = $isAdmin
+            ? 'Setoran berhasil dicatat dan otomatis disetujui.'
+            : 'Pengajuan setor tabungan berhasil dikirim dan menunggu persetujuan admin.';
 
         return redirect()
             ->route('admin.keuangan.index')
-            ->with('success', 'Pengajuan setor tabungan berhasil dikirim dan menunggu persetujuan admin.');
+            ->with('success', $message);
     }
 
     public function createWithdraw()
@@ -209,6 +221,7 @@ class AdminKeuanganController extends Controller
     public function storeWithdraw(Request $request)
     {
         $currentRole = $this->currentUserRole();
+        $isAdmin = $this->isFinanceAdmin($currentRole);
 
         $rules = [
             'fund_type' => ['required', Rule::in($this->personalFundTypes)],
@@ -216,17 +229,15 @@ class AdminKeuanganController extends Controller
             'note' => ['nullable', 'string', 'max:500'],
         ];
 
-        if (in_array($currentRole, ['superadmin', 'admin'], true)) {
+        if ($isAdmin) {
             $rules['target_user_id'] = ['required', 'string'];
         }
 
         $validated = $request->validate($rules);
 
-        if (in_array($currentRole, ['superadmin', 'admin'], true)) {
-            $targetUserId = $validated['target_user_id'];
-        } else {
-            $targetUserId = $this->currentUserId();
-        }
+        $targetUserId = $isAdmin
+            ? $validated['target_user_id']
+            : $this->currentUserId();
 
         $targetUser = $this->findUserById($targetUserId);
 
@@ -259,7 +270,7 @@ class AdminKeuanganController extends Controller
                 ->with('error', $message);
         }
 
-        $this->appendTransaction([
+        $payload = [
             'target_user_id' => $targetUser['id_user'],
             'target_user_name' => $targetUser['name'],
             'fund_type' => $validated['fund_type'],
@@ -267,11 +278,24 @@ class AdminKeuanganController extends Controller
             'amount' => $validated['amount'],
             'status' => 'pending',
             'note' => $validated['note'] ?? '',
-        ]);
+        ];
+
+        $payload = $this->markPayloadApprovedByAdmin(
+            $payload,
+            'Penarikan dicatat dan disetujui otomatis oleh admin.'
+        );
+
+        $this->appendTransaction($payload);
+
+        $this->applyApprovedBalanceEffect($payload, $targetUser);
+
+        $message = $isAdmin
+            ? 'Penarikan berhasil dicatat dan otomatis disetujui.'
+            : 'Pengajuan ambil tabungan berhasil dikirim dan menunggu persetujuan admin.';
 
         return redirect()
             ->route('admin.keuangan.index')
-            ->with('success', 'Pengajuan ambil tabungan berhasil dikirim dan menunggu persetujuan admin.');
+            ->with('success', $message);
     }
 
     public function createKasExpense()
@@ -364,19 +388,36 @@ class AdminKeuanganController extends Controller
                 ->with('error', 'Data user tidak ditemukan.');
         }
 
-        $this->appendTransaction([
+        $payload = [
             'target_user_id' => $currentUser['id_user'],
             'target_user_name' => $currentUser['name'],
             'fund_type' => 'infaq',
             'action_type' => 'salary_deduction',
             'amount' => $validated['infaq_amount'],
-            'status' => 'approved',
-            'note' => 'Pemotonan Gaji Infaq - ' . $validated['period_month'] . '/' . $validated['period_year'] . ' - ' . $validated['phone_number'] . (! empty($validated['note']) ? ' - ' . $validated['note'] : ''),
-        ]);
+            'status' => 'pending',
+            'note' => 'Pemotongan Gaji Infaq - '
+                . $validated['period_month']
+                . '/'
+                . $validated['period_year']
+                . ' - '
+                . $validated['phone_number']
+                . (! empty($validated['note']) ? ' - ' . $validated['note'] : ''),
+        ];
+
+        $payload = $this->markPayloadApprovedByAdmin(
+            $payload,
+            'Infaq dicatat dan disetujui otomatis oleh admin.'
+        );
+
+        $this->appendTransaction($payload);
+
+        $message = $this->isFinanceAdmin()
+            ? 'Infaq berhasil dicatat dan otomatis disetujui.'
+            : 'Pengajuan pemotongan gaji infaq berhasil dikirim dan menunggu persetujuan admin.';
 
         return redirect()
             ->route('admin.keuangan.index')
-            ->with('success', 'Pengajuan pemotonan gaji infaq berhasil dikirim dan menunggu persetujuan admin.');
+            ->with('success', $message);
     }
 
     public function approve(Request $request, string $transaction)
@@ -591,6 +632,75 @@ class AdminKeuanganController extends Controller
 
     // PRIVATE METHODS //
 
+
+
+    private function isFinanceAdmin(?string $role = null): bool
+    {
+        $role = $role !== null
+            ? strtolower((string) $role)
+            : $this->currentUserRole();
+
+        return in_array($role, ['superadmin', 'admin'], true);
+    }
+
+    private function markPayloadApprovedByAdmin(array $payload, string $adminNote): array
+    {
+        if (! $this->isFinanceAdmin()) {
+            return $payload;
+        }
+
+        $payload['status'] = 'approved';
+        $payload['admin_note'] = $payload['admin_note'] ?? $adminNote;
+        $payload['approved_by_id'] = $payload['approved_by_id'] ?? $this->currentUserId();
+        $payload['approved_by_name'] = $payload['approved_by_name'] ?? $this->currentUserName();
+        $payload['approved_at'] = $payload['approved_at'] ?? now()->format('Y-m-d H:i:s');
+
+        return $payload;
+    }
+
+    private function applyApprovedBalanceEffect(array $payload, array $targetUser): void
+    {
+        if (($payload['status'] ?? '') !== 'approved') {
+            return;
+        }
+
+        $fundType = $payload['fund_type'] ?? '';
+        $actionType = $payload['action_type'] ?? '';
+        $amount = (float) ($payload['amount'] ?? 0);
+
+        if ($amount <= 0) {
+            return;
+        }
+
+        if ($actionType === 'deposit') {
+            if ($fundType === 'kas') {
+                $this->updateKasBalance($this->getKasBalance() + $amount);
+                return;
+            }
+
+            if (in_array($fundType, $this->personalFundTypes, true)) {
+                $this->increaseUserBalance(
+                    $targetUser['id_user'],
+                    $targetUser['name'],
+                    $fundType,
+                    $amount
+                );
+            }
+
+            return;
+        }
+
+        if ($actionType === 'withdraw') {
+            if (in_array($fundType, $this->personalFundTypes, true)) {
+                $this->decreaseUserBalance(
+                    $targetUser['id_user'],
+                    $targetUser['name'],
+                    $fundType,
+                    $amount
+                );
+            }
+        }
+    }
 
     private function appendTransaction(array $payload): array
     {

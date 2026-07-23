@@ -5,16 +5,59 @@
 @section('css')
 <style>
     .laporan-hero {
-        background: linear-gradient(180deg, rgba(30, 64, 175, 0.98) 0%, rgba(37, 99, 235, 0.95) 55%, rgba(14, 165, 233, 0.92) 100%);
+        background: linear-gradient(
+            180deg,
+            rgba(30, 64, 175, 0.98) 0%,
+            rgba(37, 99, 235, 0.95) 55%,
+            rgba(14, 165, 233, 0.92) 100%
+        );
+    }
+
+    .laporan-breadcrumb {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 9px 15px;
+        margin-bottom: 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.14);
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .laporan-breadcrumb a {
+        color: #ffffff;
+        text-decoration: none;
+    }
+
+    .laporan-breadcrumb a:hover {
+        text-decoration: underline;
     }
 
     .kas-summary-grid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 24px;
         margin-top: -70px;
         position: relative;
         z-index: 2;
+    }
+
+    .kas-summary-grid.summary-count-1 {
+        grid-template-columns: 1fr;
+    }
+
+    .kas-summary-grid.summary-count-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .kas-summary-grid.summary-count-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .kas-summary-grid.summary-count-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .kas-summary-card {
@@ -26,6 +69,10 @@
         padding: 30px;
         position: relative;
         overflow: hidden;
+    }
+
+    .kas-summary-grid.summary-count-4 .kas-summary-card {
+        padding: 24px;
     }
 
     .kas-summary-card::before {
@@ -50,35 +97,6 @@
         display: none;
     }
 
-    .kas-summary-label {
-        margin-bottom: 12px;
-        color: #6c757d;
-        font-size: 13px;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-    }
-
-    .kas-summary-card.solid .kas-summary-label {
-        color: rgba(255, 255, 255, 0.76);
-    }
-
-    .kas-summary-value {
-        margin-bottom: 0;
-        color: #198754;
-        font-size: 36px;
-        font-weight: 900;
-        line-height: 1.1;
-    }
-
-    .kas-summary-card.danger .kas-summary-value {
-        color: #dc3545;
-    }
-
-    .kas-summary-card.solid .kas-summary-value {
-        color: #ffffff;
-    }
-
     .kas-summary-icon {
         width: 52px;
         height: 52px;
@@ -99,6 +117,40 @@
 
     .kas-summary-card.solid .kas-summary-icon {
         background: rgba(255, 255, 255, 0.18);
+        color: #ffffff;
+    }
+
+    .kas-summary-label {
+        margin-bottom: 12px;
+        color: #6c757d;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .kas-summary-card.solid .kas-summary-label {
+        color: rgba(255, 255, 255, 0.76);
+    }
+
+    .kas-summary-value {
+        margin-bottom: 0;
+        color: #198754;
+        font-size: 36px;
+        font-weight: 900;
+        line-height: 1.1;
+        word-break: break-word;
+    }
+
+    .kas-summary-grid.summary-count-4 .kas-summary-value {
+        font-size: 28px;
+    }
+
+    .kas-summary-card.danger .kas-summary-value {
+        color: #dc3545;
+    }
+
+    .kas-summary-card.solid .kas-summary-value {
         color: #ffffff;
     }
 
@@ -131,6 +183,7 @@
         margin-bottom: 0;
         color: #6c757d;
         font-size: 14px;
+        line-height: 1.7;
     }
 
     .kas-update-badge {
@@ -188,6 +241,12 @@
         font-size: 12px;
     }
 
+    .kas-in {
+        color: #198754;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+
     .kas-out {
         color: #dc3545;
         font-weight: 850;
@@ -241,9 +300,19 @@
         box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
     }
 
+    @media (max-width: 1199px) {
+        .kas-summary-grid.summary-count-4 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
     @media (max-width: 991px) {
-        .kas-summary-grid {
-            grid-template-columns: 1fr;
+        .kas-summary-grid,
+        .kas-summary-grid.summary-count-1,
+        .kas-summary-grid.summary-count-2,
+        .kas-summary-grid.summary-count-3,
+        .kas-summary-grid.summary-count-4 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
             margin-top: -40px;
         }
 
@@ -252,16 +321,55 @@
             flex-direction: column;
         }
     }
+
+    @media (max-width: 767px) {
+        .kas-summary-grid,
+        .kas-summary-grid.summary-count-1,
+        .kas-summary-grid.summary-count-2,
+        .kas-summary-grid.summary-count-3,
+        .kas-summary-grid.summary-count-4 {
+            grid-template-columns: 1fr;
+        }
+
+        .kas-summary-value {
+            font-size: 30px;
+        }
+
+        .kas-summary-grid.summary-count-4 .kas-summary-value {
+            font-size: 30px;
+        }
+    }
 </style>
 @endsection
 
 @section('content')
 
+@php
+    $summaryCards = $summaryCards ?? [];
+    $transactions = $transactions ?? collect();
+    $summaryCount = count($summaryCards);
+@endphp
+
 <div class="section-xl laporan-hero">
     <div class="container text-center pt-5">
-        <h1 class="fw-normal text-white display-4">Laporan Keuangan</h1>
+        <div class="laporan-breadcrumb">
+            <a href="{{ url('/') }}">
+                Beranda
+            </a>
+
+            <i class="fas fa-chevron-right small"></i>
+
+            <span>
+                Laporan Keuangan
+            </span>
+        </div>
+
+        <h1 class="fw-normal text-white display-4">
+            {{ $pageTitle ?? 'Laporan Keuangan' }}
+        </h1>
+
         <p class="text-white-50 mb-0">
-            Transparansi penggunaan kas DKM AL HIKMAH secara terbuka.
+            {{ $pageSubtitle ?? 'Transparansi penggunaan kas DKM AL HIKMAH secara terbuka.' }}
         </p>
     </div>
 </div>
@@ -269,59 +377,33 @@
 <div class="section bg-light-gray">
     <div class="container">
 
-        <div class="kas-summary-grid">
-            <div class="kas-summary-card">
-                <div class="kas-summary-icon">
-                    <i class="fas fa-wallet"></i>
+        <div class="kas-summary-grid summary-count-{{ $summaryCount }}">
+            @foreach($summaryCards as $card)
+                <div class="kas-summary-card {{ $card['class'] ?? '' }}">
+                    <div class="kas-summary-icon">
+                        <i class="{{ $card['icon'] ?? 'fas fa-wallet' }}"></i>
+                    </div>
+
+                    <div class="kas-summary-label">
+                        {{ $card['label'] ?? '-' }}
+                    </div>
+
+                    <h2 class="kas-summary-value">
+                        {{ $card['value'] ?? '0' }}
+                    </h2>
                 </div>
-
-                <div class="kas-summary-label">
-                    Saldo Kas Saat Ini
-                </div>
-
-                <h2 class="kas-summary-value">
-                    Rp {{ number_format($kasBalance ?? 0, 0, ',', '.') }}
-                </h2>
-            </div>
-
-            <div class="kas-summary-card danger">
-                <div class="kas-summary-icon">
-                    <i class="fas fa-arrow-up-right-from-square"></i>
-                </div>
-
-                <div class="kas-summary-label">
-                    Total Kas Terpakai
-                </div>
-
-                <h2 class="kas-summary-value">
-                    Rp {{ number_format($totalKeluar ?? 0, 0, ',', '.') }}
-                </h2>
-            </div>
-
-            <div class="kas-summary-card solid">
-                <div class="kas-summary-icon">
-                    <i class="fas fa-circle-check"></i>
-                </div>
-
-                <div class="kas-summary-label">
-                    Transaksi Tercatat
-                </div>
-
-                <h2 class="kas-summary-value">
-                    {{ ($transactions ?? collect())->count() }}
-                </h2>
-            </div>
+            @endforeach
         </div>
 
         <div class="kas-history-card">
             <div class="kas-history-header">
                 <div>
                     <h3 class="kas-history-title">
-                        Riwayat Penggunaan Kas
+                        {{ $tableTitle ?? 'Riwayat Transaksi' }}
                     </h3>
 
                     <p class="kas-history-subtitle">
-                        Hanya menampilkan transaksi kas keluar yang sudah disetujui.
+                        {{ $tableSubtitle ?? 'Menampilkan transaksi keuangan yang tercatat.' }}
                     </p>
                 </div>
 
@@ -331,14 +413,16 @@
                 </span>
             </div>
 
-            @if(($transactions ?? collect())->count())
+            @if($transactions->count())
                 <div class="table-responsive">
                     <table class="table kas-table">
                         <thead>
                             <tr>
                                 <th>Tanggal</th>
+                                <th>Jenis Dana</th>
+                                <th>Aksi</th>
                                 <th>Keterangan</th>
-                                <th class="text-end">Kas Keluar</th>
+                                <th class="text-end">Nominal</th>
                                 <th class="text-center">Bukti</th>
                             </tr>
                         </thead>
@@ -346,16 +430,47 @@
                         <tbody>
                             @foreach($transactions as $trx)
                                 @php
-                                    $approvedAt = $trx['approved_at'] ?? $trx['requested_at'] ?? '-';
+                                    $date = $trx['requested_at'] ?? $trx['created_at'] ?? $trx['approved_at'] ?? '-';
                                     $amount = (float) ($trx['amount'] ?? 0);
-                                    $note = $trx['note'] ?? 'Penggunaan kas';
+
+                                    $fundType = strtolower($trx['fund_type'] ?? '-');
+                                    $actionType = strtolower($trx['action_type'] ?? '-');
+
+                                    $note = $trx['note'] ?? 'Transaksi keuangan';
                                     $code = $trx['transaction_code'] ?? '-';
                                     $evidence = $trx['approval_evidence'] ?? '';
+
+                                    $isOut = in_array($actionType, ['withdraw', 'expense'], true);
+
+                                    $fundLabels = [
+                                        'kas' => 'Kas',
+                                        'qurban' => 'Qurban',
+                                        'umrah' => 'Umrah',
+                                        'infaq' => 'Infaq',
+                                    ];
+
+                                    $actionLabels = [
+                                        'deposit' => 'Setor',
+                                        'withdraw' => 'Ambil',
+                                        'expense' => 'Kas Keluar',
+                                        'salary_deduction' => 'Potong Gaji',
+                                    ];
+
+                                    $fundLabel = $fundLabels[$fundType] ?? ucfirst($fundType);
+                                    $actionLabel = $actionLabels[$actionType] ?? ucfirst(str_replace('_', ' ', $actionType));
                                 @endphp
 
                                 <tr>
                                     <td class="kas-date">
-                                        {{ $approvedAt }}
+                                        {{ $date }}
+                                    </td>
+
+                                    <td>
+                                        <strong>{{ $fundLabel }}</strong>
+                                    </td>
+
+                                    <td>
+                                        {{ $actionLabel }}
                                     </td>
 
                                     <td>
@@ -369,7 +484,8 @@
                                     </td>
 
                                     <td class="text-end">
-                                        <span class="kas-out">
+                                        <span class="{{ $isOut ? 'kas-out' : 'kas-in' }}">
+                                            {{ $isOut ? '-' : '+' }}
                                             Rp {{ number_format($amount, 0, ',', '.') }}
                                         </span>
                                     </td>
@@ -383,7 +499,9 @@
                                                 Lihat Bukti
                                             </a>
                                         @else
-                                            <span class="text-muted small">-</span>
+                                            <span class="text-muted small">
+                                                -
+                                            </span>
                                         @endif
                                     </td>
                                 </tr>
@@ -398,11 +516,11 @@
                     </div>
 
                     <h5 class="fw-bold mb-2">
-                        Belum Ada Penggunaan Kas
+                        Belum Ada Transaksi
                     </h5>
 
                     <p class="text-muted mb-0">
-                        Riwayat penggunaan kas yang sudah disetujui akan muncul di halaman ini.
+                        Riwayat transaksi akan muncul di halaman ini setelah tersedia.
                     </p>
                 </div>
             @endif
@@ -415,10 +533,19 @@
                 </div>
 
                 <div class="col-md-11">
-                    <h5 class="fw-normal mb-1">Komitmen Transparansi</h5>
+                    <h5 class="fw-normal mb-1">
+                        Komitmen Transparansi
+                    </h5>
 
                     <p class="text-muted small mb-0">
-                        Semua laporan penggunaan kas di atas berasal dari transaksi kas yang telah disetujui admin.
+                        @if(($viewMode ?? 'public') === 'public')
+                            Semua laporan penggunaan kas di atas berasal dari transaksi kas yang telah disetujui admin.
+                        @elseif(($viewMode ?? 'public') === 'karyawan')
+                            Data yang ditampilkan merupakan ringkasan transaksi keuangan milik akun Anda.
+                        @else
+                            Data yang ditampilkan merupakan ringkasan seluruh transaksi keuangan yang tercatat di sistem.
+                        @endif
+
                         Jika Anda memiliki pertanyaan mengenai penggunaan dana, silakan hubungi pengurus melalui sekretariat masjid.
                     </p>
                 </div>

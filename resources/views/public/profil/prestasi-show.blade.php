@@ -4,6 +4,29 @@
 
 @section('css')
 <style>
+    .article-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 8px 14px;
+        margin-bottom: 18px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        color: #ffffff;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    @media (max-width: 767px) {
+        .article-breadcrumb {
+            flex-wrap: wrap;
+            border-radius: 18px;
+            line-height: 1.6;
+        }
+    }
     .article-hero {
         background: linear-gradient(
             180deg,
@@ -188,7 +211,7 @@
             <i class="fas fa-chevron-right small"></i>
 
             <span>
-                Detail
+                Detail Prestasi
             </span>
         </div>
 
